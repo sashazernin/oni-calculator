@@ -1,0 +1,84 @@
+.button {
+  /* --btn-bg, --btn-bg-hover, --btn-bg-active, --btn-fg, --btn-ripple: из темы (button.tsx) */
+  --btn-elevation: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  --btn-elevation-active: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 1px 3px 0 rgba(0, 0, 0, 0.14);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 22px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 4px;
+  font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.75;
+  letter-spacing: 0.02857em;
+  text-transform: uppercase;
+  color: var(--btn-fg);
+  background-color: var(--btn-bg);
+  box-shadow: var(--btn-elevation);
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  transition:
+    background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.button:hover:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--btn-bg-hover);
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.button:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--btn-bg-active);
+  box-shadow: var(--btn-elevation-active);
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  color: rgba(0, 0, 0, 0.26);
+  background-color: rgba(0, 0, 0, 0.12);
+  box-shadow: none;
+  cursor: default;
+  pointer-events: none;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--btn-bg);
+  outline-offset: 2px;
+}
+
+.button__ripple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100px;
+  height: 100px;
+  margin-left: -50px;
+  margin-top: -50px;
+  border-radius: 50%;
+  background: var(--btn-ripple);
+  transform: scale(0);
+  animation: button-ripple 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes button-ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}

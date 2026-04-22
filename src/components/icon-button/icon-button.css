@@ -1,0 +1,36 @@
+/* Круглая icon-кнопка: плоский фон + оверлейи из colorOverrides, ripple из button.css */
+.button.icon-button {
+  min-height: 0;
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 0;
+  font-size: 1.5rem; /* 24px — scale для иконок react-icons (em) */
+  box-shadow: none;
+}
+
+.button.icon-button:hover:not(:disabled):not([aria-disabled="true"]) {
+  box-shadow: none;
+}
+
+.button.icon-button:active:not(:disabled):not([aria-disabled="true"]) {
+  box-shadow: none;
+}
+
+/* react-icons: svg по умолчанию от размера шрифта */
+.button.icon-button > svg,
+.button.icon-button [role="img"] {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* фокус: светлое кольцо под белую иконку */
+.button.icon-button:focus-visible {
+  border-radius: 50%;
+  outline: 2px solid rgba(255, 255, 255, 0.45);
+  outline-offset: 2px;
+}
