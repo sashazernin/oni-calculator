@@ -1,10 +1,13 @@
 import type { IconType } from "react-icons";
 import Home from "../pages/home/home";
-import Settings from "../pages/settings/Settings/Settings";
+import Settings from "../pages/settings/Settings";
 import { IoHomeOutline } from "react-icons/io5";
 import { IoHomeSharp } from "react-icons/io5";
 import { GoGear } from "react-icons/go";
 import { FaGear } from "react-icons/fa6";
+import Food from "../pages/food/Food";
+import { IoFastFoodSharp } from "react-icons/io5";
+import { IoFastFoodOutline } from "react-icons/io5";
 export type MenuItem = {
   label: string;
   href: string;
@@ -21,6 +24,13 @@ export const menuItems: MenuItem[] = [
     component: <Home />,
     icon: IoHomeOutline,
     activeIcon: IoHomeSharp
+  },
+  {
+    label: 'Food',
+    href: 'food',
+    component: <Food />,
+    icon: IoFastFoodOutline,
+    activeIcon: IoFastFoodSharp
   },
   {
     label: 'Settings',

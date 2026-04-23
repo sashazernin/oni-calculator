@@ -1,10 +1,8 @@
 import { useContext } from "react";
 import { ThemeContext, type ISupportedThemes } from "../../../providers/AppThemeProvider";
 
-export default function Settings() {
+export default function AppSettings() {
   const { colors, theme, toggleTheme } = useContext(ThemeContext);
-
-  console.log(colors)
 
   return (
     <div>
@@ -13,7 +11,6 @@ export default function Settings() {
         <option value="dark">Dark</option>
         <option value="system">System</option>
       </select>
-      <h1>Settings</h1>
-    </div >
+    </div>
   )
 }

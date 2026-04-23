@@ -4,10 +4,8 @@ import { ThemeContext } from '../../../providers/AppThemeProvider';
 import { Button, type ButtonColorOverrides } from '../../button/Button';
 import { menuItems } from '../../../menu-items/menu-items';
 
-const navItemWhites: ButtonColorOverrides = {
-  main: 'rgba(255, 255, 255, 0.19)',
-  hover: 'rgba(255, 255, 255, 0.29)',
-  active: 'rgba(255, 255, 255, 0.38)',
+/** Текст пунктов меню на цветной плашке — всегда белый */
+const navMenuText: ButtonColorOverrides = {
   contrastText: 'rgba(255, 255, 255, 0.965)',
 };
 
@@ -45,7 +43,8 @@ export default function Navbar() {
             <Button
               key={item.href}
               to={itemPath(item.href)}
-              colorOverrides={active ? navItemActive : navItemWhites}
+              variant="translucent"
+              colorOverrides={active ? navItemActive : undefined}
               style={{
                 borderRadius: '0',
                 padding: '6px 10px',

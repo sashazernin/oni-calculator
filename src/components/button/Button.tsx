@@ -13,6 +13,8 @@ import { ThemeContext } from "../../providers/AppThemeProvider";
 
 type Ripple = { id: number; x: number; y: number };
 
+export type ButtonVariant = "primary" | "translucent";
+
 export type ButtonColorOverrides = Partial<{
   main: string;
   hover: string;
@@ -22,14 +24,22 @@ export type ButtonColorOverrides = Partial<{
   ripple: string;
 }>;
 
+const TRANSLUCENT_SURFACE: ButtonColorOverrides = {
+  main: "rgba(255, 255, 255, 0.19)",
+  hover: "rgba(255, 255, 255, 0.29)",
+  active: "rgba(255, 255, 255, 0.38)",
+};
+
 type ButtonAsLink = Omit<ComponentPropsWithoutRef<typeof Link>, "to"> & {
   to: To;
   disabled?: boolean;
+  variant?: ButtonVariant;
   colorOverrides?: ButtonColorOverrides;
 };
 
 type ButtonAsNative = ButtonHTMLAttributes<HTMLButtonElement> & {
   to?: never;
+  variant?: ButtonVariant;
   colorOverrides?: ButtonColorOverrides;
 };
 
@@ -38,8 +48,17 @@ export type ButtonProps = ButtonAsNative | ButtonAsLink;
 export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
   function Button(props, ref) {
     const { colors } = useContext(ThemeContext);
+    const variant = props.variant ?? "primary";
     const t = colors.primary;
-    const o = props.colorOverrides;
+    const o = {
+      ...(variant === "translucent"
+        ? {
+            ...TRANSLUCENT_SURFACE,
+            contrastText: colors.text.primary,
+          }
+        : {}),
+      ...props.colorOverrides,
+    };
     const main = o?.main ?? t.main;
     const hover = o?.hover ?? t.hover;
     const active = o?.active ?? t.active;
@@ -91,6 +110,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
         style: _st,
         disabled,
         tabIndex,
+        variant: _v,
         colorOverrides: _co,
         ...linkRest
       } = p;
@@ -127,6 +147,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
       type = "button",
       disabled,
       style: _s,
+      variant: _v2,
       colorOverrides: _co2,
       ...rest
     } = props;
