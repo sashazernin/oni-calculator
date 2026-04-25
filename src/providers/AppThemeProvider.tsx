@@ -51,7 +51,7 @@ interface ThemeOptions {
 
 const theme = (appTheme: ISupportedThemes) => {
   const darkPrimary = {
-    main: 'rgb(32 79 76)',
+    main: 'rgb(40 127 121)',
     hover: 'rgb(50 120 118)',
     active: 'rgb(22 58 55)',
     contrastText: '#f0fdff',

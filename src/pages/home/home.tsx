@@ -1,5 +1,3 @@
-import { DupeIcon } from "../../icons";
-
 export default function Home() {
   return (
     <div>

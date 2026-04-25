@@ -11,7 +11,7 @@ export default function Layout() {
       <Header />
       <div style={{ display: 'flex', height: '100%', width: '100%', flexDirection: 'row' }}>
         <Navbar />
-        <div style={{ backgroundColor: colors.background.default, flex: 1, padding: '20px' }}>
+        <div style={{ backgroundColor: colors.background.default, flex: 1, padding: '16px' }}>
           <Outlet />
         </div>
       </div>

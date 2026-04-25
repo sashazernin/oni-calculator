@@ -34,3 +34,8 @@ export interface IFood {
 }
 
 export type GameNode = IFood | ILiquid | IPlant | IResourse;
+
+export interface IDuplicate {
+  name: string;
+  gluttonous: boolean;
+}

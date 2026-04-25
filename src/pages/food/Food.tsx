@@ -8,6 +8,7 @@ import {
 import { food } from "../../game-data/food";
 import type { GameNode, IFood } from "../../types/game-data-types";
 import { ThemeContext } from "../../providers/AppThemeProvider";
+import Box from "../../components/box/box";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
@@ -62,14 +63,6 @@ export default function Food() {
   }, [selectedItem, totalPerCycle]);
 
   const accent = colors.primary.main;
-  const panel = useMemo(
-    (): CSSProperties => ({
-      backgroundColor: colors.background.paper,
-      borderRadius: 12,
-      boxSizing: "border-box",
-    }),
-    [colors.background.paper]
-  );
   const resourceChip = useMemo(
     (): CSSProperties => ({
       display: "inline-flex",
@@ -107,9 +100,8 @@ export default function Food() {
           minHeight: 0,
         }}
       >
-        <div
+        <Box
           style={{
-            ...panel,
             display: "flex",
             flexDirection: "column",
             gap: 10,
@@ -125,7 +117,7 @@ export default function Food() {
               width: "100%",
               minWidth: 0,
               boxSizing: "border-box",
-              minHeight: 30,
+              minHeight: 40,
             }}
           >
             {Object.values(uniqueResourses).map((item) => (
@@ -140,10 +132,9 @@ export default function Food() {
               </div>
             ))}
           </div>
-        </div>
-        <div
+        </Box>
+        <Box
           style={{
-            ...panel,
             padding: 16,
             flex: 1,
             minHeight: 0,
@@ -220,13 +211,11 @@ export default function Food() {
               Выберите еду справа
             </div>
           )}
-        </div>
+        </Box>
       </div>
-      <div
+      <Box
         style={{
-          ...panel,
           width: "40%",
-          padding: 12,
           minHeight: 0,
           overflow: "auto",
         }}
@@ -254,10 +243,10 @@ export default function Food() {
                   colorOverrides={
                     isSelected
                       ? {
-                          main: `color-mix(in srgb, ${accent} 38%, transparent)`,
-                          hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
-                          active: `color-mix(in srgb, ${accent} 54%, transparent)`,
-                        }
+                        main: `color-mix(in srgb, ${accent} 38%, transparent)`,
+                        hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
+                        active: `color-mix(in srgb, ${accent} 54%, transparent)`,
+                      }
                       : undefined
                   }
                   style={{
@@ -311,7 +300,7 @@ export default function Food() {
             );
           })}
         </div>
-      </div>
+      </Box>
     </div>
   );
 }

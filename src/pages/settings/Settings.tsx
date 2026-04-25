@@ -1,15 +1,16 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import AppSettings from "./app/AppSettings";
 import Tabs from "../../components/tabs/Tabs";
 import GameSettings from "./game/GameSettings";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { IoGameController } from "react-icons/io5";
+import { GoGear } from "react-icons/go";
+import Box from "../../components/box/box";
 
 export default function Settings() {
-  const { colors } = useContext(ThemeContext);
   const [tabIndex, setTabIndex] = useState<number>(0);
 
   return (
-    <div style={{ height: '100%', width: '100%', backgroundColor: colors.background.paper }}>
+    <Box style={{ height: 'calc(100% - 32px)', width: 'calc(100% - 32px)' }}>
       <Tabs
         value={tabIndex}
         onChange={(tab) => setTabIndex(tab)}
@@ -20,16 +21,18 @@ export default function Settings() {
         )}
         tabs={[
           {
-            label: 'App'
+            label: "App",
+            icon: <GoGear />,
           },
           {
-            label: 'Game'
-          }
+            label: "Game",
+            icon: <IoGameController />,
+          },
         ]}
       >
         <AppSettings />
         <GameSettings />
       </Tabs>
-    </div >
+    </Box >
   )
 }
