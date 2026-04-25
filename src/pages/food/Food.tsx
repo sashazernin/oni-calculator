@@ -219,7 +219,7 @@ export default function Food() {
                 color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
               }}
             >
-              Выберите еду справа
+              Select food on the right
             </div>
           )}
         </Box>
