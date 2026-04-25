@@ -34,13 +34,18 @@ export default function Food() {
     const mapToTree = (item: GameNode & { total: number }): DependencyTreeNode => {
       const total = (() => {
         const value = "calory" in item ? item.calory : 1;
-        return Math.ceil(item.total / ("cycles" in item ? value / item.cycles : value));
+        const result = item.total / ("cycles" in item ? value / item.cycles : value);
+        if (item.type === "plant") {
+          return Math.ceil(result);
+        } else {
+          return result;
+        }
       })();
 
       if (!uniqueResourses[item.name]) {
-        uniqueResourses[item.name] = { ...item, total };
+        uniqueResourses[item.name] = { ...item, total: Number(total.toFixed(2)) };
       } else {
-        uniqueResourses[item.name].total += total;
+        uniqueResourses[item.name].total += Number(total.toFixed(2));
       }
 
       const result: DependencyTreeNode = {
