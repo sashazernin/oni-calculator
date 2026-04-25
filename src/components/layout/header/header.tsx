@@ -5,6 +5,7 @@ import { IconButton } from "../../icon-button/IconButton";
 import { FaMoon } from "react-icons/fa";
 import { DupeIcon } from "../../../icons";
 import { DuplicantContext } from "../../../providers/duplicant-provider";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   const { colors, toggleTheme } = useContext(ThemeContext);
@@ -39,10 +40,10 @@ export default function Header() {
           ONI Calculator
         </div>
         <div style={{ flex: 1 }}></div>
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <Link to="/settings?tab=game" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4, color: colors.text.primary, textDecoration: 'none' }}>
           <DupeIcon size={25} style={{ color: colors.primary.main }} />
           <span>{duplicants.length}</span>
-        </div>
+        </Link>
         <IconButton onClick={() => toggleTheme(colors.mode === 'dark' ? 'light' : 'dark')}>
           {colors.mode === 'dark' ? <FaMoon /> : <FaRegMoon />}
         </IconButton>
