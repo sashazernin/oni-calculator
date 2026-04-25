@@ -1,5 +1,5 @@
 import { useContext, type CSSProperties, type ReactNode } from "react";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 
 export type DependencyTreeNode = {
   name: string;
@@ -155,8 +155,8 @@ export interface IDependencyTreeProps {
 
 export function DependencyTree({ root, item, nodeSize = 92, style }: IDependencyTreeProps) {
   const { colors } = useContext(ThemeContext);
-  const edgeColor = `color-mix(in srgb, ${colors.text.primary} 45%, transparent)`;
-  const nodeBorder = `color-mix(in srgb, ${colors.text.primary} 35%, transparent)`;
+  const edgeColor = colors.border.main;
+  const nodeBorder = colors.border.main;
   const nodeBg = colors.background.paper;
   const nodeRingShadow = "0 2px 6px color-mix(in srgb, #000 20%, transparent)";
 

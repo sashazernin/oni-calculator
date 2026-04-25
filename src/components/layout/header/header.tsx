@@ -1,11 +1,14 @@
 import { useContext } from "react";
-import { ThemeContext } from "../../../providers/AppThemeProvider";
+import { ThemeContext } from "../../../providers/app-theme-provider";
 import { FaRegMoon } from "react-icons/fa";
 import { IconButton } from "../../icon-button/IconButton";
 import { FaMoon } from "react-icons/fa";
+import { DupeIcon } from "../../../icons";
+import { DuplicantContext } from "../../../providers/duplicant-provider";
 
 export default function Header() {
   const { colors, toggleTheme } = useContext(ThemeContext);
+  const { duplicants } = useContext(DuplicantContext);
   return (
     <div
       style={{
@@ -21,6 +24,7 @@ export default function Header() {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "0 20px",
+          gap: 16,
         }}
       >
         <div
@@ -35,6 +39,10 @@ export default function Header() {
           ONI Calculator
         </div>
         <div style={{ flex: 1 }}></div>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <DupeIcon size={25} style={{ color: colors.primary.main }} />
+          <span>{duplicants.length}</span>
+        </div>
         <IconButton onClick={() => toggleTheme(colors.mode === 'dark' ? 'light' : 'dark')}>
           {colors.mode === 'dark' ? <FaMoon /> : <FaRegMoon />}
         </IconButton>

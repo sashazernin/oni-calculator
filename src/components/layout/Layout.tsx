@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./navbar/Navbar";
 import Header from "./header/header";
 import { useContext } from "react";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 
 export default function Layout() {
   const { colors } = useContext(ThemeContext);

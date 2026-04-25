@@ -1,20 +1,41 @@
-import type { SVGProps } from "react";
+import type { CSSProperties, SVGProps } from "react";
 
-export function DupeIcon({
-  className,
-  style,
-  ...rest
-}: SVGProps<SVGSVGElement>) {
+export type DupeIconProps = Omit<SVGProps<SVGSVGElement>, "width" | "height"> & {
+  size?: number | string;
+};
+
+function sizeToCssLength(size: number | string | undefined, fallback: string): string {
+  if (size === undefined) return fallback;
+  return typeof size === "number" ? `${size}px` : size;
+}
+
+export function DupeIcon({ className, style, size, ...rest }: DupeIconProps) {
+  const h = sizeToCssLength(size, "24px");
+
+  const VIEW_BOX_X = 7.49;
+  const VIEW_BOX_Y = 4.29;
+  const VIEW_BOX_W = 68.78;
+  const VIEW_BOX_H = 118.36;
+  const VIEW_BOX_STR = `${VIEW_BOX_X} ${VIEW_BOX_Y} ${VIEW_BOX_W} ${VIEW_BOX_H}`;
+
+  const merged: CSSProperties = {
+    display: "block",
+    height: h,
+    width: "auto",
+    aspectRatio: `${VIEW_BOX_W} / ${VIEW_BOX_H}`,
+    flexShrink: 0,
+    overflow: "visible",
+    ...style,
+  };
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 62 126"
-      width="1em"
-      height="1em"
+      viewBox={VIEW_BOX_STR}
       preserveAspectRatio="xMidYMid meet"
       className={className}
-      fontSize="2rem"
-      style={style}
+      style={merged}
+      aria-hidden
       {...rest}
     >
       <g

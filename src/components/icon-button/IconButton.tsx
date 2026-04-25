@@ -1,5 +1,5 @@
 import { forwardRef, useContext, type CSSProperties } from "react";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 import { Button, type ButtonColorOverrides, type ButtonProps } from "../button/Button";
 import "./icon-button.css";
 
@@ -24,7 +24,7 @@ function iconButtonBase(
 export const IconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
   function IconButton({ className, children, colorOverrides, style, ...rest }, ref) {
     const { colors } = useContext(ThemeContext);
-    const base = iconButtonBase(colors.translucent, colors.text.primary);
+    const base = iconButtonBase(colors.translucent, colors.primary.main);
     const focusStyle = {
       "--icon-focus": colors.translucent.iconFocus,
       ...style,

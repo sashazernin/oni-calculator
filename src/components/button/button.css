@@ -35,10 +35,11 @@
   background-color: var(--btn-bg-active);
 }
 
+/* светлое по умолчанию; --btn-disabled-* задаётся в Button.tsx от темы */
 .button:disabled,
 .button[aria-disabled="true"] {
-  color: rgba(0, 0, 0, 0.26);
-  background-color: rgba(0, 0, 0, 0.12);
+  color: var(--btn-disabled-fg, rgba(0, 0, 0, 0.26));
+  background-color: var(--btn-disabled-bg, rgba(0, 0, 0, 0.12));
   box-shadow: none;
   cursor: default;
   pointer-events: none;

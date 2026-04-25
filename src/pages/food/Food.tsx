@@ -7,18 +7,24 @@ import {
 } from "../../components/dependency-tree/DependencyTree";
 import { food } from "../../game-data/food";
 import type { GameNode, IFood } from "../../types/game-data-types";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 import Box from "../../components/box/box";
+import { DuplicantContext } from "../../providers/duplicant-provider";
+import { duplicantInfo } from "../../game-data/dublicantInfo";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
 
   const [selectedItem, setSelectedItem] = useState<IFood | null>(null);
 
-  const dupeReq = 1000;
-  const dupeCount = 3;
+  const { duplicants } = useContext(DuplicantContext);
 
-  const totalPerCycle = useMemo(() => dupeReq * dupeCount, [dupeReq, dupeCount]);
+  const totalPerCycle = useMemo(() => (
+    duplicants.reduce((acc, duplicate) =>
+      acc + 1000 + (duplicate.gluttonous ? duplicantInfo.gluttonous : 0),
+      0
+    )
+  ), [duplicants]);
 
   const { tree, uniqueResourses } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }> } => {
     if (!selectedItem) return { tree: null, uniqueResourses: {} };

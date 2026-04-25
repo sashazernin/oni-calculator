@@ -11,7 +11,7 @@ import {
   type MutableRefObject,
   type ReactNode,
 } from "react";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 
 const BOX = 18;
 const RADIUS = 4;
@@ -53,8 +53,6 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const generatedId = useId();
     const id = idProp ?? `chk-${generatedId}`;
     const innerRef = useRef<HTMLInputElement | null>(null);
-    const [focused, setFocused] = useState(false);
-
     const isControlled = checkedProp !== undefined;
     const [uncontrolledChecked, setUncontrolledChecked] = useState(
       Boolean(defaultChecked)
@@ -76,7 +74,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       }
     }, [indeterminate]);
 
-    const borderIdle = `color-mix(in srgb, ${colors.text.primary} 35%, transparent)`;
+    const borderIdle = colors.border.main;
     const primary = colors.primary.main;
     const onPrimary = colors.primary.contrastText;
 
@@ -99,13 +97,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       margin: 0,
       flexShrink: 0,
       boxSizing: "border-box",
-      border: `2px solid ${
-        isVisuallyChecked || isVisuallyIndeterminate
-          ? primary
-          : focused
-            ? primary
-            : borderIdle
-      }`,
+      border: `2px solid ${isVisuallyChecked || isVisuallyIndeterminate ? primary : borderIdle
+        }`,
       borderRadius: RADIUS,
       backgroundColor: isVisuallyChecked
         ? primary
@@ -120,13 +113,11 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       backgroundRepeat: "no-repeat",
       backgroundPosition: "center",
       backgroundSize: isVisuallyIndeterminate ? "12px" : "12px 12px",
-      boxShadow: focused
-        ? `0 0 0 3px color-mix(in srgb, ${primary} 28%, transparent)`
-        : "none",
+      boxShadow: "none",
+      outline: "none",
       cursor: disabled ? "not-allowed" : "pointer",
       opacity: disabled ? 0.45 : 1,
-      transition:
-        "border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease",
+      transition: "border-color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease",
       ...inputStyle,
     };
 
@@ -140,14 +131,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         checked={isControlled ? checkedProp : undefined}
         defaultChecked={isControlled ? undefined : defaultChecked}
         onChange={handleChange}
-        onFocus={(e) => {
-          setFocused(true);
-          onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          setFocused(false);
-          onBlur?.(e);
-        }}
+        onFocus={onFocus}
+        onBlur={onBlur}
         style={controlStyle}
         aria-checked={isVisuallyIndeterminate ? "mixed" : checked}
       />

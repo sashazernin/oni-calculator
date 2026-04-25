@@ -9,7 +9,7 @@ import {
 } from "react";
 import { Link, type To } from "react-router-dom";
 import "./button.css";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 
 type Ripple = { id: number; x: number; y: number };
 
@@ -48,11 +48,11 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
     const o = {
       ...(variant === "translucent"
         ? {
-            main: tr.main,
-            hover: tr.hover,
-            active: tr.active,
-            contrastText: colors.text.primary,
-          }
+          main: tr.main,
+          hover: tr.hover,
+          active: tr.active,
+          contrastText: colors.text.primary,
+        }
         : {}),
       ...props.colorOverrides,
     };
@@ -62,7 +62,19 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
     const contrastText = o?.contrastText ?? t.contrastText;
     const ripple =
       o?.ripple ?? `color-mix(in srgb, ${hover} 52%, transparent)`;
+    const disabledStyleVars = (
+      colors.mode === "dark"
+        ? {
+          "--btn-disabled-fg": "rgba(255, 255, 255, 0.4)",
+          "--btn-disabled-bg": "rgba(255, 255, 255, 0.1)",
+        }
+        : {
+          "--btn-disabled-fg": "rgba(0, 0, 0, 0.26)",
+          "--btn-disabled-bg": "rgba(0, 0, 0, 0.12)",
+        }
+    ) as CSSProperties;
     const buttonStyle = {
+      ...disabledStyleVars,
       "--btn-bg": main,
       "--btn-bg-hover": hover,
       "--btn-bg-active": active,

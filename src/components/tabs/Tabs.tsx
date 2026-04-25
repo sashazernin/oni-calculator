@@ -8,7 +8,7 @@ import {
   type ReactNode,
   Children,
 } from "react";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 import { Button } from "../button/Button";
 
 interface ITabsProps {
@@ -36,7 +36,7 @@ export default function Tabs({
 }: Readonly<ITabsProps>) {
   const { colors } = useContext(ThemeContext);
   const panelBg = colors.background.paper;
-  const borderColor = `color-mix(in srgb, ${colors.text.primary} 22%, transparent)`;
+  const lineColor = colors.border.main;
   const primary = colors.primary.main;
 
   const trackRef = useRef<HTMLDivElement>(null);
@@ -152,7 +152,7 @@ export default function Tabs({
             right: 0,
             bottom: 0,
             height: 1,
-            backgroundColor: borderColor,
+            backgroundColor: lineColor,
             pointerEvents: "none",
           }}
         />
@@ -193,7 +193,7 @@ export default function Tabs({
             return (
               <div
                 key={index}
-                style={{ position: "relative", minHeight: "100%", width: "100%" }}
+                style={{ position: "relative", height: "100%", width: "100%" }}
               >
                 {container ? container(page) : page}
               </div>

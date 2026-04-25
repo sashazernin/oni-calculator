@@ -1,0 +1,31 @@
+.dupe-card {
+  position: relative;
+}
+
+.dupe-card__actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 2px;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.dupe-card:hover .dupe-card__actions,
+.dupe-card:focus-within .dupe-card__actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Меньше стандартной icon-button (40px / 1.5rem) */
+.dupe-card__action-btn.button.icon-button {
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  font-size: 0.875rem;
+  padding: 0;
+}

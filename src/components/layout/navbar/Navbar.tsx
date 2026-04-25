@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ThemeContext } from '../../../providers/AppThemeProvider';
+import { ThemeContext } from '../../../providers/app-theme-provider';
 import { Button, type ButtonColorOverrides } from '../../button/Button';
 import { menuItems } from '../../../menu-items/menu-items';
 

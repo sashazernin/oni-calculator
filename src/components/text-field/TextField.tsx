@@ -7,7 +7,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from "react";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 
 const FLOAT_MS = 0.2;
 /** Высота видимой строки ввода (нативный input). */
@@ -64,7 +64,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 
     const primary = colors.primary.main;
     const paper = colors.background.paper;
-    const subtleBorder = `color-mix(in srgb, ${colors.text.primary} 22%, transparent)`;
+    const defaultBorder = colors.border.main;
     const errorColor = "rgb(211, 64, 64)";
     const labelPlaceholder = `color-mix(in srgb, ${colors.text.primary} 50%, ${paper})`;
     const labelFloatMuted = `color-mix(in srgb, ${colors.text.primary} 70%, ${paper})`;
@@ -76,7 +76,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       ? errorColor
       : focused
         ? primary
-        : subtleBorder;
+        : defaultBorder;
 
     const boxShadow = showError
       ? (focused ? errorRing : "none")
@@ -166,15 +166,15 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         style={
           hasLabel
             ? {
-                ...sharedInputStyle,
-                position: "relative",
-                zIndex: 2,
-              }
+              ...sharedInputStyle,
+              position: "relative",
+              zIndex: 2,
+            }
             : {
-                ...sharedInputStyle,
-                backgroundColor: "transparent",
-                boxShadow: "none",
-              }
+              ...sharedInputStyle,
+              backgroundColor: "transparent",
+              boxShadow: "none",
+            }
         }
         {...inputRest}
       />
@@ -194,48 +194,48 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       >
         {hasLabel
           ? fieldShell(
-              <>
-                <label
-                  htmlFor={id}
-                  style={{
-                    position: "absolute",
-                    left: FIELD_PAD_X,
-                    maxWidth: `calc(100% - ${FIELD_PAD_X * 2}px)`,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    pointerEvents: "none" as const,
-                    userSelect: "none" as const,
-                    lineHeight: 1.2,
-                    fontWeight: 500,
-                    zIndex: 1,
-                    transformOrigin: "left top",
-                    transition: `top ${FLOAT_MS}s ease, transform ${FLOAT_MS}s ease, font-size ${FLOAT_MS}s ease, color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease, padding ${FLOAT_MS}s ease`,
-                    ...(float
-                      ? {
-                          top: 0,
-                          transform: "translateY(-50%)",
-                          fontSize: "0.6875rem",
-                          padding: "0 3px",
-                          color: labelTextColor,
-                          backgroundColor: paper,
-                        }
-                      : {
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          fontSize: "0.875rem",
-                          padding: 0,
-                          color: labelTextColor,
-                          backgroundColor: "transparent",
-                        }),
-                  }}
-                >
-                  {label}
-                </label>
-                {inputEl}
-              </>,
-              { marginTop: 6 }
-            )
+            <>
+              <label
+                htmlFor={id}
+                style={{
+                  position: "absolute",
+                  left: FIELD_PAD_X,
+                  maxWidth: `calc(100% - ${FIELD_PAD_X * 2}px)`,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  pointerEvents: "none" as const,
+                  userSelect: "none" as const,
+                  lineHeight: 1.2,
+                  fontWeight: 500,
+                  zIndex: 1,
+                  transformOrigin: "left top",
+                  transition: `top ${FLOAT_MS}s ease, transform ${FLOAT_MS}s ease, font-size ${FLOAT_MS}s ease, color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease, padding ${FLOAT_MS}s ease`,
+                  ...(float
+                    ? {
+                      top: 0,
+                      transform: "translateY(-50%)",
+                      fontSize: "0.6875rem",
+                      padding: "0 3px",
+                      color: labelTextColor,
+                      backgroundColor: paper,
+                    }
+                    : {
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      fontSize: "0.875rem",
+                      padding: 0,
+                      color: labelTextColor,
+                      backgroundColor: "transparent",
+                    }),
+                }}
+              >
+                {label}
+              </label>
+              {inputEl}
+            </>,
+            { marginTop: 6 }
+          )
           : fieldShell(inputEl)}
         {showError ? (
           <span

@@ -40,6 +40,10 @@ interface ThemeOptions {
   shadow: {
     default: string;
   };
+  /** Нейтральные обводки (панели, поля в покое, разделители). */
+  border: {
+    main: string;
+  };
   translucent: {
     main: string;
     hover: string;
@@ -67,12 +71,21 @@ const theme = (appTheme: ISupportedThemes) => {
   const pDark = darkPrimary.main;
   const pLight = lightPrimary.main;
 
+  const darkBg = {
+    default: '#2d2d2d',
+    paper: '#252525',
+    average: `color-mix(in srgb, rgb(232, 232, 232) 7%, rgb(37, 37, 37))`
+  } as const;
+  const lightBg = {
+    default: '#f5f5f5',
+    paper: '#ffffff',
+    average: `color-mix(in srgb, rgb(31, 31, 31) 7%, rgb(255, 255, 255))`,
+  } as const;
+
   const darkSchema: ThemeOptions = {
     mode: 'dark',
     background: {
-      default: '#2d2d2d',
-      paper: '#252525',
-      average: '#1e1e1e'
+      ...darkBg
     },
     primary: darkPrimary,
     text: {
@@ -83,6 +96,9 @@ const theme = (appTheme: ISupportedThemes) => {
     },
     shadow: {
       default: '0 0 10px 0 rgba(0, 0, 0, 0.5)'
+    },
+    border: {
+      main: 'rgba(255, 255, 255, 0.12)',
     },
     translucent: {
       main: `color-mix(in srgb, ${pDark} 28%, transparent)`,
@@ -96,9 +112,7 @@ const theme = (appTheme: ISupportedThemes) => {
   const lightSchema: ThemeOptions = {
     mode: 'light',
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
-      average: '#e8e8e8'
+      ...lightBg
     },
     primary: lightPrimary,
     text: {
@@ -109,6 +123,9 @@ const theme = (appTheme: ISupportedThemes) => {
     },
     shadow: {
       default: '0 0 10px 0 rgba(0, 0, 0, 0.5)'
+    },
+    border: {
+      main: 'rgba(0, 0, 0, 0.12)',
     },
     translucent: {
       main: `color-mix(in srgb, ${pLight} 16%, transparent)`,
@@ -168,6 +185,10 @@ export function AppThemeProvider({
     document.documentElement.style.setProperty(
       '--text-primary',
       colors.text.primary
+    );
+    document.documentElement.style.setProperty(
+      '--border',
+      colors.border.main
     );
   }, [colors]);
 

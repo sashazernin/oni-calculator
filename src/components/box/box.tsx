@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ThemeContext } from "../../providers/AppThemeProvider";
+import { ThemeContext } from "../../providers/app-theme-provider";
 
 interface IBoxProps {
   style?: React.CSSProperties;

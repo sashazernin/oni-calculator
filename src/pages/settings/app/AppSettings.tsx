@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ThemeContext, type ISupportedThemes } from "../../../providers/AppThemeProvider";
+import { ThemeContext, type ISupportedThemes } from "../../../providers/app-theme-provider";
 
 export default function AppSettings() {
   const { theme, toggleTheme } = useContext(ThemeContext);
