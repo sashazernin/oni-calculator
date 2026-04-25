@@ -23,6 +23,7 @@ interface ThemeOptions {
   background: {
     default: string;
     paper: string;
+    average: string;
   };
   primary: {
     main: string;
@@ -36,47 +37,86 @@ interface ThemeOptions {
   layout: {
     background: string;
   };
+  shadow: {
+    default: string;
+  };
+  translucent: {
+    main: string;
+    hover: string;
+    active: string;
+    iconFocus: string;
+    iconRipple: string;
+  };
 }
 
 const theme = (appTheme: ISupportedThemes) => {
+  const darkPrimary = {
+    main: 'rgb(32 79 76)',
+    hover: 'rgb(50 120 118)',
+    active: 'rgb(22 58 55)',
+    contrastText: '#f0fdff',
+  } satisfies ThemeOptions['primary'];
+
+  const lightPrimary = {
+    main: 'rgb(84 201 194)',
+    hover: 'rgb(120 220 214)',
+    active: 'rgb(50 150 145)',
+    contrastText: '#ffffff',
+  } satisfies ThemeOptions['primary'];
+
+  const pDark = darkPrimary.main;
+  const pLight = lightPrimary.main;
+
   const darkSchema: ThemeOptions = {
     mode: 'dark',
     background: {
-      default: 'rgb(17 34 41)',
-      paper: '#0d1e25'
+      default: '#2d2d2d',
+      paper: '#252525',
+      average: '#1e1e1e'
     },
-    primary: {
-      main: 'rgb(34 187 201)', // морской неон
-      hover: 'rgb(72 210 220)',
-      active: 'rgb(22 150 170)',
-      contrastText: '#f0fdff'
-    },
+    primary: darkPrimary,
     text: {
-      primary: '#d2eef2'
+      primary: '#e8e8e8'
     },
     layout: {
-      background: 'rgb(7 46 53)'
-    }
+      background: '#252525'
+    },
+    shadow: {
+      default: '0 0 10px 0 rgba(0, 0, 0, 0.5)'
+    },
+    translucent: {
+      main: `color-mix(in srgb, ${pDark} 28%, transparent)`,
+      hover: `color-mix(in srgb, ${pDark} 40%, transparent)`,
+      active: `color-mix(in srgb, ${pDark} 50%, transparent)`,
+      iconFocus: `color-mix(in srgb, ${pDark} 55%, transparent)`,
+      iconRipple: `color-mix(in srgb, ${pDark} 34%, transparent)`,
+    },
   };
 
   const lightSchema: ThemeOptions = {
     mode: 'light',
     background: {
-      default: '#f0fbfc',
-      paper: '#e1f2f0'
+      default: '#f5f5f5',
+      paper: '#ffffff',
+      average: '#e8e8e8'
     },
-    primary: {
-      main: 'rgb(11 128 140)',
-      hover: 'rgb(16 155 170)',
-      active: 'rgb(8 105 116)',
-      contrastText: '#ffffff'
-    },
+    primary: lightPrimary,
     text: {
-      primary: '#0a2f38'
+      primary: '#1f1f1f'
     },
     layout: {
-      background: 'rgb(10 130 145)'
-    }
+      background: '#e8e8e8'
+    },
+    shadow: {
+      default: '0 0 10px 0 rgba(0, 0, 0, 0.5)'
+    },
+    translucent: {
+      main: `color-mix(in srgb, ${pLight} 16%, transparent)`,
+      hover: `color-mix(in srgb, ${pLight} 24%, transparent)`,
+      active: `color-mix(in srgb, ${pLight} 32%, transparent)`,
+      iconFocus: `color-mix(in srgb, ${pLight} 52%, transparent)`,
+      iconRipple: `color-mix(in srgb, ${pLight} 34%, transparent)`,
+    },
   };
 
   const themeColors = (() => {

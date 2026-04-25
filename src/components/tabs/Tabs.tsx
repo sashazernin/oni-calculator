@@ -24,7 +24,7 @@ export default function Tabs({
 }: Readonly<ITabsProps>) {
   const { colors } = useContext(ThemeContext);
   const borderColor = `color-mix(in srgb, ${colors.text.primary} 25%, transparent)`;
-  const tabBg = 'rgb(12 26 33)';
+  const tabBg = colors.background.average;
   const panelBg = colors.background.paper;
 
   const rootStyle: CSSProperties = {

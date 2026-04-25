@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo, useState, type CSSProperties } from "react";
 import { AssetImage } from "../../components/asset-image/AssetImage";
 import { Button } from "../../components/button/Button";
 import {
@@ -61,47 +61,94 @@ export default function Food() {
     return { tree: mapToTree({ ...selectedItem, total: totalPerCycle }), uniqueResourses };
   }, [selectedItem, totalPerCycle]);
 
+  const accent = colors.primary.main;
+  const panel = useMemo(
+    (): CSSProperties => ({
+      backgroundColor: colors.background.paper,
+      borderRadius: 12,
+      boxSizing: "border-box",
+    }),
+    [colors.background.paper]
+  );
+  const resourceChip = useMemo(
+    (): CSSProperties => ({
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 8,
+      padding: "6px 12px",
+      borderRadius: 10,
+      background: `color-mix(in srgb, ${colors.text.primary} 7%, ${colors.background.paper})`,
+      fontSize: "0.8125rem",
+      fontWeight: 600,
+      color: colors.text.primary,
+      minWidth: 0,
+    }),
+    [colors.background.paper, colors.text.primary]
+  );
+
   return (
-    <div style={{ display: "flex", gap: "20px", alignItems: "flex-start", height: '100%' }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "60%", minWidth: 0, gap: '20px', height: '100%' }}>
-        <div style={{
+    <div
+      style={{
+        display: "flex",
+        gap: 16,
+        alignItems: "stretch",
+        height: "100%",
+        minHeight: 0,
+      }}
+    >
+      <div
+        style={{
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
-          backgroundColor: colors.background.paper,
-          padding: "10px",
-        }}>
+          width: "60%",
+          minWidth: 0,
+          gap: 14,
+          height: "100%",
+          minHeight: 0,
+        }}
+      >
+        <div
+          style={{
+            ...panel,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            padding: 12,
+          }}
+        >
           <div
             style={{
               flex: 1,
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
-              gap: "clamp(10px, 2.5vw, 10px)",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
               width: "100%",
               minWidth: 0,
               boxSizing: "border-box",
-              minHeight: '30px'
+              minHeight: 30,
             }}
           >
             {Object.values(uniqueResourses).map((item) => (
-              <div key={item.name} style={{ display: "flex", alignItems: 'center', gap: 4 }}>
+              <div key={item.name} style={resourceChip}>
                 <AssetImage
                   pathRelativeToAssets={item.image}
                   alt={item.name}
-                  width="30px"
-                  height="30px"
+                  width={28}
+                  height={28}
                 />
-                <div >{item.total}</div>
+                <span>{item.total}</span>
               </div>
             ))}
           </div>
         </div>
         <div
           style={{
-            backgroundColor: colors.background.paper,
-            padding: "20px",
-            height: 'calc(100% - 40px)'
+            ...panel,
+            padding: 16,
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {tree ? (
@@ -134,6 +181,7 @@ export default function Food() {
                       fontWeight: 600,
                       fontSize: "0.65rem",
                       lineHeight: 1.15,
+                      color: colors.text.primary,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       display: "-webkit-box",
@@ -146,8 +194,8 @@ export default function Food() {
                   <div
                     style={{
                       fontSize: "0.6rem",
-                      opacity: 0.88,
                       lineHeight: 1,
+                      color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
                     }}
                   >
                     {Number.isInteger(node.total)
@@ -157,67 +205,113 @@ export default function Food() {
                 </div>
               )}
             />
-          ) : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 600 }}>
-            Нет данных
-          </div>}
-
+          ) : (
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.95rem",
+                fontWeight: 500,
+                color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
+              }}
+            >
+              Выберите еду справа
+            </div>
+          )}
         </div>
       </div>
-      <div style={{
-        backgroundColor: colors.background.paper,
-        width: "40%",
-        padding: "10px",
-        height: 'calc(100% - 20px)',
-      }}>
+      <div
+        style={{
+          ...panel,
+          width: "40%",
+          padding: 12,
+          minHeight: 0,
+          overflow: "auto",
+        }}
+      >
         <div
           style={{
             display: "grid",
             gridTemplateColumns:
               "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
-            gap: "clamp(10px, 2.5vw, 10px)",
+            gap: 10,
             minWidth: 0,
             boxSizing: "border-box",
           }}
         >
-          {Object.values(food).map((item) => (
-            <div
-              key={item.name}
-              style={{ display: "flex", minWidth: 0, minHeight: 0 }}
-            >
-              <Button
-                variant="translucent"
-                style={{
-                  width: "100%",
-                  aspectRatio: "1",
-                  minHeight: 0,
-                  padding: "clamp(6px, 2vw, 12px)",
-                  boxSizing: "border-box",
-                }}
-                onClick={() => setSelectedItem(item)}
+          {Object.values(food).map((item) => {
+            const isSelected = selectedItem?.name === item.name;
+            return (
+              <div
+                key={item.name}
+                style={{ display: "flex", minWidth: 0, minHeight: 0 }}
               >
-                <div
+                <Button
+                  variant="translucent"
+                  className="button--natural-case"
+                  colorOverrides={
+                    isSelected
+                      ? {
+                          main: `color-mix(in srgb, ${accent} 38%, transparent)`,
+                          hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
+                          active: `color-mix(in srgb, ${accent} 54%, transparent)`,
+                        }
+                      : undefined
+                  }
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                    height: "100%",
                     width: "100%",
+                    aspectRatio: "1",
+                    minHeight: 0,
+                    padding: "clamp(8px, 2vw, 12px)",
+                    boxSizing: "border-box",
+                    borderRadius: 10,
                   }}
+                  onClick={() => setSelectedItem(item)}
                 >
-                  <div>{item.name}</div>
-                  <AssetImage
-                    pathRelativeToAssets={item.image}
-                    alt={item.name}
-                    width="100%"
-                    height="100%"
-                  />
-                </div>
-              </Button>
-            </div>
-          ))}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                      height: "100%",
+                      width: "100%",
+                      color: "inherit",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "0.75rem",
+                        lineHeight: 1.2,
+                        color: "inherit",
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                    <div
+                      style={{
+                        flex: 1,
+                        minHeight: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <AssetImage
+                        pathRelativeToAssets={item.image}
+                        alt={item.name}
+                        width="100%"
+                        height="100%"
+                      />
+                    </div>
+                  </div>
+                </Button>
+              </div>
+            );
+          })}
         </div>
       </div>
-
     </div>
   );
 }

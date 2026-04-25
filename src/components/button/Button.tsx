@@ -24,12 +24,6 @@ export type ButtonColorOverrides = Partial<{
   ripple: string;
 }>;
 
-const TRANSLUCENT_SURFACE: ButtonColorOverrides = {
-  main: "rgba(255, 255, 255, 0.19)",
-  hover: "rgba(255, 255, 255, 0.29)",
-  active: "rgba(255, 255, 255, 0.38)",
-};
-
 type ButtonAsLink = Omit<ComponentPropsWithoutRef<typeof Link>, "to"> & {
   to: To;
   disabled?: boolean;
@@ -50,10 +44,13 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
     const { colors } = useContext(ThemeContext);
     const variant = props.variant ?? "primary";
     const t = colors.primary;
+    const tr = colors.translucent;
     const o = {
       ...(variant === "translucent"
         ? {
-            ...TRANSLUCENT_SURFACE,
+            main: tr.main,
+            hover: tr.hover,
+            active: tr.active,
             contrastText: colors.text.primary,
           }
         : {}),

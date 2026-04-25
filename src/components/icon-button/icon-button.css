@@ -28,9 +28,9 @@
   flex-shrink: 0;
 }
 
-/* фокус: светлое кольцо под белую иконку */
+/* фокус: кольцо из --icon-focus (тема в IconButton) */
 .button.icon-button:focus-visible {
   border-radius: 50%;
-  outline: 2px solid rgba(255, 255, 255, 0.45);
+  outline: 2px solid var(--icon-focus, rgba(255, 255, 255, 0.45));
   outline-offset: 2px;
 }

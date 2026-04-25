@@ -26,9 +26,10 @@ type BranchProps = {
   edgeColor: string;
   nodeBorder: string;
   nodeBg: string;
+  nodeRingShadow: string;
 };
 
-function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg }: BranchProps) {
+function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg, nodeRingShadow }: BranchProps) {
   const children = node.children;
   const n = children?.length ?? 0;
 
@@ -44,7 +45,7 @@ function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg }: BranchP
     justifyContent: "center",
     overflow: "hidden",
     flexShrink: 0,
-    boxShadow: "0 2px 6px rgba(0,0,0,0.18)",
+    boxShadow: nodeRingShadow,
   };
 
   const vLine: CSSProperties = {
@@ -71,6 +72,7 @@ function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg }: BranchP
           edgeColor={edgeColor}
           nodeBorder={nodeBorder}
           nodeBg={nodeBg}
+          nodeRingShadow={nodeRingShadow}
         />
       </div>
     );
@@ -133,6 +135,7 @@ function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg }: BranchP
                   edgeColor={edgeColor}
                   nodeBorder={nodeBorder}
                   nodeBg={nodeBg}
+                  nodeRingShadow={nodeRingShadow}
                 />
               </div>
             ))}
@@ -155,6 +158,7 @@ export function DependencyTree({ root, item, nodeSize = 92, style }: IDependency
   const edgeColor = `color-mix(in srgb, ${colors.text.primary} 45%, transparent)`;
   const nodeBorder = `color-mix(in srgb, ${colors.text.primary} 35%, transparent)`;
   const nodeBg = colors.background.paper;
+  const nodeRingShadow = "0 2px 6px color-mix(in srgb, #000 20%, transparent)";
 
   if (!root) {
     return null;
@@ -178,6 +182,7 @@ export function DependencyTree({ root, item, nodeSize = 92, style }: IDependency
           edgeColor={edgeColor}
           nodeBorder={nodeBorder}
           nodeBg={nodeBg}
+          nodeRingShadow={nodeRingShadow}
         />
       </div>
     </div>

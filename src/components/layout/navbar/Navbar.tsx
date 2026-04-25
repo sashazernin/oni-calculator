@@ -1,22 +1,23 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ThemeContext } from '../../../providers/AppThemeProvider';
 import { Button, type ButtonColorOverrides } from '../../button/Button';
 import { menuItems } from '../../../menu-items/menu-items';
 
-/** Текст пунктов меню на цветной плашке — всегда белый */
-const navMenuText: ButtonColorOverrides = {
-  contrastText: 'rgba(255, 255, 255, 0.965)',
-};
-
-/** Подсветка текущей страницы в сайдбаре */
-const navItemActive: ButtonColorOverrides = {
-  main: 'rgba(255, 255, 255, 0.32)',
-  hover: 'rgba(255, 255, 255, 0.4)',
-  active: 'rgba(255, 255, 255, 0.48)',
-  contrastText: 'rgba(255, 255, 255, 0.99)',
-  ripple: 'color-mix(in srgb, rgba(255, 255, 255, 0.5) 45%, transparent)',
-};
+function navItemActive(
+  main: string,
+  mode: 'light' | 'dark',
+  textPrimary: string
+): ButtonColorOverrides {
+  const a = mode === 'dark' ? 32 : 20;
+  return {
+    main: `color-mix(in srgb, ${main} ${a}%, transparent)`,
+    hover: `color-mix(in srgb, ${main} ${a + 10}%, transparent)`,
+    active: `color-mix(in srgb, ${main} ${a + 16}%, transparent)`,
+    contrastText: textPrimary,
+    ripple: `color-mix(in srgb, ${main} 38%, transparent)`,
+  };
+}
 
 function itemPath(href: string) {
   return href === '' ? '/' : `/${href}`;
@@ -31,10 +32,19 @@ function isItemActive(pathname: string, href: string) {
 export default function Navbar() {
   const { colors } = useContext(ThemeContext);
   const { pathname } = useLocation();
-
+  const activeNav = useMemo(
+    () => navItemActive(colors.primary.main, colors.mode, colors.text.primary),
+    [colors.primary.main, colors.mode, colors.text.primary]
+  );
+  const activeMark = `3px solid ${colors.primary.main}`;
   return (
-    <div style={{ backgroundColor: colors.layout.background, minWidth: '200px' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+    <div
+      style={{
+        backgroundColor: colors.layout.background,
+        minWidth: 200,
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "8px 0" }}>
         {menuItems.map((item) => {
           const active = isItemActive(pathname, item.href);
           const ItemIcon =
@@ -44,21 +54,21 @@ export default function Navbar() {
               key={item.href}
               to={itemPath(item.href)}
               variant="translucent"
-              colorOverrides={active ? navItemActive : undefined}
+              colorOverrides={active ? activeNav : undefined}
               style={{
-                borderRadius: '0',
-                padding: '6px 10px',
-                minHeight: '0px',
-                boxShadow: 'none',
-                justifyContent: 'flex-start',
-                gap: '10px',
+                borderRadius: 8,
+                marginLeft: 8,
+                marginRight: 8,
+                padding: "10px 12px",
+                minHeight: 0,
+                boxShadow: "none",
+                justifyContent: "flex-start",
+                gap: 10,
                 fontWeight: active ? 600 : 500,
-                borderLeft: active
-                  ? '3px solid rgba(255, 255, 255, 0.85)'
-                  : '3px solid transparent',
-                boxSizing: 'border-box',
+                borderLeft: active ? activeMark : "3px solid transparent",
+                boxSizing: "border-box",
               }}
-              aria-current={active ? 'page' : undefined}
+              aria-current={active ? "page" : undefined}
             >
               {ItemIcon ? (
                 <ItemIcon
@@ -72,5 +82,5 @@ export default function Navbar() {
         })}
       </div>
     </div>
-  )
+  );
 }
