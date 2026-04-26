@@ -24,16 +24,24 @@ export interface IPlant {
 
 export interface IFood {
   name: string;
-  type: 'food'
+  type: 'food' | 'ingredient';
   calory: number;
   image: string;
+  union?: boolean;
   requirements?: {
     count: number;
-    item: IFood | ILiquid | IPlant;
-  }[]
+    item: IFood | ILiquid | IPlant | IResourse;
+  }[],
+  tool?: IKitchenTool;
 }
 
-export type GameNode = IFood | ILiquid | IPlant | IResourse;
+export interface IKitchenTool {
+  name: string;
+  type: 'kitchen-tool';
+  image: string;
+}
+
+export type GameNode = IFood | ILiquid | IPlant | IResourse | IKitchenTool;
 
 export interface IDuplicate {
   name: string;

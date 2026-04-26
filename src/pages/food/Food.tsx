@@ -6,7 +6,7 @@ import {
   type DependencyTreeNode,
 } from "../../components/dependency-tree/DependencyTree";
 import { food } from "../../game-data/food";
-import type { GameNode, IFood } from "../../types/game-data-types";
+import type { GameNode, IFood, IKitchenTool } from "../../types/game-data-types";
 import { ThemeContext } from "../../providers/app-theme-provider";
 import Box from "../../components/box/box";
 import { DuplicantContext } from "../../providers/duplicant-provider";
@@ -26,19 +26,20 @@ export default function Food() {
     )
   ), [duplicants]);
 
-  const { tree, uniqueResourses } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }> } => {
-    if (!selectedItem) return { tree: null, uniqueResourses: {} };
+  const { tree, uniqueResourses, uniqueTools } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }>, uniqueTools: Record<string, IKitchenTool & { total: number }> } => {
+    if (!selectedItem) return { tree: null, uniqueResourses: {}, uniqueTools: {} };
 
     const uniqueResourses: Record<string, GameNode & { total: number }> = {};
+    const uniqueTools: Record<string, IKitchenTool & { total: number }> = {};
 
-    const mapToTree = (item: GameNode & { total: number }): DependencyTreeNode => {
+    const mapToTree = (item: GameNode & { total: number }, parent?: GameNode): DependencyTreeNode => {
       const total = (() => {
         const value = "calory" in item ? item.calory : 1;
-        const result = item.total / ("cycles" in item ? value / item.cycles : value);
         if (item.type === "plant") {
-          return Math.ceil(result);
+          console.log(item.total)
+          return Math.ceil(item.total * (('union' in parent && parent.union) ? 1 / item.harvest : item.cycles));
         } else {
-          return result;
+          return item.total / value;
         }
       })();
 
@@ -48,29 +49,51 @@ export default function Food() {
         uniqueResourses[item.name].total += Number(total.toFixed(2));
       }
 
+      if ("tool" in item && item.tool) {
+        uniqueTools[item.tool.name] = { ...item.tool, total: 1 };
+      }
+
       const result: DependencyTreeNode = {
         name: item.name,
         image: item.image,
         total,
       };
 
-      if (
-        "requirements" in item &&
-        item.requirements &&
-        item.requirements.length > 0
-      ) {
-        result.children = item.requirements.map((requirement) =>
-          mapToTree({
-            ...requirement.item,
-            total: total * requirement.count,
-          })
-        );
-      }
+      const children = (() => {
+        if (
+          "requirements" in item &&
+          item.requirements &&
+          item.requirements.length > 0
+        ) {
+          return item.requirements.map((requirement) =>
+            mapToTree({
+              ...requirement.item,
+              total: total * requirement.count
+            }, item)
+          );
+        }
+        return undefined;
+      })()
 
-      return result;
+      if ("tool" in item && item.tool) {
+        const tool = item.tool;
+        return {
+          ...result,
+          children: [{
+            ...tool,
+            total: 1,
+            children: children
+          }],
+        }
+      } else {
+        return {
+          ...result,
+          children: children,
+        }
+      }
     };
 
-    return { tree: mapToTree({ ...selectedItem, total: totalPerCycle }), uniqueResourses };
+    return { tree: mapToTree({ ...selectedItem, total: totalPerCycle }), uniqueResourses, uniqueTools };
   }, [selectedItem, totalPerCycle]);
 
   const accent = colors.primary.main;
@@ -142,6 +165,17 @@ export default function Food() {
                 <span>{item.total}</span>
               </div>
             ))}
+            {Object.values(uniqueTools).length > 0 && <div style={{ height: '40px', width: 1, background: colors.border.main }}></div>}
+            {Object.values(uniqueTools).map((item) => (
+              <div key={item.name} style={resourceChip}>
+                <AssetImage
+                  pathRelativeToAssets={item.image}
+                  alt={item.name}
+                  width={28}
+                  height={28}
+                />
+              </div>
+            ))}
           </div>
         </Box>
         <Box
@@ -151,10 +185,12 @@ export default function Food() {
             minHeight: 0,
             display: "flex",
             flexDirection: "column",
+            position: 'relative',
           }}
         >
           {tree ? (
             <DependencyTree
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
               root={tree}
               nodeSize={96}
               item={(node) => (
