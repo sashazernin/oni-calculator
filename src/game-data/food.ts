@@ -390,6 +390,249 @@ export const grubfruitPreserve: IFood = {
   tool: kitchenTools.electricGrill
 }
 
+export const hexalentFruit: IFood = {
+  name: 'Hexalent Fruit',
+  type: 'food',
+  calory: 6400,
+  image: 'food/Hexalent_Fruit.webp',
+  requirements: [
+    {
+      count: 1,
+      item: plants.hexalent
+    }
+  ]
+}
+
+export const mixedBerryPie: IFood = {
+  name: 'Mixed Berry Pie',
+  type: 'food',
+  calory: 1000,
+  image: 'food/Mixed_Berry_Pie.webp',
+  requirements: [
+    {
+      count: 3,
+      item: sleetWheatGrain
+    },
+    {
+      count: 1000,
+      item: grubfruit
+    },
+    {
+      count: 2000,
+      item: bristleBerry
+    }
+  ],
+  tool: kitchenTools.gasRange
+}
+
+export const muckroot: IFood = {
+  name: 'Resource Muckroot',
+  type: 'ingredient',
+  calory: 800,
+  union: true,
+  image: 'food/Muckroot.webp'
+}
+
+export const rawEgg: IFood = {
+  name: 'Raw Egg',
+  type: 'ingredient',
+  calory: 1600,
+  image: 'food/Raw_Egg.webp'
+}
+
+export const omelette: IFood = {
+  name: 'Omelette',
+  type: 'food',
+  calory: 2800,
+  image: 'food/Omelette.webp',
+  requirements: [
+    {
+      count: 1600,
+      item: rawEgg
+    }
+  ]
+}
+
+export const mushroomQuiche: IFood = {
+  name: 'Mushroom Quiche',
+  type: 'food',
+  calory: 6400,
+  image: 'food/Mushroom_Quiche.webp',
+  requirements: [
+    {
+      count: 2800,
+      item: omelette
+    },
+    {
+      count: 400,
+      item: lettuce
+    },
+    {
+      count: 2800,
+      item: friedMushroom
+    }
+  ],
+  tool: kitchenTools.gasRange
+}
+
+export const mushroomWrap: IFood = {
+  name: 'Mushroom Wrap',
+  type: 'food',
+  calory: 4800,
+  image: 'food/Mushroom_Wrap.webp',
+  requirements: [
+    {
+      count: 2800,
+      item: friedMushroom
+    },
+    {
+      count: 1600,
+      item: lettuce
+    }
+  ],
+  tool: kitchenTools.gasRange
+}
+
+export const nutrientBar: IFood = {
+  name: 'Nutrient Bar',
+  type: 'food',
+  calory: 800,
+  image: 'food/Nutrient_Bar.webp'
+}
+
+export const pepperBread: IFood = {
+  name: 'Pepper Bread',
+  type: 'food',
+  calory: 4000,
+  image: 'food/Pepper_Bread.webp',
+  requirements: [
+    {
+      count: 10,
+      item: sleetWheatGrain
+    },
+    {
+      count: 1000,
+      item: pinchaPeppernut
+    }
+  ],
+  tool: kitchenTools.gasRange
+}
+
+export const pickledMeal: IFood = {
+  name: 'Pickled Meal',
+  type: 'food',
+  calory: 1800,
+  image: 'food/Pickled_Meal.webp',
+  requirements: [
+    {
+      count: 1800,
+      item: mealLice
+    }
+  ],
+  tool: kitchenTools.electricGrill
+}
+
+export const plantMeat: IFood = {
+  name: 'Plant Meat',
+  type: 'food',
+  calory: 1200,
+  image: 'food/Plant_Meat.webp'
+}
+
+export const spindlyGrubfruit: IFood = {
+  name: 'Spindly Grubfruit',
+  type: 'food',
+  calory: 800,
+  image: 'food/Spindly_Grubfruit.webp',
+  requirements: [
+    {
+      count: 1,
+      item: plants.spindlyGrubfruitPlant
+    }
+  ]
+}
+
+export const roastGrubfruitNut: IFood = {
+  name: 'Roast Grubfruit Nut',
+  type: 'food',
+  calory: 1200,
+  image: 'food/Roast_Grubfruit_Nut.webp',
+  requirements: [
+    {
+      count: 800,
+      item: spindlyGrubfruit
+    }
+  ],
+  tool: kitchenTools.electricGrill
+}
+
+export const soufflePancakes: IFood = {
+  name: 'Souffle Pancakes',
+  type: 'food',
+  calory: 3600,
+  image: 'food/Souffle_Pancakes.webp',
+  requirements: [
+    {
+      count: 1600,
+      item: rawEgg
+    },
+    {
+      count: 2,
+      item: sleetWheatGrain
+    }
+  ],
+  tool: kitchenTools.electricGrill
+}
+
+export const tofu: IFood = {
+  name: 'Tofu',
+  type: 'food',
+  calory: 3600,
+  image: 'food/Tofu.webp',
+  requirements: [
+    {
+      count: 6,
+      item: noshBean
+    },
+    {
+      count: 50,
+      item: liquids.water
+    }
+  ],
+  tool: kitchenTools.microbeMusher
+}
+
+export const spicyTofu: IFood = {
+  name: 'Spicy Tofu',
+  type: 'food',
+  calory: 4000,
+  image: 'food/Spicy_Tofu.webp',
+  requirements: [
+    {
+      count: 3600,
+      item: tofu
+    },
+    {
+      count: 1000,
+      item: pinchaPeppernut
+    }
+  ],
+  tool: kitchenTools.gasRange
+}
+
+export const swampChardHeart: IFood = {
+  name: 'Swamp Chard Heart',
+  type: 'food',
+  calory: 2400,
+  image: 'food/Swamp_Chard_Heart.webp',
+  requirements: [
+    {
+      count: 1,
+      item: plants.swampChard
+    }
+  ]
+}
+
 export const ingredients = {
   pinchaPeppernut,
   sleetWheatGrain,
@@ -420,5 +663,22 @@ export const food = {
   lettuce,
   frostBurger,
   grubfruit,
-  grubfruitPreserve
+  grubfruitPreserve,
+  hexalentFruit,
+  mixedBerryPie,
+  muckroot,
+  mushroomQuiche,
+  rawEgg,
+  omelette,
+  mushroomWrap,
+  nutrientBar,
+  pepperBread,
+  pickledMeal,
+  plantMeat,
+  spindlyGrubfruit,
+  roastGrubfruitNut,
+  soufflePancakes,
+  tofu,
+  spicyTofu,
+  swampChardHeart
 }

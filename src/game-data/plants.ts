@@ -2,7 +2,7 @@ import type { IPlant } from "../types/game-data-types";
 import { liquids } from "./liquids";
 import { resourses } from "./resourses";
 
-export const mealwood: IPlant = {
+const mealwood: IPlant = {
   name: 'Mealwood',
   type: 'plant',
   image: 'plants/Mealwood.webp',
@@ -16,7 +16,7 @@ export const mealwood: IPlant = {
   ]
 }
 
-export const bogBucket: IPlant = {
+const bogBucket: IPlant = {
   name: 'Bog Bucket',
   type: 'plant',
   image: 'plants/Bog_Bucket.webp',
@@ -30,7 +30,7 @@ export const bogBucket: IPlant = {
   ]
 }
 
-export const bristleBlossom: IPlant = {
+const bristleBlossom: IPlant = {
   name: 'Bristle Blossom',
   type: 'plant',
   image: 'plants/Bristle_Blossom.webp',
@@ -44,7 +44,7 @@ export const bristleBlossom: IPlant = {
   ]
 }
 
-export const pinchaPepperplant: IPlant = {
+const pinchaPepperplant: IPlant = {
   name: 'Pincha Pepperplant',
   type: 'plant',
   image: 'plants/Pincha_Pepperplant.webp',
@@ -62,7 +62,7 @@ export const pinchaPepperplant: IPlant = {
   ]
 }
 
-export const sleetWheat: IPlant = {
+const sleetWheat: IPlant = {
   name: 'Sleet Wheat',
   type: 'plant',
   image: 'plants/Sleet_Wheat.webp',
@@ -80,7 +80,7 @@ export const sleetWheat: IPlant = {
   ]
 }
 
-export const noshSprout: IPlant = {
+const noshSprout: IPlant = {
   name: 'Nosh Sprout',
   type: 'plant',
   image: 'plants/Nosh_Sprout.webp',
@@ -98,7 +98,7 @@ export const noshSprout: IPlant = {
   ]
 }
 
-export const duskCap: IPlant = {
+const duskCap: IPlant = {
   name: 'Dusk Cap',
   type: 'plant',
   image: 'plants/Dusk_Cap.webp',
@@ -112,7 +112,7 @@ export const duskCap: IPlant = {
   ]
 }
 
-export const waterweed: IPlant = {
+const waterweed: IPlant = {
   name: 'Waterweed',
   type: 'plant',
   image: 'plants/Waterweed.webp',
@@ -130,7 +130,7 @@ export const waterweed: IPlant = {
   ]
 }
 
-export const grubfruitPlant: IPlant = {
+const grubfruitPlant: IPlant = {
   name: 'Grubfruit Plant',
   type: 'plant',
   image: 'plants/Grubfruit_Plant.webp',
@@ -144,6 +144,36 @@ export const grubfruitPlant: IPlant = {
   ]
 }
 
+const spindlyGrubfruitPlant: IPlant = {
+  name: 'Spindly Grubfruit Plant',
+  type: 'plant',
+  image: 'plants/Grubfruit_Plant.webp',
+  cycles: 4,
+  harvest: 200,
+  requirements: [
+    {
+      count: 10,
+      item: resourses.sulfur
+    }
+  ]
+}
+
+const hexalent: IPlant = {
+  name: 'Hexalent',
+  type: 'plant',
+  image: 'plants/Hexalent.webp',
+  cycles: 0,
+  harvest: 6400
+}
+
+const swampChard: IPlant = {
+  name: 'Swamp Chard',
+  type: 'plant',
+  image: 'plants/Swamp_Chard.webp',
+  cycles: 0,
+  harvest: 2400
+}
+
 export const plants = {
   mealwood,
   bogBucket,
@@ -153,5 +183,8 @@ export const plants = {
   noshSprout,
   duskCap,
   waterweed,
-  grubfruitPlant
+  grubfruitPlant,
+  spindlyGrubfruitPlant,
+  hexalent,
+  swampChard
 }

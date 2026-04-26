@@ -37,7 +37,7 @@ export default function Food() {
         const value = "calory" in item ? item.calory : 1;
         if (item.type === "plant") {
           console.log(item.total)
-          return Math.ceil(item.total * (('union' in parent && parent.union) ? 1 / item.harvest : item.cycles));
+          return Math.ceil(item.total * (('union' in parent && parent.union) ? 1 / item.harvest : item.cycles === 0 ? 1 : item.cycles));
         } else {
           return item.total / value;
         }
