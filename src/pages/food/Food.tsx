@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useContext, useMemo, useState, type CSSProperties } from "react";
 import { AssetImage } from "../../components/asset-image/AssetImage";
 import { Button } from "../../components/button/Button";
 import {
@@ -11,6 +11,10 @@ import { ThemeContext } from "../../providers/app-theme-provider";
 import Box from "../../components/box/box";
 import { DuplicantContext } from "../../providers/duplicant-provider";
 import { duplicantInfo } from "../../game-data/dublicantInfo";
+import Tabs from "../../components/tabs/Tabs";
+import { FaAppleAlt, FaToolbox } from "react-icons/fa";
+import { IoFastFoodSharp } from "react-icons/io5";
+import { IoNewspaper } from "react-icons/io5";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
@@ -35,11 +39,11 @@ export default function Food() {
     []
   );
 
-  const { tree, uniqueResourses, uniqueTools } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }>, uniqueTools: Record<string, IKitchenTool & { total: number }> } => {
+  const { tree, uniqueResourses, uniqueTools } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }>, uniqueTools: Record<string, GameNode & { total: number }> } => {
     if (!selectedItem) return { tree: null, uniqueResourses: {}, uniqueTools: {} };
 
     const uniqueResourses: Record<string, GameNode & { total: number }> = {};
-    const uniqueTools: Record<string, IKitchenTool & { total: number }> = {};
+    const uniqueTools: Record<string, GameNode & { total: number }> = {};
 
     const mapToTree = (item: GameNode & { total: number }, parent?: GameNode): DependencyTreeNode => {
       const total = (() => {
@@ -112,21 +116,75 @@ export default function Food() {
   }, [selectedItem, totalPerCycle]);
 
   const accent = colors.primary.main;
-  const resourceChip = useMemo(
-    (): CSSProperties => ({
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 8,
-      padding: "6px 12px",
-      borderRadius: 10,
-      background: `color-mix(in srgb, ${colors.text.primary} 7%, ${colors.background.paper})`,
-      fontSize: "0.8125rem",
-      fontWeight: 600,
-      color: colors.text.primary,
-      minWidth: 0,
-    }),
-    [colors.background.paper, colors.text.primary]
-  );
+
+  const [selectedTab, setSelectedTab] = useState<number>(0);
+
+  const [plants, foods, resourses, liquids] = useMemo(() => {
+    const plants = []
+    const food = []
+    const resourses = []
+    const liquids = []
+
+    Object.values(uniqueResourses).forEach((item) => {
+      if (item.type === "plant") {
+        plants.push(item);
+      }
+
+      if (item.type === "food") {
+        food.push(item);
+      }
+
+      if (item.type === "resourse") {
+        resourses.push(item);
+      }
+
+      if (item.type === "liquid") {
+        liquids.push(item);
+      }
+    });
+
+    return [plants, food, resourses, liquids];
+  }, [uniqueResourses]);
+
+  const getResourseValue = useCallback((item: GameNode & { total: number } | DependencyTreeNode) => {
+    if ('calory' in item && item.calory) return `${item.calory.toFixed()} kcal`;
+    if (Number.isInteger(item.total)) return item.total;
+    return item.total.toFixed(2);
+  }, []);
+
+  const infoItems = useCallback((mas: (GameNode & { total: number })[], title: string) => {
+    if (mas.length === 0) return null;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ fontSize: "0.875rem", fontWeight: 600, color: colors.text.primary }}>{title}</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {mas.map((item) => (
+            <div key={item.name} style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "6px 12px",
+              borderRadius: 10,
+              background: colors.background.average,
+              fontSize: "0.8125rem",
+              fontWeight: 600,
+              width: "fit-content",
+              color: colors.text.primary,
+              minWidth: 0,
+            }}>
+              <AssetImage
+                pathRelativeToAssets={item.image}
+                alt={item.name}
+                width={28}
+                height={28}
+              />
+              {item.type !== "kitchen-tool" && <span>{getResourseValue(item)}</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }, []);
 
   return (
     <div
@@ -138,7 +196,7 @@ export default function Food() {
         minHeight: 0,
       }}
     >
-      <div
+      <Box
         style={{
           display: "flex",
           flexDirection: "column",
@@ -149,134 +207,125 @@ export default function Food() {
           minHeight: 0,
         }}
       >
-        <Box
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-            padding: 12,
-          }}
+        <Tabs
+          value={selectedTab}
+          onChange={setSelectedTab}
+          tabs={[
+            { label: "Food", icon: <IoFastFoodSharp /> },
+            { label: "Info", icon: <IoNewspaper /> },
+          ]}
         >
           <div
             style={{
               flex: 1,
+              minHeight: 0,
               display: "flex",
-              flexWrap: "wrap",
-              gap: 8,
-              width: "100%",
-              minWidth: 0,
-              boxSizing: "border-box",
-              minHeight: 40,
+              flexDirection: "column",
+              position: 'relative',
+              height: '100%',
             }}
           >
-            {Object.values(uniqueResourses).map((item) => (
-              <div key={item.name} style={resourceChip}>
-                <AssetImage
-                  pathRelativeToAssets={item.image}
-                  alt={item.name}
-                  width={28}
-                  height={28}
-                />
-                <span>{item.total}</span>
-              </div>
-            ))}
-            {Object.values(uniqueTools).length > 0 && <div style={{ height: '40px', width: 1, background: colors.border.main }}></div>}
-            {Object.values(uniqueTools).map((item) => (
-              <div key={item.name} style={resourceChip}>
-                <AssetImage
-                  pathRelativeToAssets={item.image}
-                  alt={item.name}
-                  width={28}
-                  height={28}
-                />
-              </div>
-            ))}
-          </div>
-        </Box>
-        <Box
-          style={{
-            padding: 16,
-            flex: 1,
-            minHeight: 0,
-            display: "flex",
-            flexDirection: "column",
-            position: 'relative',
-          }}
-        >
-          {tree ? (
-            <DependencyTree
-              style={{ position: 'absolute', top: 16, left: 16, width: 'calc(100% - 32px)', height: 'calc(100% - 32px)' }}
-              root={tree}
-              nodeSize={96}
-              item={(node) => (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 4,
-                    padding: 6,
-                    minWidth: 0,
-                    width: "100%",
-                    height: "100%",
-                    textAlign: "center",
-                  }}
-                >
-                  <AssetImage
-                    pathRelativeToAssets={node.image}
-                    alt=""
-                    width={36}
-                    height={36}
-                  />
+            {tree ? (
+              <DependencyTree
+                style={{ position: 'absolute', top: 16, left: 0, width: '100%', height: 'calc(100% - 16px)' }}
+                root={tree}
+                nodeSize={96}
+                item={(node) => (
                   <div
                     style={{
-                      fontWeight: 600,
-                      fontSize: "0.65rem",
-                      lineHeight: 1.15,
-                      color: colors.text.primary,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 4,
+                      padding: 6,
+                      minWidth: 0,
+                      width: "100%",
+                      height: "100%",
+                      textAlign: "center",
                     }}
                   >
-                    {node.name}
-                  </div>
-                  {node.type !== "kitchen-tool" && (
+                    <AssetImage
+                      pathRelativeToAssets={node.image}
+                      alt=""
+                      width={36}
+                      height={36}
+                    />
                     <div
                       style={{
-                        fontSize: "0.6rem",
-                        lineHeight: 1,
-                        color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
+                        fontWeight: 600,
+                        fontSize: "0.65rem",
+                        lineHeight: 1.15,
+                        color: colors.text.primary,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
                       }}
                     >
-                      {node.calory ? `${node.calory.toFixed()} kcal` : Number.isInteger(node.total)
-                        ? node.total
-                        : node.total.toFixed(2)}
+                      {node.name}
                     </div>
-                  )}
-                </div>
-              )}
-            />
-          ) : (
+                    {node.type !== "kitchen-tool" && (
+                      <div
+                        style={{
+                          fontSize: "0.6rem",
+                          lineHeight: 1,
+                          color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
+                        }}
+                      >
+                        {getResourseValue(node)}
+                      </div>
+                    )}
+                  </div>
+                )}
+              />
+            ) : (
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.95rem",
+                  fontWeight: 500,
+                  color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
+                }}
+              >
+                Select food on the right
+              </div>
+            )}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              paddingTop: 16,
+            }}
+          >
             <div
               style={{
                 flex: 1,
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "0.95rem",
-                fontWeight: 500,
-                color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
+                flexDirection: "column",
+                flexWrap: "wrap",
+                gap: 8,
+                width: "100%",
+                minWidth: 0,
+                boxSizing: "border-box",
+                minHeight: 40,
               }}
             >
-              Select food on the right
+              {infoItems(plants, 'Plants')}
+              {infoItems(foods, 'Food')}
+              {infoItems(resourses, 'Resourses')}
+              {infoItems(liquids, 'Liquids')}
+              {infoItems(Object.values(uniqueTools), 'Tools')}
             </div>
-          )}
-        </Box>
-      </div>
+          </div>
+        </Tabs>
+      </Box>
       <Box
         style={{
           position: "relative",
