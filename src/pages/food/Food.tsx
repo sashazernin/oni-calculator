@@ -146,8 +146,8 @@ export default function Food() {
     return [plants, food, resourses, liquids];
   }, [uniqueResourses]);
 
-  const getResourseValue = useCallback((item: GameNode & { total: number } | DependencyTreeNode) => {
-    if ('calory' in item && item.calory) return `${item.calory.toFixed()} kcal`;
+  const getResourseValue = useCallback((item: GameNode & { total: number } | DependencyTreeNode, totalCalory: boolean = false) => {
+    if ('calory' in item && item.calory) return `${((totalCalory ? 1 : item.total) * item.calory).toFixed()} kcal`;
     if (Number.isInteger(item.total)) return item.total;
     return item.total.toFixed(2);
   }, []);
@@ -281,7 +281,7 @@ export default function Food() {
                           color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
                         }}
                       >
-                        {getResourseValue(node)}
+                        {getResourseValue(node, true)}
                       </div>
                     )}
                   </div>
