@@ -102,8 +102,8 @@ export const meat: IFood = {
   image: 'food/Meat.webp'
 }
 
-export const BBQ: IFood = {
-  name: 'BBQ',
+export const Barbeque: IFood = {
+  name: 'Barbeque',
   type: 'food',
   calory: 4000,
   image: 'food/BBQ.webp',
@@ -152,7 +152,7 @@ export const SurfnTurf: IFood = {
   requirements: [
     {
       count: 4000,
-      item: BBQ
+      item: Barbeque
     },
     {
       count: 1600,
@@ -350,7 +350,7 @@ export const frostBurger: IFood = {
     },
     {
       count: 4000,
-      item: BBQ
+      item: Barbeque
     },
     {
       count: 400,
@@ -427,7 +427,7 @@ export const mixedBerryPie: IFood = {
 }
 
 export const muckroot: IFood = {
-  name: 'Resource Muckroot',
+  name: 'Muckroot',
   type: 'ingredient',
   calory: 800,
   union: true,
@@ -654,7 +654,7 @@ export const food = {
   rawShellfish,
   cookedSeafood,
   frostBun,
-  BBQ,
+  BBQ: Barbeque,
   mushroom,
   friedMushroom,
   curriedBeans,

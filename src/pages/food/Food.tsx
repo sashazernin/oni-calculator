@@ -26,6 +26,15 @@ export default function Food() {
     )
   ), [duplicants]);
 
+  /** Латиница a–z и кириллица а–я (и ё) по правилам `ru` */
+  const foodItemsSorted = useMemo(
+    () =>
+      Object.values(food).sort((a, b) =>
+        a.name.localeCompare(b.name, "ru", { sensitivity: "base", numeric: true })
+      ),
+    []
+  );
+
   const { tree, uniqueResourses, uniqueTools } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }>, uniqueTools: Record<string, IKitchenTool & { total: number }> } => {
     if (!selectedItem) return { tree: null, uniqueResourses: {}, uniqueTools: {} };
 
@@ -36,7 +45,10 @@ export default function Food() {
       const total = (() => {
         const value = "calory" in item ? item.calory : 1;
         if (item.type === "plant") {
-          return Math.ceil(item.total * (('union' in parent && parent.union) ? 1 / item.harvest : item.cycles === 0 ? 1 : item.cycles));
+          const union = Boolean(parent && "union" in parent && parent.union);
+          return Math.ceil(
+            item.total * (union ? 1 / item.harvest : item.cycles === 0 ? 1 : item.cycles)
+          );
         } else {
           return item.total / value;
         }
@@ -289,7 +301,7 @@ export default function Food() {
               boxSizing: "border-box",
             }}
           >
-            {Object.values(food).map((item) => {
+            {foodItemsSorted.map((item) => {
               const isSelected = selectedItem?.name === item.name;
               return (
                 <div
