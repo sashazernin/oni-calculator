@@ -17,6 +17,7 @@ export type DependencyTreeNode = {
   type: GameNode["type"];
   calory?: number;
   children?: DependencyTreeNode[];
+  item: GameNode;
 };
 
 export type DependencyTreeProps = {

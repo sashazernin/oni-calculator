@@ -1,5 +1,5 @@
 import { RxCross1 } from "react-icons/rx";
-import { useContext, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { IconButton } from "../icon-button/IconButton";
 import { ThemeContext } from "../../providers/app-theme-provider";
@@ -145,6 +145,7 @@ export function Popup(props: Readonly<IPopupProps>) {
       return () => clearTimeout(t);
     }
 
+
     if (!mounted) return;
 
     const gen = ++enterGenRef.current;
@@ -161,6 +162,16 @@ export function Popup(props: Readonly<IPopupProps>) {
       if (raf2) cancelAnimationFrame(raf2);
     };
   }, [open, mounted]);
+
+  const CloseButtonComponent = useMemo(() => {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 28, width: 28 }}>
+        <IconButton color='action' style={{ height: '100%', width: '100%' }} onClick={onClose}>
+          <RxCross1 size={18} />
+        </IconButton>
+      </div>
+    )
+  }, [onClose]);
 
   if (!mounted) return;
 
@@ -208,7 +219,7 @@ export function Popup(props: Readonly<IPopupProps>) {
             ...dialogSurface,
           }}
         >
-          {(title || header) && (
+          {(title || header) ? (
             <div
               className={headerCombinedClass}
               style={{
@@ -238,15 +249,11 @@ export function Popup(props: Readonly<IPopupProps>) {
               {closeButton && (
                 <>
                   <div style={{ flex: 1, minWidth: 8 }} />
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <IconButton onClick={() => onClose?.()}>
-                      <RxCross1 />
-                    </IconButton>
-                  </div>
+                  {CloseButtonComponent}
                 </>
               )}
             </div>
-          )}
+          ) : <div style={{ position: 'absolute', top: 4, right: 4 }}>{CloseButtonComponent}</div>}
           <div
             style={{
               overflow: "auto",

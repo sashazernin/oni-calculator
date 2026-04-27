@@ -25,6 +25,8 @@ export type AssetImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> &
 const imgFitStyle: CSSProperties = {
   maxWidth: "100%",
   maxHeight: "100%",
+  height: '100%',
+  width: '100%',
   objectFit: "contain",
 };
 

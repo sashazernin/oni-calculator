@@ -1,0 +1,8 @@
+.game-item-info-popup__trigger {
+  border-radius: 6px;
+  transition: background-color 0.16s ease;
+}
+
+.game-item-info-popup__trigger:hover {
+  background-color: var(--gio-hover-bg, transparent);
+}

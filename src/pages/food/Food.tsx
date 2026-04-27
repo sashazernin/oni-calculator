@@ -15,6 +15,8 @@ import Tabs from "../../components/tabs/Tabs";
 import { IoFastFoodSharp } from "react-icons/io5";
 import { IoNewspaper } from "react-icons/io5";
 import Info from "../../components/info/info";
+import { getQualityData } from "../../helpers/qualityData";
+import GameItemInfoPopup from "../../components/game-item-info-popup/gameItemInfoPopup";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
@@ -69,6 +71,7 @@ export default function Food() {
       }
 
       const result: DependencyTreeNode = {
+        item,
         name: item.name,
         image: item.image,
         total,
@@ -99,6 +102,7 @@ export default function Food() {
         return {
           ...result,
           children: [{
+            item: tool,
             ...tool,
             total: 1,
             children: children
@@ -159,32 +163,48 @@ export default function Food() {
         <div style={{ fontSize: "0.875rem", fontWeight: 600, color: colors.text.primary }}>{title}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {mas.map((item) => (
-            <div key={item.name} style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "6px 12px",
-              borderRadius: 10,
-              background: colors.background.average,
-              fontSize: "0.8125rem",
-              fontWeight: 600,
-              width: "fit-content",
-              color: colors.text.primary,
-              minWidth: 0,
-            }}>
-              <AssetImage
-                pathRelativeToAssets={item.image}
-                alt={item.name}
-                width={28}
-                height={28}
-              />
-              {item.type !== "kitchen-tool" && <span>{getResourseValue(item)}</span>}
-            </div>
+            <GameItemInfoPopup item={item}>
+              <div key={item.name} style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "6px 12px",
+                borderRadius: 10,
+                background: colors.background.average,
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                width: "fit-content",
+                color: colors.text.primary,
+                minWidth: 0,
+              }}>
+                <AssetImage
+                  pathRelativeToAssets={item.image}
+                  alt={item.name}
+                  width={28}
+                  height={28}
+                />
+                {item.type !== "kitchen-tool" && <span>{getResourseValue(item)}</span>}
+              </div>
+            </GameItemInfoPopup>
           ))}
         </div>
       </div>
     )
   }, []);
+
+  const qualityChip = useCallback(
+    (quality: number) => {
+
+      const qualityData = getQualityData(quality);
+
+      return (
+        <div style={{ color: qualityData.color }}>
+          {`${qualityData.name} (${quality})`}
+        </div>
+      );
+    },
+    [colors.text.primary]
+  );
 
   return (
     <div
@@ -238,53 +258,55 @@ export default function Food() {
                 root={tree}
                 nodeSize={96}
                 item={(node) => (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 4,
-                      padding: 6,
-                      minWidth: 0,
-                      width: "100%",
-                      height: "100%",
-                      textAlign: "center",
-                    }}
-                  >
-                    <AssetImage
-                      pathRelativeToAssets={node.image}
-                      alt=""
-                      width={36}
-                      height={36}
-                    />
+                  <GameItemInfoPopup item={node.item} style={{ width: '100%', height: '100%' }} pointerBackground>
                     <div
                       style={{
-                        fontWeight: 600,
-                        fontSize: "0.65rem",
-                        lineHeight: 1.15,
-                        color: colors.text.primary,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 4,
+                        padding: 6,
+                        minWidth: 0,
+                        width: "100%",
+                        height: "100%",
+                        textAlign: "center",
                       }}
                     >
-                      {node.name}
-                    </div>
-                    {node.type !== "kitchen-tool" && (
+                      <AssetImage
+                        pathRelativeToAssets={node.image}
+                        alt=""
+                        width={36}
+                        height={36}
+                      />
                       <div
                         style={{
-                          fontSize: "0.6rem",
-                          lineHeight: 1,
-                          color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
+                          fontWeight: 600,
+                          fontSize: "0.65rem",
+                          lineHeight: 1.15,
+                          color: colors.text.primary,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
                         }}
                       >
-                        {getResourseValue(node, true)}
+                        {node.name}
                       </div>
-                    )}
-                  </div>
+                      {node.type !== "kitchen-tool" && (
+                        <div
+                          style={{
+                            fontSize: "0.6rem",
+                            lineHeight: 1,
+                            color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
+                          }}
+                        >
+                          {getResourseValue(node, true)}
+                        </div>
+                      )}
+                    </div>
+                  </GameItemInfoPopup>
                 )}
               />
             ) : (
@@ -324,6 +346,10 @@ export default function Food() {
                 minHeight: 40,
               }}
             >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: colors.text.primary }}>Quality:</div>
+                {selectedItem && qualityChip(selectedItem?.quality)}
+              </div>
               {infoItems(plants, 'Plants')}
               {infoItems(foods, 'Food')}
               {infoItems(resourses, 'Resourses')}

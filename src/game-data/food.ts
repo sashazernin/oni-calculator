@@ -6,6 +6,7 @@ import { resourses } from "./resourses";
 
 export const mealLice: IFood = {
   name: 'Meal Lice',
+  quality: -1,
   type: 'food',
   calory: 600,
   image: 'food/Meal_Lice.webp',
@@ -19,6 +20,7 @@ export const mealLice: IFood = {
 
 export const liceloaf: IFood = {
   name: 'Liceloaf',
+  quality: 0,
   type: 'food',
   calory: 1700,
   image: 'food/Liceloaf.webp',
@@ -37,6 +39,7 @@ export const liceloaf: IFood = {
 
 export const mushBar: IFood = {
   name: 'Mush Bar',
+  quality: -1,
   type: 'food',
   calory: 800,
   image: 'food/Mush_Bar.webp',
@@ -55,6 +58,7 @@ export const mushBar: IFood = {
 
 export const mushFry: IFood = {
   name: 'Mush Fry',
+  quality: 0,
   type: 'food',
   calory: 1050,
   image: 'food/Mush_Fry.webp',
@@ -69,6 +73,7 @@ export const mushFry: IFood = {
 
 export const bogJelly: IFood = {
   name: 'Bog Jelly',
+  quality: 0,
   type: 'food',
   calory: 1840,
   image: 'food/Bog_Jelly.webp',
@@ -83,6 +88,7 @@ export const bogJelly: IFood = {
 
 export const swampyDelights: IFood = {
   name: 'Swampy Delights',
+  quality: 1,
   type: 'food',
   calory: 2240,
   image: 'food/Swampy_Delights.webp',
@@ -97,6 +103,7 @@ export const swampyDelights: IFood = {
 
 export const meat: IFood = {
   name: 'Meat',
+  quality: -1,
   type: 'food',
   calory: 1600,
   image: 'food/Meat.webp'
@@ -104,6 +111,7 @@ export const meat: IFood = {
 
 export const Barbeque: IFood = {
   name: 'Barbeque',
+  quality: 3,
   type: 'food',
   calory: 4000,
   image: 'food/BBQ.webp',
@@ -118,6 +126,7 @@ export const Barbeque: IFood = {
 
 export const pacuFillet: IFood = {
   name: 'Pacu Fillet',
+  quality: 2,
   type: 'food',
   calory: 1000,
   image: 'food/Pacu_Fillet.webp'
@@ -125,6 +134,7 @@ export const pacuFillet: IFood = {
 
 export const rawShellfish: IFood = {
   name: 'Raw Shellfish',
+  quality: 2,
   type: 'food',
   calory: 1000,
   image: 'food/Raw_Shellfish.webp'
@@ -132,6 +142,7 @@ export const rawShellfish: IFood = {
 
 export const cookedSeafood: IFood = {
   name: 'Cooked Seafood',
+  quality: 3,
   type: 'food',
   calory: 1600,
   image: 'food/Cooked_Seafood.webp',
@@ -146,6 +157,7 @@ export const cookedSeafood: IFood = {
 
 export const SurfnTurf: IFood = {
   name: 'Surf\'n Turf',
+  quality: 4,
   type: 'food',
   calory: 1000,
   image: 'food/Surfn_Turf.webp',
@@ -164,6 +176,7 @@ export const SurfnTurf: IFood = {
 
 export const bristleBerry: IFood = {
   name: 'Bristle Berry',
+  quality: 0,
   type: 'food',
   calory: 1600,
   image: 'food/Bristle_Berry.webp',
@@ -177,6 +190,7 @@ export const bristleBerry: IFood = {
 
 export const gristleBerry: IFood = {
   name: 'Gristle Berry',
+  quality: 1,
   type: 'food',
   calory: 2000,
   image: 'food/Gristle_Berry.webp',
@@ -204,6 +218,7 @@ export const pinchaPeppernut: IFood = {
 
 export const stuffedBerry: IFood = {
   name: 'Stuffed Berry',
+  quality: 4,
   type: 'food',
   calory: 1000,
   image: 'food/Stuffed_Berry.webp',
@@ -236,6 +251,7 @@ export const sleetWheatGrain: IFood = {
 
 export const berrySludge: IFood = {
   name: 'Berry Sludge',
+  quality: 3,
   type: 'food',
   calory: 4000,
   image: 'food/Berry_Sludge.webp',
@@ -268,6 +284,7 @@ export const noshBean: IFood = {
 
 export const curriedBeans: IFood = {
   name: 'Curried Beans',
+  quality: 4,
   type: 'food',
   calory: 5000,
   image: 'food/Curried_Beans.webp',
@@ -286,6 +303,7 @@ export const curriedBeans: IFood = {
 
 export const mushroom: IFood = {
   name: 'Mushroom',
+  quality: 0,
   type: 'food',
   calory: 2400,
   image: 'food/Mushroom.webp',
@@ -299,6 +317,7 @@ export const mushroom: IFood = {
 
 export const friedMushroom: IFood = {
   name: 'Fried Mushroom',
+  quality: 1,
   type: 'food',
   calory: 2800,
   image: 'food/Fried_Mushroom.webp',
@@ -313,6 +332,7 @@ export const friedMushroom: IFood = {
 
 export const frostBun: IFood = {
   name: 'Frost Bun',
+  quality: 2,
   type: 'food',
   calory: 1200,
   image: 'food/Frost_Bun.webp',
@@ -327,6 +347,7 @@ export const frostBun: IFood = {
 
 export const lettuce: IFood = {
   name: 'Lettuce',
+  quality: 0,
   type: 'food',
   calory: 4800,
   image: 'food/Lettuce.webp',
@@ -340,6 +361,7 @@ export const lettuce: IFood = {
 
 export const frostBurger: IFood = {
   name: 'Frost Burger',
+  quality: 6,
   type: 'food',
   calory: 6000,
   image: 'food/Frost_Burger.webp',
@@ -362,6 +384,7 @@ export const frostBurger: IFood = {
 
 export const grubfruit: IFood = {
   name: 'Grubfruit',
+  quality: 1,
   type: 'food',
   calory: 1000,
   image: 'food/Grubfruit.webp',
@@ -375,6 +398,7 @@ export const grubfruit: IFood = {
 
 export const grubfruitPreserve: IFood = {
   name: 'Grubfruit Preserve',
+  quality: 3,
   type: 'food',
   calory: 2400,
   image: 'food/Grubfruit_Preserve.webp',
@@ -393,6 +417,7 @@ export const grubfruitPreserve: IFood = {
 
 export const hexalentFruit: IFood = {
   name: 'Hexalent Fruit',
+  quality: -1,
   type: 'food',
   calory: 6400,
   image: 'food/Hexalent_Fruit.webp',
@@ -406,6 +431,7 @@ export const hexalentFruit: IFood = {
 
 export const mixedBerryPie: IFood = {
   name: 'Mixed Berry Pie',
+  quality: 5,
   type: 'food',
   calory: 1000,
   image: 'food/Mixed_Berry_Pie.webp',
@@ -428,6 +454,7 @@ export const mixedBerryPie: IFood = {
 
 export const muckroot: IFood = {
   name: 'Muckroot',
+  quality: -1,
   type: 'ingredient',
   calory: 800,
   union: true,
@@ -436,6 +463,7 @@ export const muckroot: IFood = {
 
 export const rawEgg: IFood = {
   name: 'Raw Egg',
+  quality: 1,
   type: 'ingredient',
   calory: 1600,
   image: 'food/Raw_Egg.webp'
@@ -443,6 +471,7 @@ export const rawEgg: IFood = {
 
 export const omelette: IFood = {
   name: 'Omelette',
+  quality: 2,
   type: 'food',
   calory: 2800,
   image: 'food/Omelette.webp',
@@ -456,6 +485,7 @@ export const omelette: IFood = {
 
 export const mushroomQuiche: IFood = {
   name: 'Mushroom Quiche',
+  quality: 5,
   type: 'food',
   calory: 6400,
   image: 'food/Mushroom_Quiche.webp',
@@ -478,6 +508,7 @@ export const mushroomQuiche: IFood = {
 
 export const mushroomWrap: IFood = {
   name: 'Mushroom Wrap',
+  quality: 4,
   type: 'food',
   calory: 4800,
   image: 'food/Mushroom_Wrap.webp',
@@ -496,6 +527,7 @@ export const mushroomWrap: IFood = {
 
 export const nutrientBar: IFood = {
   name: 'Nutrient Bar',
+  quality: -1,
   type: 'food',
   calory: 800,
   image: 'food/Nutrient_Bar.webp'
@@ -503,6 +535,7 @@ export const nutrientBar: IFood = {
 
 export const pepperBread: IFood = {
   name: 'Pepper Bread',
+  quality: 5,
   type: 'food',
   calory: 4000,
   image: 'food/Pepper_Bread.webp',
@@ -521,6 +554,7 @@ export const pepperBread: IFood = {
 
 export const pickledMeal: IFood = {
   name: 'Pickled Meal',
+  quality: -1,
   type: 'food',
   calory: 1800,
   image: 'food/Pickled_Meal.webp',
@@ -535,6 +569,7 @@ export const pickledMeal: IFood = {
 
 export const plantMeat: IFood = {
   name: 'Plant Meat',
+  quality: 1,
   type: 'food',
   calory: 1200,
   image: 'food/Plant_Meat.webp'
@@ -542,6 +577,7 @@ export const plantMeat: IFood = {
 
 export const spindlyGrubfruit: IFood = {
   name: 'Spindly Grubfruit',
+  quality: 0,
   type: 'food',
   calory: 800,
   image: 'food/Spindly_Grubfruit.webp',
@@ -555,6 +591,7 @@ export const spindlyGrubfruit: IFood = {
 
 export const roastGrubfruitNut: IFood = {
   name: 'Roast Grubfruit Nut',
+  quality: 1,
   type: 'food',
   calory: 1200,
   image: 'food/Roast_Grubfruit_Nut.webp',
@@ -569,6 +606,7 @@ export const roastGrubfruitNut: IFood = {
 
 export const soufflePancakes: IFood = {
   name: 'Souffle Pancakes',
+  quality: 3,
   type: 'food',
   calory: 3600,
   image: 'food/Souffle_Pancakes.webp',
@@ -587,6 +625,7 @@ export const soufflePancakes: IFood = {
 
 export const tofu: IFood = {
   name: 'Tofu',
+  quality: 2,
   type: 'food',
   calory: 3600,
   image: 'food/Tofu.webp',
@@ -605,6 +644,7 @@ export const tofu: IFood = {
 
 export const spicyTofu: IFood = {
   name: 'Spicy Tofu',
+  quality: 5,
   type: 'food',
   calory: 4000,
   image: 'food/Spicy_Tofu.webp',
@@ -623,6 +663,7 @@ export const spicyTofu: IFood = {
 
 export const swampChardHeart: IFood = {
   name: 'Swamp Chard Heart',
+  quality: 1,
   type: 'food',
   calory: 2400,
   image: 'food/Swamp_Chard_Heart.webp',
@@ -654,7 +695,7 @@ export const food = {
   rawShellfish,
   cookedSeafood,
   frostBun,
-  BBQ: Barbeque,
+  Barbeque,
   mushroom,
   friedMushroom,
   curriedBeans,

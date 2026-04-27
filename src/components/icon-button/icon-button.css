@@ -1,7 +1,6 @@
 /* Круглая icon-кнопка: плоский фон + оверлейи из colorOverrides, ripple из button.css */
 .button.icon-button {
   min-height: 0;
-  min-width: 40px;
   width: 40px;
   height: 40px;
   padding: 0;

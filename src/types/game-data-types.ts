@@ -24,6 +24,7 @@ export interface IPlant {
 
 export interface IFood {
   name: string;
+  quality?: number;
   type: 'food' | 'ingredient';
   calory: number;
   image: string;
