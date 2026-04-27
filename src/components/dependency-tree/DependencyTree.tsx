@@ -1,4 +1,12 @@
-import { useContext, type CSSProperties, type ReactNode } from "react";
+import {
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { ThemeContext } from "../../providers/app-theme-provider";
 
 export type DependencyTreeNode = {
@@ -29,6 +37,124 @@ type BranchProps = {
   nodeBg: string;
   nodeRingShadow: string;
 };
+
+const DEPTREE_COL_ATTR = "data-dep-tree-col";
+
+type MultiChildRowProps = {
+  n: number;
+  childNodes: DependencyTreeNode[];
+  item: (node: DependencyTreeNode) => ReactNode;
+  nodeSize: number;
+  edgeColor: string;
+  nodeBorder: string;
+  nodeBg: string;
+  nodeRingShadow: string;
+  vLine: CSSProperties;
+};
+
+function MultiChildRow({
+  n,
+  childNodes,
+  item,
+  nodeSize,
+  edgeColor,
+  nodeBorder,
+  nodeBg,
+  nodeRingShadow,
+  vLine,
+}: MultiChildRowProps) {
+  const rowRef = useRef<HTMLDivElement | null>(null);
+  const [hBar, setHBar] = useState({ leftPx: 0, widthPx: 0 });
+
+  const updateHorizontalBar = useCallback(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const cols = row.querySelectorAll<HTMLElement>(`[${DEPTREE_COL_ATTR}]`);
+    if (cols.length < 2) {
+      setHBar({ leftPx: 0, widthPx: 0 });
+      return;
+    }
+    const rowRect = row.getBoundingClientRect();
+    const r0 = cols[0].getBoundingClientRect();
+    const r1 = cols[cols.length - 1].getBoundingClientRect();
+    const c0 = r0.left + r0.width / 2 - rowRect.left;
+    const c1 = r1.left + r1.width / 2 - rowRect.left;
+    setHBar({ leftPx: c0, widthPx: Math.max(0, c1 - c0) });
+  }, []);
+
+  useLayoutEffect(() => {
+    updateHorizontalBar();
+    const row = rowRef.current;
+    if (!row) return;
+    const ro = new ResizeObserver(() => {
+      requestAnimationFrame(updateHorizontalBar);
+    });
+    ro.observe(row);
+    for (const c of Array.from(row.querySelectorAll<HTMLElement>(`[${DEPTREE_COL_ATTR}]`))) {
+      ro.observe(c);
+    }
+    return () => ro.disconnect();
+  }, [updateHorizontalBar, n, childNodes]);
+
+  return (
+    <div
+      ref={rowRef}
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        gap: GAP,
+        alignSelf: "center",
+        width: "fit-content",
+        maxWidth: "100%",
+        boxSizing: "border-box",
+      }}
+    >
+      {n > 1 ? (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: 0,
+            left: hBar.leftPx,
+            width: hBar.widthPx,
+            height: 2,
+            background: edgeColor,
+            /* до первого layout + measure не используем %, чтобы линия не тянулась на всю ширину */
+            visibility: hBar.widthPx > 0 ? "visible" : "hidden",
+          }}
+        />
+      ) : null}
+
+      {childNodes.map((child, index) => (
+        <div
+          key={`${index}-${child.name}`}
+          {...{ [DEPTREE_COL_ATTR]: "" }}
+          style={{
+            flex: "0 0 auto",
+            minWidth: nodeSize,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ ...vLine, height: STEM }} />
+          <Branch
+            node={child}
+            item={item}
+            nodeSize={nodeSize}
+            edgeColor={edgeColor}
+            nodeBorder={nodeBorder}
+            nodeBg={nodeBg}
+            nodeRingShadow={nodeRingShadow}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg, nodeRingShadow }: BranchProps) {
   const children = node.children;
@@ -93,54 +219,17 @@ function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg, nodeRingS
         <>
           <div style={{ ...vLine, height: STEM }} />
 
-          <div
-            style={{
-              position: "relative",
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "flex-start",
-              justifyContent: "center",
-              gap: GAP,
-            }}
-          >
-            {n > 1 ? (
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: `calc(100% / ${2 * n})`,
-                  width: `calc(100% * ${n - 1} / ${n})`,
-                  height: 2,
-                  background: edgeColor,
-                }}
-              />
-            ) : null}
-
-            {children!.map((child, index) => (
-              <div
-                key={`${index}-${child.name}`}
-                style={{
-                  flex: "1 1 0",
-                  minWidth: nodeSize,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <div style={{ ...vLine, height: STEM }} />
-                <Branch
-                  node={child}
-                  item={item}
-                  nodeSize={nodeSize}
-                  edgeColor={edgeColor}
-                  nodeBorder={nodeBorder}
-                  nodeBg={nodeBg}
-                  nodeRingShadow={nodeRingShadow}
-                />
-              </div>
-            ))}
-          </div>
+          <MultiChildRow
+            n={n}
+            childNodes={children!}
+            item={item}
+            nodeSize={nodeSize}
+            edgeColor={edgeColor}
+            nodeBorder={nodeBorder}
+            nodeBg={nodeBg}
+            nodeRingShadow={nodeRingShadow}
+            vLine={vLine}
+          />
         </>
       ) : null}
     </div>
