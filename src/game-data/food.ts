@@ -248,7 +248,8 @@ export const berrySludge: IFood = {
       count: 1600,
       item: bristleBerry
     }
-  ]
+  ],
+  tool: kitchenTools.microbeMusher
 }
 
 export const noshBean: IFood = {

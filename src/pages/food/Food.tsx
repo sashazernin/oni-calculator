@@ -36,7 +36,6 @@ export default function Food() {
       const total = (() => {
         const value = "calory" in item ? item.calory : 1;
         if (item.type === "plant") {
-          console.log(item.total)
           return Math.ceil(item.total * (('union' in parent && parent.union) ? 1 / item.harvest : item.cycles === 0 ? 1 : item.cycles));
         } else {
           return item.total / value;
@@ -57,6 +56,9 @@ export default function Food() {
         name: item.name,
         image: item.image,
         total,
+        ...(('calory' in item && !item.union) ? {
+          calory: total * item.calory,
+        } : {})
       };
 
       const children = (() => {
@@ -236,7 +238,7 @@ export default function Food() {
                       color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
                     }}
                   >
-                    {Number.isInteger(node.total)
+                    {node.calory ? `${node.calory.toFixed()} kcal` : Number.isInteger(node.total)
                       ? node.total
                       : node.total.toFixed(2)}
                   </div>
@@ -260,94 +262,105 @@ export default function Food() {
           )}
         </Box>
       </div>
-      <Box
+      <div
         style={{
+          position: "relative",
+          height: "100%",
           width: "40%",
-          minHeight: 0,
-          overflow: "auto",
         }}
       >
-        <div
+        <Box
           style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
-            gap: 10,
-            minWidth: 0,
-            boxSizing: "border-box",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            overflow: "auto",
           }}
         >
-          {Object.values(food).map((item) => {
-            const isSelected = selectedItem?.name === item.name;
-            return (
-              <div
-                key={item.name}
-                style={{ display: "flex", minWidth: 0, minHeight: 0 }}
-              >
-                <Button
-                  variant="translucent"
-                  className="button--natural-case"
-                  colorOverrides={
-                    isSelected
-                      ? {
-                        main: `color-mix(in srgb, ${accent} 38%, transparent)`,
-                        hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
-                        active: `color-mix(in srgb, ${accent} 54%, transparent)`,
-                      }
-                      : undefined
-                  }
-                  style={{
-                    width: "100%",
-                    aspectRatio: "1",
-                    minHeight: 0,
-                    padding: "clamp(8px, 2vw, 12px)",
-                    boxSizing: "border-box",
-                    borderRadius: 10,
-                  }}
-                  onClick={() => setSelectedItem(item)}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
+              gap: 10,
+              minWidth: 0,
+              boxSizing: "border-box",
+            }}
+          >
+            {Object.values(food).map((item) => {
+              const isSelected = selectedItem?.name === item.name;
+              return (
+                <div
+                  key={item.name}
+                  style={{ display: "flex", minWidth: 0, minHeight: 0 }}
                 >
-                  <div
+                  <Button
+                    variant="translucent"
+                    className="button--natural-case"
+                    colorOverrides={
+                      isSelected
+                        ? {
+                          main: `color-mix(in srgb, ${accent} 38%, transparent)`,
+                          hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
+                          active: `color-mix(in srgb, ${accent} 54%, transparent)`,
+                        }
+                        : undefined
+                    }
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 8,
-                      height: "100%",
                       width: "100%",
-                      color: "inherit",
+                      aspectRatio: "1",
+                      minHeight: 0,
+                      padding: "clamp(8px, 2vw, 12px)",
+                      boxSizing: "border-box",
+                      borderRadius: 10,
                     }}
+                    onClick={() => setSelectedItem(item)}
                   >
                     <div
                       style={{
-                        fontSize: "0.75rem",
-                        lineHeight: 1.2,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                        height: "100%",
+                        width: "100%",
                         color: "inherit",
                       }}
                     >
-                      {item.name}
+                      <div
+                        style={{
+                          fontSize: "0.75rem",
+                          lineHeight: 1.2,
+                          color: "inherit",
+                        }}
+                      >
+                        {item.name}
+                      </div>
+                      <div
+                        style={{
+                          flex: 1,
+                          minHeight: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <AssetImage
+                          pathRelativeToAssets={item.image}
+                          alt={item.name}
+                          width="100%"
+                          height="100%"
+                        />
+                      </div>
                     </div>
-                    <div
-                      style={{
-                        flex: 1,
-                        minHeight: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <AssetImage
-                        pathRelativeToAssets={item.image}
-                        alt={item.name}
-                        width="100%"
-                        height="100%"
-                      />
-                    </div>
-                  </div>
-                </Button>
-              </div>
-            );
-          })}
-        </div>
-      </Box>
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </Box>
+      </div>
     </div>
   );
 }

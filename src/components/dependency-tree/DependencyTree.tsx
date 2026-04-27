@@ -5,6 +5,7 @@ export type DependencyTreeNode = {
   name: string;
   image: string;
   total: number;
+  calory?: number;
   children?: DependencyTreeNode[];
 };
 
