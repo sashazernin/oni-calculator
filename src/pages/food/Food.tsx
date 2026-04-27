@@ -61,16 +61,17 @@ export default function Food() {
       }
 
       if ("tool" in item && item.tool) {
-        uniqueTools[item.tool.name] = { ...item.tool, total: 1 };
+        uniqueTools[item.tool.name] = { name: item.tool.name, type: item.tool.type, image: item.tool.image, total: 1 };
       }
 
       const result: DependencyTreeNode = {
         name: item.name,
         image: item.image,
         total,
-        ...(('calory' in item && !item.union) ? {
+        type: item.type,
+        ...(("calory" in item && !item.union) ? {
           calory: total * item.calory,
-        } : {})
+        } : {}),
       };
 
       const children = (() => {
@@ -204,7 +205,7 @@ export default function Food() {
         >
           {tree ? (
             <DependencyTree
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+              style={{ position: 'absolute', top: 16, left: 16, width: 'calc(100% - 32px)', height: 'calc(100% - 32px)' }}
               root={tree}
               nodeSize={96}
               item={(node) => (
@@ -243,17 +244,19 @@ export default function Food() {
                   >
                     {node.name}
                   </div>
-                  <div
-                    style={{
-                      fontSize: "0.6rem",
-                      lineHeight: 1,
-                      color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
-                    }}
-                  >
-                    {node.calory ? `${node.calory.toFixed()} kcal` : Number.isInteger(node.total)
-                      ? node.total
-                      : node.total.toFixed(2)}
-                  </div>
+                  {node.type !== "kitchen-tool" && (
+                    <div
+                      style={{
+                        fontSize: "0.6rem",
+                        lineHeight: 1,
+                        color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
+                      }}
+                    >
+                      {node.calory ? `${node.calory.toFixed()} kcal` : Number.isInteger(node.total)
+                        ? node.total
+                        : node.total.toFixed(2)}
+                    </div>
+                  )}
                 </div>
               )}
             />
@@ -274,20 +277,21 @@ export default function Food() {
           )}
         </Box>
       </div>
-      <div
+      <Box
         style={{
           position: "relative",
           height: "100%",
           width: "40%",
+          overflow: "hidden",
         }}
       >
-        <Box
+        <div
           style={{
             position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
+            top: 16,
+            left: 16,
+            width: "calc(100% - 32px)",
+            height: "calc(100% - 32px)",
             overflow: "auto",
           }}
         >
@@ -371,8 +375,8 @@ export default function Food() {
               );
             })}
           </div>
-        </Box>
-      </div>
+        </div>
+      </Box>
     </div>
   );
 }

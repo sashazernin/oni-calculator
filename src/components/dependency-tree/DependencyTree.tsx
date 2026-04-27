@@ -8,11 +8,13 @@ import {
   type ReactNode,
 } from "react";
 import { ThemeContext } from "../../providers/app-theme-provider";
+import type { GameNode } from "../../types/game-data-types";
 
 export type DependencyTreeNode = {
   name: string;
   image: string;
   total: number;
+  type: GameNode["type"];
   calory?: number;
   children?: DependencyTreeNode[];
 };
@@ -39,6 +41,12 @@ type BranchProps = {
 };
 
 const DEPTREE_COL_ATTR = "data-dep-tree-col";
+
+function directRowColumns(row: HTMLElement): HTMLElement[] {
+  return Array.from(row.children).filter(
+    (el): el is HTMLElement => el instanceof HTMLElement && el.hasAttribute(DEPTREE_COL_ATTR),
+  );
+}
 
 type MultiChildRowProps = {
   n: number;
@@ -69,7 +77,9 @@ function MultiChildRow({
   const updateHorizontalBar = useCallback(() => {
     const row = rowRef.current;
     if (!row) return;
-    const cols = row.querySelectorAll<HTMLElement>(`[${DEPTREE_COL_ATTR}]`);
+    /* Только прямые дочерние колонки: querySelectorAll тянет вложенные ряды (иначе
+       «последняя» = самая глубокая вправо, линия уезжала за границы ветки). */
+    const cols = directRowColumns(row);
     if (cols.length < 2) {
       setHBar({ leftPx: 0, widthPx: 0 });
       return;
@@ -90,7 +100,7 @@ function MultiChildRow({
       requestAnimationFrame(updateHorizontalBar);
     });
     ro.observe(row);
-    for (const c of Array.from(row.querySelectorAll<HTMLElement>(`[${DEPTREE_COL_ATTR}]`))) {
+    for (const c of directRowColumns(row)) {
       ro.observe(c);
     }
     return () => ro.disconnect();
