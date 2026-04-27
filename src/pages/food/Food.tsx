@@ -134,7 +134,7 @@ export default function Food() {
         plants.push(item);
       }
 
-      if (item.type === "food") {
+      if (item.type === "food" || item.type === "ingredient") {
         food.push(item);
       }
 
@@ -151,6 +151,12 @@ export default function Food() {
   }, [uniqueResourses]);
 
   const getResourseValue = useCallback((item: GameNode & { total: number } | DependencyTreeNode, totalCalory: boolean = false) => {
+    if (item.type === "ingredient") {
+      if ('union' in item && item.union) {
+        return Number.isInteger(item.total) ? item.total : item.total.toFixed(2)
+      }
+      return `${((totalCalory ? 1 : item.total) * item.calory).toFixed()} g`
+    };
     if ('calory' in item && item.calory) return `${((totalCalory ? 1 : item.total) * item.calory).toFixed()} kcal`;
     if (Number.isInteger(item.total)) return item.total;
     return item.total.toFixed(2);
@@ -302,7 +308,7 @@ export default function Food() {
                             color: `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.paper})`,
                           }}
                         >
-                          {getResourseValue(node, true)}
+                          {getResourseValue({ ...node.item, ...node }, true)}
                         </div>
                       )}
                     </div>

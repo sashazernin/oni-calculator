@@ -455,7 +455,7 @@ export const mixedBerryPie: IFood = {
 export const muckroot: IFood = {
   name: 'Muckroot',
   quality: -1,
-  type: 'ingredient',
+  type: 'food',
   calory: 800,
   union: true,
   image: 'food/Muckroot.webp'
@@ -464,7 +464,7 @@ export const muckroot: IFood = {
 export const rawEgg: IFood = {
   name: 'Raw Egg',
   quality: 1,
-  type: 'ingredient',
+  type: 'food',
   calory: 1600,
   image: 'food/Raw_Egg.webp'
 }
