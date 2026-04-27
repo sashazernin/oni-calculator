@@ -1,0 +1,109 @@
+/* Плашка: fade как у MUI (~150ms) */
+.tooltip-popper {
+  position: fixed;
+  z-index: 1500;
+  max-width: min(300px, calc(100vw - 16px));
+  box-sizing: border-box;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.98);
+  transition:
+    opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),
+    transform 150ms cubic-bezier(0.2, 0, 0.2, 1);
+  will-change: opacity, transform;
+  /* совпадает с фоном в Tooltip.tsx, для border стрелки */
+  --tooltip-surface: rgba(97, 97, 97, 0.95);
+}
+
+.tooltip-popper--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tooltip-popper--interactive {
+  pointer-events: auto;
+}
+
+.tooltip-popper__surface {
+  position: relative;
+  display: inline-block;
+  max-width: min(300px, calc(100vw - 16px));
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Контент (скруглённый прямоугольник) */
+.tooltip-popper__body {
+  box-sizing: border-box;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 500;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+/* Сторона, обращённая к якорю — зона под треугольник */
+.tooltip-popper--arrow .tooltip-popper__surface--top {
+  padding-bottom: 5px;
+}
+.tooltip-popper--arrow .tooltip-popper__surface--bottom {
+  padding-top: 5px;
+}
+.tooltip-popper--arrow .tooltip-popper__surface--left {
+  padding-right: 5px;
+}
+.tooltip-popper--arrow .tooltip-popper__surface--right {
+  padding-left: 5px;
+}
+
+/* Треугольник через border; размер 5px = «высота» в сторону якоря */
+.tooltip-popper__arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 0;
+  border-style: solid;
+  border-color: transparent;
+}
+/* Тултип НАД якорем — стрелка снизу, остриё вниз; left смещение из JS */
+.tooltip-popper__arrow--top {
+  bottom: 0;
+  border-top: 5px solid var(--tooltip-surface, rgba(97, 97, 97, 0.95));
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: none;
+}
+/* Тултип ПОД якорем — стрелка сверху, остриё вверх */
+.tooltip-popper__arrow--bottom {
+  top: 0;
+  border-bottom: 5px solid var(--tooltip-surface, rgba(97, 97, 97, 0.95));
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: none;
+}
+/* Тултип слева от якоря — стрелка справа, остриё вправо; top / transform в JS */
+.tooltip-popper__arrow--left {
+  right: 0;
+  border-left: 5px solid var(--tooltip-surface, rgba(97, 97, 97, 0.95));
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: none;
+}
+/* Тултип справа от якоря — стрелка слева, остриё влево */
+.tooltip-popper__arrow--right {
+  left: 0;
+  border-right: 5px solid var(--tooltip-surface, rgba(97, 97, 97, 0.95));
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: none;
+}
+
+/* Якорь: сжимается к содержимому, как обёртка MUI */
+.tooltip-anchor {
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
+  outline: none;
+}

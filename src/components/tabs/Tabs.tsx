@@ -22,6 +22,7 @@ interface ITabsProps {
   }[];
   children?: ReactNode;
   container?: (children: ReactNode) => ReactNode;
+  header?: ReactNode;
 }
 
 const INDICATOR_MS = 300;
@@ -33,6 +34,7 @@ export default function Tabs({
   onChange,
   value = 0,
   container,
+  header,
 }: Readonly<ITabsProps>) {
   const { colors } = useContext(ThemeContext);
   const panelBg = colors.background.paper;
@@ -172,6 +174,7 @@ export default function Tabs({
             marginBottom: 0,
           }}
         />
+        {header}
       </div>
       <div
         style={{

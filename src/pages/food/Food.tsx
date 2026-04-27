@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
 import { AssetImage } from "../../components/asset-image/AssetImage";
 import { Button } from "../../components/button/Button";
 import {
@@ -6,15 +6,15 @@ import {
   type DependencyTreeNode,
 } from "../../components/dependency-tree/DependencyTree";
 import { food } from "../../game-data/food";
-import type { GameNode, IFood, IKitchenTool } from "../../types/game-data-types";
+import type { GameNode, IFood } from "../../types/game-data-types";
 import { ThemeContext } from "../../providers/app-theme-provider";
 import Box from "../../components/box/box";
 import { DuplicantContext } from "../../providers/duplicant-provider";
 import { duplicantInfo } from "../../game-data/dublicantInfo";
 import Tabs from "../../components/tabs/Tabs";
-import { FaAppleAlt, FaToolbox } from "react-icons/fa";
 import { IoFastFoodSharp } from "react-icons/io5";
 import { IoNewspaper } from "react-icons/io5";
+import Info from "../../components/info/info";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
@@ -208,6 +208,13 @@ export default function Food() {
         }}
       >
         <Tabs
+          header={
+            <>
+              <div style={{ flex: 1 }} />
+              <div style={{ display: "flex", justifyContent: "center", alignItems: 'center' }}>
+                <Info message="Resource values ​​are given per cycle, plants are calculated so that there is enough food for the duration of their growth cycle" />
+              </div>
+            </>}
           value={selectedTab}
           onChange={setSelectedTab}
           tabs={[
