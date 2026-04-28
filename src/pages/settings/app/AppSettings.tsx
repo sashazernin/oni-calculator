@@ -1,16 +1,20 @@
 import { useContext } from "react";
-import { ThemeContext, type ISupportedThemes } from "../../../providers/app-theme-provider";
+import { supportedThemes, ThemeContext } from "../../../providers/app-theme-provider";
+import { Select } from "../../../components/select/Select";
 
 export default function AppSettings() {
   const { theme, toggleTheme } = useContext(ThemeContext);
 
   return (
     <div>
-      <select value={theme} onChange={(e) => toggleTheme(e.target.value as ISupportedThemes)}>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-        <option value="system">System</option>
-      </select>
+      <Select
+        style={{ minWidth: 100 }}
+        label="Theme"
+        fullWidth
+        value={theme}
+        items={supportedThemes}
+        onChange={(value) => toggleTheme(value)}
+      />
     </div>
-  )
+  );
 }

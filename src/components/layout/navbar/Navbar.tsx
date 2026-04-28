@@ -41,7 +41,7 @@ export default function Navbar() {
     <div
       style={{
         backgroundColor: colors.layout.background,
-        minWidth: 200,
+        minWidth: 220,
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "8px 0" }}>

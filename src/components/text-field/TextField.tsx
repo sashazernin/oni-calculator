@@ -68,8 +68,6 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     const errorColor = "rgb(211, 64, 64)";
     const labelPlaceholder = `color-mix(in srgb, ${colors.text.primary} 50%, ${paper})`;
     const labelFloatMuted = `color-mix(in srgb, ${colors.text.primary} 70%, ${paper})`;
-    const ring = `0 0 0 3px color-mix(in srgb, ${primary} 28%, transparent)`;
-    const errorRing = `0 0 0 3px color-mix(in srgb, ${errorColor} 22%, transparent)`;
 
     const showError = Boolean(error);
     const borderColor = showError
@@ -78,11 +76,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         ? primary
         : defaultBorder;
 
-    const boxShadow = showError
-      ? (focused ? errorRing : "none")
-      : focused
-        ? ring
-        : "none";
+    const boxShadow = "none";
 
     const labelTextColor = showError
       ? errorColor
@@ -110,7 +104,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       outline: "none" as const,
       cursor: disabled ? "not-allowed" : "text",
       opacity: disabled ? 0.72 : 1,
-      transition: `border-color ${FLOAT_MS}s ease, box-shadow ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease, opacity ${FLOAT_MS}s ease`,
+      transition: `border-color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease, opacity ${FLOAT_MS}s ease`,
       border: "none" as const,
       borderRadius: 0,
       backgroundColor: "transparent" as const,
@@ -136,7 +130,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
           backgroundColor: disabled ? disabledFill : paper,
           boxShadow,
           padding: `0 ${FIELD_PAD_X}px`,
-          transition: `border-color ${FLOAT_MS}s ease, box-shadow ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease`,
+          transition: `border-color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease`,
           marginTop: extra?.marginTop ?? 0,
         }}
       >
