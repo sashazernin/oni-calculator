@@ -252,6 +252,7 @@ export default function Food() {
             style={{
               flex: 1,
               minHeight: 0,
+              paddingTop: 16,
               display: "flex",
               flexDirection: "column",
               position: 'relative',
@@ -337,9 +338,11 @@ export default function Food() {
               flexDirection: "column",
               gap: 10,
               paddingTop: 16,
+              height: "100%",
+              width: "100%",
             }}
           >
-            <div
+            {selectedItem ? <div
               style={{
                 flex: 1,
                 display: "flex",
@@ -361,7 +364,15 @@ export default function Food() {
               {infoItems(resourses, 'Resourses')}
               {infoItems(liquids, 'Liquids')}
               {infoItems(Object.values(uniqueTools), 'Tools')}
-            </div>
+            </div> : <div
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "0.95rem", fontWeight: 500,
+                color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
+                height: "100%", width: "100%",
+              }}>
+              Select food on the right
+            </div>}
           </div>
         </Tabs>
       </Box>
