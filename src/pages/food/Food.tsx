@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AssetImage } from "../../components/asset-image/AssetImage";
 import { Button } from "../../components/button/Button";
 import {
@@ -10,13 +10,16 @@ import type { GameNode, IFood } from "../../types/game-data-types";
 import { ThemeContext } from "../../providers/app-theme-provider";
 import Box from "../../components/box/box";
 import { DuplicantContext } from "../../providers/duplicant-provider";
-import { duplicantInfo } from "../../game-data/dublicantInfo";
 import Tabs from "../../components/tabs/Tabs";
 import { IoFastFoodSharp } from "react-icons/io5";
 import { IoNewspaper } from "react-icons/io5";
 import Info from "../../components/info/info";
 import { getQualityData } from "../../helpers/qualityData";
 import GameItemInfoPopup from "../../components/game-item-info-popup/gameItemInfoPopup";
+import { DupeIcon } from "../../icons";
+import { IconButton } from "../../components/icon-button/IconButton";
+import { FiPlusCircle } from "react-icons/fi";
+import { AiOutlineMinusCircle } from "react-icons/ai";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
@@ -25,12 +28,31 @@ export default function Food() {
 
   const { duplicants } = useContext(DuplicantContext);
 
-  const totalPerCycle = useMemo(() => (
-    duplicants.reduce((acc, duplicate) =>
-      acc + 1000 + (duplicate.gluttonous ? duplicantInfo.gluttonous : 0),
-      0
-    )
-  ), [duplicants]);
+  const [greenDupe, setGreenDupe] = useState(0);
+  const [redDupe, setRedDupe] = useState(0);
+
+  const setDefaultDupes = useCallback(() => {
+    const greenDupe = []
+
+    const redDupe = []
+
+    duplicants.forEach((duplicate) => {
+      if (duplicate.gluttonous) {
+        redDupe.push(duplicate);
+      } else {
+        greenDupe.push(duplicate);
+      }
+    });
+
+    setGreenDupe(greenDupe.length);
+    setRedDupe(redDupe.length);
+  }, [duplicants]);
+
+  useEffect(() => {
+    setDefaultDupes()
+  }, [setDefaultDupes]);
+
+  const totalPerCycle = useMemo(() => greenDupe * 1000 + redDupe * 1500, [greenDupe, redDupe]);
 
   /** Латиница a–z и кириллица а–я (и ё) по правилам `ru` */
   const foodItemsSorted = useMemo(
@@ -212,6 +234,87 @@ export default function Food() {
     [colors.text.primary]
   );
 
+  const dupeCounter = useCallback(
+    (accent: string, value: number, onChange: (next: number) => void) => (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 12,
+          padding: "8px 12px",
+          borderRadius: 12,
+          background: `color-mix(in srgb, ${accent} 13%, ${colors.background.paper})`,
+          border: `1px solid color-mix(in srgb, ${accent} 38%, ${colors.border.main})`,
+          boxShadow:
+            colors.mode === "dark"
+              ? "0 1px 0 color-mix(in srgb, #fff 6%, transparent)"
+              : "0 1px 0 color-mix(in srgb, #000 5%, transparent)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 42,
+            height: 42,
+            borderRadius: "50%",
+            flexShrink: 0,
+            background: `color-mix(in srgb, ${accent} 22%, ${colors.background.average})`,
+            boxShadow: `inset 0 1px 0 color-mix(in srgb, ${accent} 45%, transparent)`,
+          }}
+        >
+          <DupeIcon
+            size={26}
+            style={{
+              color: accent,
+              filter: "drop-shadow(0 1px 3px rgb(0 0 0 / 0.45))",
+            }}
+          />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <IconButton
+            color="action"
+            aria-label="Decrease count"
+            onClick={() => {
+              if (value > 0) onChange(value - 1);
+            }}
+          >
+            <AiOutlineMinusCircle size={22} />
+          </IconButton>
+          <div
+            style={{
+              minWidth: "2.35rem",
+              padding: "6px 8px",
+              textAlign: "center",
+              fontVariantNumeric: "tabular-nums",
+              fontWeight: 700,
+              fontSize: "0.9375rem",
+              lineHeight: 1.15,
+              color: colors.text.primary,
+              background: colors.background.average,
+              borderRadius: 8,
+              border: `1px solid ${colors.border.main}`,
+            }}
+          >
+            {value}
+          </div>
+          <IconButton
+            color="action"
+            aria-label="Increase count"
+            onClick={() => {
+              if (value < 99) onChange(value + 1);
+            }}
+          >
+            <FiPlusCircle size={22} />
+          </IconButton>
+        </div>
+      </div>
+    ),
+    [colors]
+  );
+
   return (
     <div
       style={{
@@ -376,106 +479,142 @@ export default function Food() {
           </div>
         </Tabs>
       </Box>
-      <Box
-        style={{
-          position: "relative",
-          height: "100%",
-          width: "40%",
-          overflow: "hidden",
-        }}
-      >
-        <div
+      <div style={{
+        height: "100%",
+        width: "40%",
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+      }}>
+        <Box
           style={{
-            position: "absolute",
-            top: 16,
-            left: 16,
-            width: "calc(100% - 32px)",
-            height: "calc(100% - 32px)",
-            overflow: "auto",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 10,
+            padding: "12px 14px",
+          }}
+        >
+          {dupeCounter("#0EAD78", greenDupe, setGreenDupe)}
+          {dupeCounter("#E53935", redDupe, setRedDupe)}
+          <Button
+            type="button"
+            variant="translucent"
+            onClick={setDefaultDupes}
+            style={{
+              marginLeft: "auto",
+              padding: "10px 18px",
+              borderRadius: 10,
+              fontSize: "0.6875rem",
+              fontWeight: 700,
+              letterSpacing: "0.07em",
+              textTransform: "uppercase",
+            }}
+          >
+            Clear
+          </Button>
+        </Box>
+        <Box
+          style={{
+            position: "relative",
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
           }}
         >
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
-              gap: 10,
-              minWidth: 0,
-              boxSizing: "border-box",
+              position: "absolute",
+              top: 16,
+              left: 16,
+              width: "calc(100% - 32px)",
+              height: "calc(100% - 32px)",
+              overflow: "auto",
             }}
           >
-            {foodItemsSorted.map((item) => {
-              const isSelected = selectedItem?.name === item.name;
-              return (
-                <div
-                  key={item.name}
-                  style={{ display: "flex", minWidth: 0, minHeight: 0 }}
-                >
-                  <Button
-                    variant="translucent"
-                    className="button--natural-case"
-                    colorOverrides={
-                      isSelected
-                        ? {
-                          main: `color-mix(in srgb, ${accent} 38%, transparent)`,
-                          hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
-                          active: `color-mix(in srgb, ${accent} 54%, transparent)`,
-                        }
-                        : undefined
-                    }
-                    style={{
-                      width: "100%",
-                      aspectRatio: "1",
-                      minHeight: 0,
-                      padding: "clamp(8px, 2vw, 12px)",
-                      boxSizing: "border-box",
-                      borderRadius: 10,
-                    }}
-                    onClick={() => setSelectedItem(item)}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
+                gap: 10,
+                minWidth: 0,
+                boxSizing: "border-box",
+              }}
+            >
+              {foodItemsSorted.map((item) => {
+                const isSelected = selectedItem?.name === item.name;
+                return (
+                  <div
+                    key={item.name}
+                    style={{ display: "flex", minWidth: 0, minHeight: 0 }}
                   >
-                    <div
+                    <Button
+                      variant="translucent"
+                      className="button--natural-case"
+                      colorOverrides={
+                        isSelected
+                          ? {
+                            main: `color-mix(in srgb, ${accent} 38%, transparent)`,
+                            hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
+                            active: `color-mix(in srgb, ${accent} 54%, transparent)`,
+                          }
+                          : undefined
+                      }
                       style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 8,
-                        height: "100%",
                         width: "100%",
-                        color: "inherit",
+                        aspectRatio: "1",
+                        minHeight: 0,
+                        padding: "clamp(8px, 2vw, 12px)",
+                        boxSizing: "border-box",
+                        borderRadius: 10,
                       }}
+                      onClick={() => setSelectedItem(item)}
                     >
                       <div
                         style={{
-                          fontSize: "0.75rem",
-                          lineHeight: 1.2,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8,
+                          height: "100%",
+                          width: "100%",
                           color: "inherit",
                         }}
                       >
-                        {item.name}
+                        <div
+                          style={{
+                            fontSize: "0.75rem",
+                            lineHeight: 1.2,
+                            color: "inherit",
+                          }}
+                        >
+                          {item.name}
+                        </div>
+                        <div
+                          style={{
+                            flex: 1,
+                            minHeight: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <AssetImage
+                            pathRelativeToAssets={item.image}
+                            alt={item.name}
+                            width="100%"
+                            height="100%"
+                          />
+                        </div>
                       </div>
-                      <div
-                        style={{
-                          flex: 1,
-                          minHeight: 0,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <AssetImage
-                          pathRelativeToAssets={item.image}
-                          alt={item.name}
-                          width="100%"
-                          height="100%"
-                        />
-                      </div>
-                    </div>
-                  </Button>
-                </div>
-              );
-            })}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </Box>
+        </Box>
+      </div>
     </div>
   );
 }
