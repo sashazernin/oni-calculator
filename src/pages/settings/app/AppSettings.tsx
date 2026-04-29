@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { supportedThemes, ThemeContext } from "../../../providers/app-theme-provider";
 import { Select } from "../../../components/select/Select";
-import { LocalizationContext, supportedLanguages } from "../../../providers/localization-provider";
+import { Languages, LocalizationContext, supportedLanguages } from "../../../providers/localization-provider";
 import { useTranslation } from "../../../hooks/useTranslation";
 import type { TranslationKey } from "../../../i18n/translations";
 
@@ -31,9 +31,10 @@ export default function AppSettings() {
         style={{ minWidth: 100 }}
         label={t("settings_language")}
         fullWidth
-        value={language}
-        items={supportedLanguages}
-        onChange={(value) => setLanguage(value)}
+        value={Languages[language]}
+        getLabel={(item) => item.label}
+        items={Object.values(Languages) as { label: string, value: string }[]}
+        onChange={(value) => setLanguage(value.value as any)}
       />
     </div>
   );

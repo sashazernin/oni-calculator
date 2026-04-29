@@ -562,6 +562,8 @@ export function Select<T>({
                   fontWeight: selected ? 600 : 500,
                   marginBottom: i < filteredEntries.length - 1 ? 2 : 0,
                   transition: `background-color ${FLOAT_MS}s ease`,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {resolvedGetLabel(ent.item)}

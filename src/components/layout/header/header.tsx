@@ -6,7 +6,7 @@ import { FaMoon } from "react-icons/fa";
 import { DupeIcon } from "../../../icons";
 import { DuplicantContext } from "../../../providers/duplicant-provider";
 import { Link } from "react-router-dom";
-import { LocalizationContext, supportedLanguages } from "../../../providers/localization-provider";
+import { Languages, LocalizationContext, supportedLanguages } from "../../../providers/localization-provider";
 import { useTranslation } from "../../../hooks/useTranslation";
 import { Select } from "../../select/Select";
 
@@ -125,15 +125,16 @@ export default function Header() {
         <Select
           fieldBackground={colors.layout.background}
           style={{
-            width: 60,
+            width: 100,
             alignSelf: "stretch",
             justifyContent: "center",
           }}
           hideLabelMargin
           label={t("lang_short_label")}
-          value={language}
-          items={supportedLanguages}
-          onChange={(value) => setLanguage(value)}
+          value={Languages[language]}
+          getLabel={(item) => item.label}
+          items={Object.values(Languages) as { label: string, value: string }[]}
+          onChange={(value) => setLanguage(value.value as any)}
         />
         <IconButton onClick={() => toggleTheme(colors.mode === 'dark' ? 'light' : 'dark')}>
           {colors.mode === 'dark' ? <FaMoon /> : <FaRegMoon />}

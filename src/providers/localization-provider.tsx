@@ -4,6 +4,17 @@ export const LANGUAGE_STORAGE_KEY = "language";
 
 export const supportedLanguages = ['ru', 'en'] as const;
 
+export const Languages = {
+  ru: {
+    label: "Русский",
+    value: "ru",
+  },
+  en: {
+    label: "English",
+    value: "en",
+  },
+} as const satisfies Record<string, { label: string, value: ISupportedLanguages }>;
+
 export type ISupportedLanguages = (typeof supportedLanguages)[number];
 
 function readStoredLanguage(): ISupportedLanguages | null {
@@ -18,7 +29,8 @@ function readStoredLanguage(): ISupportedLanguages | null {
   return null;
 }
 
-function resolveSystemLanguage(): ISupportedLanguages {  if (typeof navigator === "undefined") return "en";
+function resolveSystemLanguage(): ISupportedLanguages {
+  if (typeof navigator === "undefined") return "en";
 
   const codes = new Set<ISupportedLanguages>(supportedLanguages);
   const tags = [...(navigator.languages ?? []), navigator.language];
