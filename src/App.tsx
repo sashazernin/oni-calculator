@@ -3,9 +3,15 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { menuItems } from './menu-items/menu-items'
 import Layout from './components/layout/Layout'
 
+function basenameFromVite(): string | undefined {
+  const raw = import.meta.env.BASE_URL
+  if (raw === '/') return undefined
+  return raw.endsWith('/') ? raw.slice(0, -1) : raw
+}
+
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basenameFromVite()}>
       <Routes>
         <Route path="/" element={<Layout />}>
           {menuItems.map((item => {
