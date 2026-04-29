@@ -40,6 +40,10 @@ export const translations = {
     ru: "В настройках на вкладке «Колония» можно указать дупликантов колонии — их количество автоматически подставляется в калькулятор еды.",
     en: "In Settings under the Colony tab you can add your colony's duplicants — their count is applied automatically in the food calculator.",
   },
+  page_home_browser_storage: {
+    ru: "Вводимые вами данные сохраняются локально и привязаны к этому браузеру — они не передаются на сервер.",
+    en: "The data you enter is saved locally and stays tied to this browser — it is not sent to any server.",
+  },
 
   food_tab_food: { ru: "Еда", en: "Food" },
   food_tab_info: { ru: "Инфо", en: "Info" },

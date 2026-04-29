@@ -50,6 +50,7 @@ export default function Home() {
         </h2>
         <p>{t("page_home_intro")}</p>
         <p>{t("page_home_duplicants_hint")}</p>
+        <p>{t("page_home_browser_storage")}</p>
         <p>
           {t("page_home_food_before")}
           <Link to="/food" style={accentLinkStyle}>
