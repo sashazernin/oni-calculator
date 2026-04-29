@@ -6,12 +6,15 @@ import { FaMoon } from "react-icons/fa";
 import { DupeIcon } from "../../../icons";
 import { DuplicantContext } from "../../../providers/duplicant-provider";
 import { Link } from "react-router-dom";
+import { LocalizationContext, supportedLanguages } from "../../../providers/localization-provider";
+import { Select } from "../../select/Select";
 
 export default function Header() {
   const { colors, toggleTheme } = useContext(ThemeContext);
   const { duplicants } = useContext(DuplicantContext);
   const [dupeLinkHover, setDupeLinkHover] = useState(false);
   const accent = colors.primary.main;
+  const { language, setLanguage } = useContext(LocalizationContext);
   return (
     <div
       style={{
@@ -32,11 +35,14 @@ export default function Header() {
       >
         <div
           style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             paddingRight: 16,
             fontWeight: 700,
             fontSize: "1.125rem",
             letterSpacing: "-0.03em",
-            color: colors.text.primary,
+            color: colors.text.primary
           }}
         >
           Simple ONI Calculator
@@ -48,11 +54,12 @@ export default function Header() {
           onMouseEnter={() => setDupeLinkHover(true)}
           onMouseLeave={() => setDupeLinkHover(false)}
           style={{
+            boxSizing: 'border-box',
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
-            gap: 10,
-            padding: "6px 12px 6px 8px",
+            gap: 8,
+            padding: "4px 8px",
             borderRadius: 10,
             color: colors.text.primary,
             textDecoration: "none",
@@ -60,14 +67,7 @@ export default function Header() {
               ? `color-mix(in srgb, ${accent} 20%, ${colors.background.paper})`
               : `color-mix(in srgb, ${accent} 11%, ${colors.background.paper})`,
             border: `1px solid color-mix(in srgb, ${accent} 36%, ${colors.border.main})`,
-            transition: "background 0.15s ease, box-shadow 0.15s ease",
-            boxShadow: dupeLinkHover
-              ? colors.mode === "dark"
-                ? "0 2px 10px rgb(0 0 0 / 0.4)"
-                : "0 2px 10px rgb(0 0 0 / 0.1)"
-              : colors.mode === "dark"
-                ? "0 1px 0 color-mix(in srgb, #fff 6%, transparent)"
-                : "0 1px 0 color-mix(in srgb, #000 5%, transparent)",
+            transition: "background 0.15s ease, box-shadow 0.15s ease"
           }}
         >
           <div
@@ -104,6 +104,26 @@ export default function Header() {
             {duplicants.length}
           </span>
         </Link>
+        <div
+          style={{
+            width: 1,
+            alignSelf: "stretch",
+            flexShrink: 0,
+            backgroundColor: colors.border.main,
+          }}
+        />
+        <Select
+          style={{
+            width: 60,
+            alignSelf: "stretch",
+            justifyContent: "center",
+          }}
+          hideLabelMargin
+          label="Lang"
+          value={language}
+          items={supportedLanguages}
+          onChange={(value) => setLanguage(value)}
+        />
         <IconButton onClick={() => toggleTheme(colors.mode === 'dark' ? 'light' : 'dark')}>
           {colors.mode === 'dark' ? <FaMoon /> : <FaRegMoon />}
         </IconButton>

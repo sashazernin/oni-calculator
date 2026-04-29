@@ -39,6 +39,7 @@ export type SelectProps<T> = {
   className?: string;
   id?: string;
   style?: CSSProperties;
+  hideLabelMargin?: boolean;
 };
 
 function objectIdIfPresent(item: unknown): string | undefined {
@@ -121,6 +122,7 @@ export function Select<T>({
   className,
   id: idProp,
   style: triggerOuterStyle,
+  hideLabelMargin
 }: SelectProps<T>) {
   const { colors } = useContext(ThemeContext);
   const generatedId = useId();
@@ -392,7 +394,7 @@ export function Select<T>({
         minWidth: 0,
         gap: 4,
         position: "relative",
-        zIndex: 2,
+        zIndex: 2
       }}
     >
       <input
@@ -439,8 +441,7 @@ export function Select<T>({
           height: INPUT_LINE_H,
           padding: 0,
           cursor: disabled ? "not-allowed" : "text",
-          opacity: disabled ? 0.72 : 1,
-          ...triggerOuterStyle,
+          opacity: disabled ? 0.72 : 1
         }}
       />
       <button
@@ -481,48 +482,48 @@ export function Select<T>({
 
   const panel = open
     ? createPortal(
-        <div
-          ref={panelRef}
-          id={listboxId}
-          role="listbox"
-          tabIndex={-1}
-          style={{
-            position: "fixed",
-            top: panelRect.top,
-            left: panelRect.left,
-            width: panelRect.width,
-            maxHeight: panelRect.maxHeight,
-            overflowY: "auto",
-            overflowX: "hidden",
-            backgroundColor: paper,
-            border: `1px solid ${defaultBorder}`,
-            borderRadius: 10,
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
-            zIndex: LIST_Z,
-            padding: 4,
-            boxSizing: "border-box",
-            transform: panelEnter
-              ? "translateY(0)"
-              : `translateY(-${PANEL_SLIDE_PX}px)`,
-            opacity: panelEnter ? 1 : 0.88,
-            transition:
-              "transform 0.2s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.18s ease-out",
-          }}
-        >
-          {filteredEntries.length === 0 ? (
-            <div
-              style={{
-                padding: "12px 14px",
-                fontSize: "0.875rem",
-                lineHeight: 1.25,
-                color: labelPlaceholder,
-              }}
-            >
-              No matches
-            </div>
-          ) : (
-            filteredEntries.map((ent, i) => {
+      <div
+        ref={panelRef}
+        id={listboxId}
+        role="listbox"
+        tabIndex={-1}
+        style={{
+          position: "fixed",
+          top: panelRect.top,
+          left: panelRect.left,
+          width: panelRect.width,
+          maxHeight: panelRect.maxHeight,
+          overflowY: "auto",
+          overflowX: "hidden",
+          backgroundColor: paper,
+          border: `1px solid ${defaultBorder}`,
+          borderRadius: 10,
+          borderTopLeftRadius: 8,
+          borderTopRightRadius: 8,
+          zIndex: LIST_Z,
+          padding: 4,
+          boxSizing: "border-box",
+          transform: panelEnter
+            ? "translateY(0)"
+            : `translateY(-${PANEL_SLIDE_PX}px)`,
+          opacity: panelEnter ? 1 : 0.88,
+          transition:
+            "transform 0.2s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.18s ease-out",
+        }}
+      >
+        {filteredEntries.length === 0 ? (
+          <div
+            style={{
+              padding: "12px 14px",
+              fontSize: "0.875rem",
+              lineHeight: 1.25,
+              color: labelPlaceholder,
+            }}
+          >
+            No matches
+          </div>
+        ) : (
+          filteredEntries.map((ent, i) => {
             const k = itemOptionValue(ent.item, ent.sourceIndex, getId);
             const selected = k === selectedKey;
             const active = i === highlightIndex;
@@ -560,10 +561,10 @@ export function Select<T>({
               </div>
             );
           })
-          )}
-        </div>,
-        document.body
-      )
+        )}
+      </div>,
+      document.body
+    )
     : null;
 
   const fieldShell = (
@@ -586,7 +587,7 @@ export function Select<T>({
         boxShadow,
         padding: `0 ${FIELD_PAD_X}px`,
         transition: `border-color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease`,
-        marginTop: extra?.marginTop ?? 0,
+        ...(!hideLabelMargin ? { marginTop: extra?.marginTop ?? 0 } : {}),
       }}
     >
       {children}
@@ -604,52 +605,53 @@ export function Select<T>({
         gap: 6,
         width: fullWidth ? "100%" : "auto",
         minWidth: 0,
+        ...triggerOuterStyle,
       }}
     >
       {hasLabel
         ? fieldShell(
-            <>
-              <label
-                htmlFor={id}
-                style={{
-                  position: "absolute",
-                  left: FIELD_PAD_X,
-                  maxWidth: `calc(100% - ${FIELD_PAD_X * 2}px - 28px)`,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  pointerEvents: "none",
-                  userSelect: "none",
-                  lineHeight: 1.2,
-                  fontWeight: 500,
-                  zIndex: 1,
-                  transformOrigin: "left top",
-                  transition: `top ${FLOAT_MS}s ease, transform ${FLOAT_MS}s ease, font-size ${FLOAT_MS}s ease, color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease, padding ${FLOAT_MS}s ease`,
-                  ...(float
-                    ? {
-                        top: 0,
-                        transform: "translateY(-50%)",
-                        fontSize: "0.6875rem",
-                        padding: "0 3px",
-                        color: labelTextColor,
-                        backgroundColor: paper,
-                      }
-                    : {
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        fontSize: "0.875rem",
-                        padding: 0,
-                        color: labelTextColor,
-                        backgroundColor: "transparent",
-                      }),
-                }}
-              >
-                {label}
-              </label>
-              {comboboxTrigger}
-            </>,
-            { marginTop: 6 }
-          )
+          <>
+            <label
+              htmlFor={id}
+              style={{
+                position: "absolute",
+                left: FIELD_PAD_X,
+                maxWidth: `calc(100% - ${FIELD_PAD_X}px)`,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                pointerEvents: "none",
+                userSelect: "none",
+                lineHeight: 1.2,
+                fontWeight: 500,
+                zIndex: 1,
+                transformOrigin: "left top",
+                transition: `top ${FLOAT_MS}s ease, transform ${FLOAT_MS}s ease, font-size ${FLOAT_MS}s ease, color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease, padding ${FLOAT_MS}s ease`,
+                ...(float
+                  ? {
+                    top: 0,
+                    transform: "translateY(-50%)",
+                    fontSize: "0.6875rem",
+                    padding: "0 3px",
+                    color: labelTextColor,
+                    backgroundColor: paper,
+                  }
+                  : {
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    fontSize: "0.875rem",
+                    padding: 0,
+                    color: labelTextColor,
+                    backgroundColor: "transparent",
+                  }),
+              }}
+            >
+              {label}
+            </label>
+            {comboboxTrigger}
+          </>,
+          { marginTop: 6 }
+        )
         : fieldShell(comboboxTrigger)}
       {panel}
       {showError ? (
