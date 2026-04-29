@@ -8,8 +8,10 @@ import { FaGear } from "react-icons/fa6";
 import Food from "../pages/food/Food";
 import { IoFastFoodSharp } from "react-icons/io5";
 import { IoFastFoodOutline } from "react-icons/io5";
+import type { TranslationKey } from "../i18n/translations";
+
 export type MenuItem = {
-  label: string;
+  labelKey: TranslationKey;
   href: string;
   component?: React.ReactNode;
   children?: MenuItem[];
@@ -19,22 +21,22 @@ export type MenuItem = {
 
 export const menuItems: MenuItem[] = [
   {
-    label: 'home',
-    href: '',
+    labelKey: "nav_home",
+    href: "",
     component: <Home />,
     icon: IoHomeOutline,
     activeIcon: IoHomeSharp
   },
   {
-    label: 'Food',
-    href: 'food',
+    labelKey: "nav_food",
+    href: "food",
     component: <Food />,
     icon: IoFastFoodOutline,
     activeIcon: IoFastFoodSharp
   },
   {
-    label: 'Settings',
-    href: 'settings',
+    labelKey: "nav_settings",
+    href: "settings",
     component: <Settings />,
     icon: GoGear,
     activeIcon: FaGear

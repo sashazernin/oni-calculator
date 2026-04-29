@@ -14,15 +14,18 @@ import Tabs from "../../components/tabs/Tabs";
 import { IoFastFoodSharp } from "react-icons/io5";
 import { IoNewspaper } from "react-icons/io5";
 import Info from "../../components/info/info";
-import { getQualityData } from "../../helpers/qualityData";
+import { getQualityColor, getQualityTranslationKey } from "../../helpers/qualityData";
 import GameItemInfoPopup from "../../components/game-item-info-popup/gameItemInfoPopup";
 import { DupeIcon } from "../../icons";
 import { IconButton } from "../../components/icon-button/IconButton";
 import { FiPlusCircle } from "react-icons/fi";
 import { AiOutlineMinusCircle } from "react-icons/ai";
+import { useTranslation } from "../../hooks/useTranslation";
+import { TextField } from "../../components/text-field/TextField";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
+  const { t, entityName, language } = useTranslation();
 
   const [selectedItem, setSelectedItem] = useState<IFood | null>(null);
 
@@ -58,9 +61,12 @@ export default function Food() {
   const foodItemsSorted = useMemo(
     () =>
       Object.values(food).sort((a, b) =>
-        a.name.localeCompare(b.name, "ru", { sensitivity: "base", numeric: true })
+        entityName(a.name).localeCompare(entityName(b.name), language === "ru" ? "ru" : "en", {
+          sensitivity: "base",
+          numeric: true,
+        })
       ),
-    []
+    [language, entityName]
   );
 
   const { tree, uniqueResourses, uniqueTools } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }>, uniqueTools: Record<string, GameNode & { total: number }> } => {
@@ -146,10 +152,10 @@ export default function Food() {
   const [selectedTab, setSelectedTab] = useState<number>(0);
 
   const [plants, foods, resourses, liquids] = useMemo(() => {
-    const plants = []
-    const food = []
-    const resourses = []
-    const liquids = []
+    const plants: (GameNode & { total: number })[] = [];
+    const food: (GameNode & { total: number })[] = [];
+    const resourses: (GameNode & { total: number })[] = [];
+    const liquids: (GameNode & { total: number })[] = [];
 
     Object.values(uniqueResourses).forEach((item) => {
       if (item.type === "plant") {
@@ -172,67 +178,83 @@ export default function Food() {
     return [plants, food, resourses, liquids];
   }, [uniqueResourses]);
 
-  const getResourseValue = useCallback((item: GameNode & { total: number } | DependencyTreeNode, totalCalory: boolean = false) => {
-    if (item.type === "ingredient") {
-      if ('union' in item && item.union) {
-        return Number.isInteger(item.total) ? item.total : item.total.toFixed(2)
+  const getResourseValue = useCallback(
+    (item: GameNode & { total: number } | DependencyTreeNode, totalCalory: boolean = false) => {
+      if (item.type === "ingredient") {
+        if ("union" in item && item.union) {
+          return Number.isInteger(item.total) ? item.total : item.total.toFixed(2);
+        }
+        return `${((totalCalory ? 1 : item.total) * (item.calory ?? 0)).toFixed()} ${t("unit_grams")}`;
       }
-      return `${((totalCalory ? 1 : item.total) * item.calory).toFixed()} g`
-    };
-    if ('calory' in item && item.calory) return `${((totalCalory ? 1 : item.total) * item.calory).toFixed()} kcal`;
-    if (Number.isInteger(item.total)) return item.total;
-    return item.total.toFixed(2);
-  }, []);
+      if ("calory" in item && item.calory)
+        return `${((totalCalory ? 1 : item.total) * item.calory).toFixed()} ${t("unit_kcal")}`;
+      if (Number.isInteger(item.total)) return item.total;
+      return item.total.toFixed(2);
+    },
+    [t]
+  );
 
-  const infoItems = useCallback((mas: (GameNode & { total: number })[], title: string) => {
-    if (mas.length === 0) return null;
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <div style={{ fontSize: "0.875rem", fontWeight: 600, color: colors.text.primary }}>{title}</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {mas.map((item) => (
-            <GameItemInfoPopup item={item}>
-              <div key={item.name} style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "6px 12px",
-                borderRadius: 10,
-                background: colors.background.average,
-                fontSize: "0.8125rem",
-                fontWeight: 600,
-                width: "fit-content",
-                color: colors.text.primary,
-                minWidth: 0,
-              }}>
-                <AssetImage
-                  pathRelativeToAssets={item.image}
-                  alt={item.name}
-                  width={28}
-                  height={28}
-                />
-                {item.type !== "kitchen-tool" && <span>{getResourseValue(item)}</span>}
-              </div>
-            </GameItemInfoPopup>
-          ))}
+  const infoItems = useCallback(
+    (mas: (GameNode & { total: number })[], title: string) => {
+      if (mas.length === 0) return null;
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ fontSize: "0.875rem", fontWeight: 600, color: colors.text.primary }}>{title}</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {mas.map((item) => (
+              <GameItemInfoPopup item={item}>
+                <div key={item.name} style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "6px 12px",
+                  borderRadius: 10,
+                  background: colors.background.average,
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  width: "fit-content",
+                  color: colors.text.primary,
+                  minWidth: 0,
+                }}>
+                  <AssetImage
+                    pathRelativeToAssets={item.image}
+                    alt={entityName(item.name)}
+                    width={28}
+                    height={28}
+                  />
+                  {item.type !== "kitchen-tool" && <span>{getResourseValue(item)}</span>}
+                </div>
+              </GameItemInfoPopup>
+            ))}
+          </div>
         </div>
-      </div>
-    )
-  }, []);
+      )
+    }, [colors.text.primary, getResourseValue]);
 
   const qualityChip = useCallback(
     (quality: number) => {
-
-      const qualityData = getQualityData(quality);
-
+      const color = getQualityColor(quality);
+      const key = getQualityTranslationKey(quality);
       return (
-        <div style={{ color: qualityData.color }}>
-          {`${qualityData.name} (${quality})`}
+        <div style={{ color }}>
+          {`${t(key)} (${quality})`}
         </div>
       );
     },
-    [colors.text.primary]
+    [t]
   );
+
+  const [foodSearch, setFoodSearch] = useState<string>("");
+
+  const foodItemsFiltered = useMemo(() => {
+    const q = foodSearch.trim().toLowerCase();
+    if (!q) return foodItemsSorted;
+    return foodItemsSorted.filter((item) => {
+      const label = entityName(item.name).toLowerCase();
+      const keyId = item.name.toLowerCase();
+      return label.includes(q) || keyId.includes(q);
+    });
+  }, [foodSearch, foodItemsSorted, entityName]);
 
   const dupeCounter = useCallback(
     (accent: string, value: number, onChange: (next: number) => void) => (
@@ -276,7 +298,7 @@ export default function Food() {
         <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
           <IconButton
             color="action"
-            aria-label="Decrease count"
+            aria-label={t("aria_decrease_count")}
             onClick={() => {
               if (value > 0) onChange(value - 1);
             }}
@@ -302,7 +324,7 @@ export default function Food() {
           </div>
           <IconButton
             color="action"
-            aria-label="Increase count"
+            aria-label={t("aria_increase_count")}
             onClick={() => {
               if (value < 99) onChange(value + 1);
             }}
@@ -312,7 +334,7 @@ export default function Food() {
         </div>
       </div>
     ),
-    [colors]
+    [colors, t]
   );
 
   return (
@@ -341,14 +363,14 @@ export default function Food() {
             <>
               <div style={{ flex: 1 }} />
               <div style={{ display: "flex", justifyContent: "center", alignItems: 'center' }}>
-                <Info message="Resource values ​​are given per cycle, plants are calculated so that there is enough food for the duration of their growth cycle" />
+                <Info message={t("food_resource_info_tooltip")} />
               </div>
             </>}
           value={selectedTab}
           onChange={setSelectedTab}
           tabs={[
-            { label: "Food", icon: <IoFastFoodSharp /> },
-            { label: "Info", icon: <IoNewspaper /> },
+            { label: t("food_tab_food"), icon: <IoFastFoodSharp /> },
+            { label: t("food_tab_info"), icon: <IoNewspaper /> },
           ]}
         >
           <div
@@ -402,7 +424,7 @@ export default function Food() {
                           WebkitBoxOrient: "vertical",
                         }}
                       >
-                        {node.name}
+                        {entityName(node.name)}
                       </div>
                       {node.type !== "kitchen-tool" && (
                         <div
@@ -431,7 +453,7 @@ export default function Food() {
                   color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
                 }}
               >
-                Select food on the right
+                {t("food_select_prompt")}
               </div>
             )}
           </div>
@@ -459,14 +481,16 @@ export default function Food() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: colors.text.primary }}>Quality:</div>
-                {selectedItem && qualityChip(selectedItem?.quality)}
+                <div style={{ fontSize: "0.875rem", fontWeight: 600, color: colors.text.primary }}>{t("food_quality_label")}</div>
+                {typeof selectedItem.quality === "number"
+                  ? qualityChip(selectedItem.quality)
+                  : null}
               </div>
-              {infoItems(plants, 'Plants')}
-              {infoItems(foods, 'Food')}
-              {infoItems(resourses, 'Resourses')}
-              {infoItems(liquids, 'Liquids')}
-              {infoItems(Object.values(uniqueTools), 'Tools')}
+              {infoItems(plants, t("food_section_plants"))}
+              {infoItems(foods, t("food_section_food"))}
+              {infoItems(resourses, t("food_section_resources"))}
+              {infoItems(liquids, t("food_section_liquids"))}
+              {infoItems(Object.values(uniqueTools), t("food_section_tools"))}
             </div> : <div
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -474,7 +498,7 @@ export default function Food() {
                 color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
                 height: "100%", width: "100%",
               }}>
-              Select food on the right
+              {t("food_select_prompt")}
             </div>}
           </div>
         </Tabs>
@@ -511,106 +535,129 @@ export default function Food() {
               textTransform: "uppercase",
             }}
           >
-            Clear
+            {t("food_clear")}
           </Button>
         </Box>
         <Box
           style={{
-            position: "relative",
             height: "100%",
             width: "100%",
             overflow: "hidden",
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              top: 16,
-              left: 16,
-              width: "calc(100% - 32px)",
-              height: "calc(100% - 32px)",
-              overflow: "auto",
+          <TextField
+            label={t("search_label")}
+            onChange={(e) => {
+              setFoodSearch(e.target.value);
             }}
-          >
+          />
+          <div style={{ position: 'relative', height: 'calc(100% - 40px)', width: '100%' }}>
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
-                gap: 10,
-                minWidth: 0,
-                boxSizing: "border-box",
+                position: "absolute",
+                top: 16,
+                left: 0,
+                width: "100%",
+                height: "calc(100% - 32px)",
+                overflow: "auto",
               }}
             >
-              {foodItemsSorted.map((item) => {
-                const isSelected = selectedItem?.name === item.name;
-                return (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
+                  gap: 10,
+                  minWidth: 0,
+                  boxSizing: "border-box",
+                }}
+              >
+                {foodItemsFiltered.length === 0 ? (
                   <div
-                    key={item.name}
-                    style={{ display: "flex", minWidth: 0, minHeight: 0 }}
+                    style={{
+                      gridColumn: "1 / -1",
+                      padding: "24px 16px",
+                      textAlign: "center",
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      color: `color-mix(in srgb, ${colors.text.primary} 52%, ${colors.background.paper})`,
+                    }}
                   >
-                    <Button
-                      variant="translucent"
-                      className="button--natural-case"
-                      colorOverrides={
-                        isSelected
-                          ? {
-                            main: `color-mix(in srgb, ${accent} 38%, transparent)`,
-                            hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
-                            active: `color-mix(in srgb, ${accent} 54%, transparent)`,
-                          }
-                          : undefined
-                      }
-                      style={{
-                        width: "100%",
-                        aspectRatio: "1",
-                        minHeight: 0,
-                        padding: "clamp(8px, 2vw, 12px)",
-                        boxSizing: "border-box",
-                        borderRadius: 10,
-                      }}
-                      onClick={() => setSelectedItem(item)}
+                    {t("food_search_no_results")}
+                  </div>
+                ) : null}
+                {foodItemsFiltered.map((item) => {
+                  const isSelected = selectedItem?.name === item.name;
+                  return (
+                    <div
+                      key={item.name}
+                      style={{ display: "flex", minWidth: 0, minHeight: 0 }}
                     >
-                      <div
+                      <Button
+                        variant="translucent"
+                        className="button--natural-case"
+                        colorOverrides={
+                          isSelected
+                            ? {
+                              main: `color-mix(in srgb, ${accent} 38%, transparent)`,
+                              hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
+                              active: `color-mix(in srgb, ${accent} 54%, transparent)`,
+                            }
+                            : undefined
+                        }
                         style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 8,
-                          height: "100%",
                           width: "100%",
-                          color: "inherit",
+                          aspectRatio: "1",
+                          minHeight: 0,
+                          padding: "clamp(8px, 2vw, 12px)",
+                          boxSizing: "border-box",
+                          borderRadius: 10,
                         }}
+                        onClick={() => setSelectedItem(item)}
                       >
                         <div
                           style={{
-                            fontSize: "0.75rem",
-                            lineHeight: 1.2,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 8,
+                            height: "100%",
+                            width: "100%",
                             color: "inherit",
                           }}
                         >
-                          {item.name}
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              lineHeight: 1.2,
+                              color: "inherit",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis"
+                            }}
+                          >
+                            {entityName(item.name)}
+                          </div>
+                          <div
+                            style={{
+                              flex: 1,
+                              minHeight: 0,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <AssetImage
+                              pathRelativeToAssets={item.image}
+                              alt={entityName(item.name)}
+                              width="100%"
+                              height="100%"
+                            />
+                          </div>
                         </div>
-                        <div
-                          style={{
-                            flex: 1,
-                            minHeight: 0,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <AssetImage
-                            pathRelativeToAssets={item.image}
-                            alt={item.name}
-                            width="100%"
-                            height="100%"
-                          />
-                        </div>
-                      </div>
-                    </Button>
-                  </div>
-                );
-              })}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </Box>

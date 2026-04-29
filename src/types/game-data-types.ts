@@ -1,18 +1,21 @@
 export interface IResourse {
+  /** Ключ перевода из `gameDataTranslations` (`gd_*`). */
   name: string;
-  type: 'resourse';
+  type: "resourse";
   image: string;
 }
 
 export interface ILiquid {
+  /** Ключ перевода из `gameDataTranslations` (`gd_*`). */
   name: string;
-  type: 'liquid';
+  type: "liquid";
   image: string;
 }
 
 export interface IPlant {
+  /** Ключ перевода из `gameDataTranslations` (`gd_*`). */
   name: string;
-  type: 'plant';
+  type: "plant";
   image: string;
   cycles: number;
   harvest: number;
@@ -23,6 +26,7 @@ export interface IPlant {
 }
 
 export interface IFood {
+  /** Ключ перевода из `gameDataTranslations` (`gd_*`). */
   name: string;
   quality?: number;
   type: 'food' | 'ingredient';
@@ -37,6 +41,7 @@ export interface IFood {
 }
 
 export interface IKitchenTool {
+  /** Ключ перевода из `gameDataTranslations` (`gd_*`). */
   name: string;
   type: 'kitchen-tool';
   image: string;

@@ -9,9 +9,26 @@ export default function Layout() {
   return (
     <div style={{ display: 'flex', height: '100%', width: '100%', flexDirection: 'column' }}>
       <Header />
-      <div style={{ display: 'flex', height: '100%', width: '100%', flexDirection: 'row' }}>
+      <div
+        style={{
+          display: "flex",
+          flex: 1,
+          minHeight: 0,
+          width: "100%",
+          flexDirection: "row",
+        }}
+      >
         <Navbar />
-        <div style={{ backgroundColor: colors.background.default, flex: 1, padding: '16px' }}>
+        <div
+          style={{
+            backgroundColor: colors.background.default,
+            flex: 1,
+            minHeight: 0,
+            padding: "16px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <Outlet />
         </div>
       </div>

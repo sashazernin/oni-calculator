@@ -5,7 +5,7 @@ import { plants } from "./plants";
 import { resourses } from "./resourses";
 
 export const mealLice: IFood = {
-  name: 'Meal Lice',
+  name: 'gd_meal_lice',
   quality: -1,
   type: 'food',
   calory: 600,
@@ -19,7 +19,7 @@ export const mealLice: IFood = {
 }
 
 export const liceloaf: IFood = {
-  name: 'Liceloaf',
+  name: 'gd_liceloaf',
   quality: 0,
   type: 'food',
   calory: 1700,
@@ -38,7 +38,7 @@ export const liceloaf: IFood = {
 }
 
 export const mushBar: IFood = {
-  name: 'Mush Bar',
+  name: 'gd_mush_bar',
   quality: -1,
   type: 'food',
   calory: 800,
@@ -57,7 +57,7 @@ export const mushBar: IFood = {
 }
 
 export const mushFry: IFood = {
-  name: 'Mush Fry',
+  name: 'gd_mush_fry',
   quality: 0,
   type: 'food',
   calory: 1050,
@@ -72,7 +72,7 @@ export const mushFry: IFood = {
 }
 
 export const bogJelly: IFood = {
-  name: 'Bog Jelly',
+  name: 'gd_bog_jelly',
   quality: 0,
   type: 'food',
   calory: 1840,
@@ -87,7 +87,7 @@ export const bogJelly: IFood = {
 }
 
 export const swampyDelights: IFood = {
-  name: 'Swampy Delights',
+  name: 'gd_swampy_delights',
   quality: 1,
   type: 'food',
   calory: 2240,
@@ -102,7 +102,7 @@ export const swampyDelights: IFood = {
 }
 
 export const meat: IFood = {
-  name: 'Meat',
+  name: 'gd_meat',
   quality: -1,
   type: 'food',
   calory: 1600,
@@ -110,7 +110,7 @@ export const meat: IFood = {
 }
 
 export const Barbeque: IFood = {
-  name: 'Barbeque',
+  name: 'gd_barbeque',
   quality: 3,
   type: 'food',
   calory: 4000,
@@ -125,7 +125,7 @@ export const Barbeque: IFood = {
 }
 
 export const pacuFillet: IFood = {
-  name: 'Pacu Fillet',
+  name: 'gd_pacu_fillet',
   quality: 2,
   type: 'food',
   calory: 1000,
@@ -133,7 +133,7 @@ export const pacuFillet: IFood = {
 }
 
 export const rawShellfish: IFood = {
-  name: 'Raw Shellfish',
+  name: 'gd_raw_shellfish',
   quality: 2,
   type: 'food',
   calory: 1000,
@@ -141,7 +141,7 @@ export const rawShellfish: IFood = {
 }
 
 export const cookedSeafood: IFood = {
-  name: 'Cooked Seafood',
+  name: 'gd_cooked_seafood',
   quality: 3,
   type: 'food',
   calory: 1600,
@@ -156,7 +156,7 @@ export const cookedSeafood: IFood = {
 }
 
 export const SurfnTurf: IFood = {
-  name: 'Surf\'n Turf',
+  name: 'gd_surfn_turf',
   quality: 4,
   type: 'food',
   calory: 1000,
@@ -175,7 +175,7 @@ export const SurfnTurf: IFood = {
 }
 
 export const bristleBerry: IFood = {
-  name: 'Bristle Berry',
+  name: 'gd_bristle_berry',
   quality: 0,
   type: 'food',
   calory: 1600,
@@ -189,7 +189,7 @@ export const bristleBerry: IFood = {
 }
 
 export const gristleBerry: IFood = {
-  name: 'Gristle Berry',
+  name: 'gd_gristle_berry',
   quality: 1,
   type: 'food',
   calory: 2000,
@@ -204,7 +204,7 @@ export const gristleBerry: IFood = {
 }
 
 export const pinchaPeppernut: IFood = {
-  name: 'Pincha Peppernut',
+  name: 'gd_pincha_peppernut',
   type: 'ingredient',
   calory: 4000,
   image: 'food/Pincha_Peppernut.webp',
@@ -217,7 +217,7 @@ export const pinchaPeppernut: IFood = {
 }
 
 export const stuffedBerry: IFood = {
-  name: 'Stuffed Berry',
+  name: 'gd_stuffed_berry',
   quality: 4,
   type: 'food',
   calory: 1000,
@@ -236,7 +236,7 @@ export const stuffedBerry: IFood = {
 }
 
 export const sleetWheatGrain: IFood = {
-  name: 'Sleet Wheat Grain',
+  name: 'gd_sleet_wheat_grain',
   type: 'ingredient',
   calory: 1,
   union: true,
@@ -250,7 +250,7 @@ export const sleetWheatGrain: IFood = {
 }
 
 export const berrySludge: IFood = {
-  name: 'Berry Sludge',
+  name: 'gd_berry_sludge',
   quality: 3,
   type: 'food',
   calory: 4000,
@@ -269,7 +269,7 @@ export const berrySludge: IFood = {
 }
 
 export const noshBean: IFood = {
-  name: 'Nosh Bean',
+  name: 'gd_nosh_bean',
   type: 'ingredient',
   calory: 1,
   union: true,
@@ -283,7 +283,7 @@ export const noshBean: IFood = {
 }
 
 export const curriedBeans: IFood = {
-  name: 'Curried Beans',
+  name: 'gd_curried_beans',
   quality: 4,
   type: 'food',
   calory: 5000,
@@ -302,7 +302,7 @@ export const curriedBeans: IFood = {
 }
 
 export const mushroom: IFood = {
-  name: 'Mushroom',
+  name: 'gd_mushroom',
   quality: 0,
   type: 'food',
   calory: 2400,
@@ -316,7 +316,7 @@ export const mushroom: IFood = {
 }
 
 export const friedMushroom: IFood = {
-  name: 'Fried Mushroom',
+  name: 'gd_fried_mushroom',
   quality: 1,
   type: 'food',
   calory: 2800,
@@ -331,7 +331,7 @@ export const friedMushroom: IFood = {
 }
 
 export const frostBun: IFood = {
-  name: 'Frost Bun',
+  name: 'gd_frost_bun',
   quality: 2,
   type: 'food',
   calory: 1200,
@@ -346,7 +346,7 @@ export const frostBun: IFood = {
 }
 
 export const lettuce: IFood = {
-  name: 'Lettuce',
+  name: 'gd_lettuce',
   quality: 0,
   type: 'food',
   calory: 4800,
@@ -360,7 +360,7 @@ export const lettuce: IFood = {
 }
 
 export const frostBurger: IFood = {
-  name: 'Frost Burger',
+  name: 'gd_frost_burger',
   quality: 6,
   type: 'food',
   calory: 6000,
@@ -383,7 +383,7 @@ export const frostBurger: IFood = {
 }
 
 export const grubfruit: IFood = {
-  name: 'Grubfruit',
+  name: 'gd_grubfruit',
   quality: 1,
   type: 'food',
   calory: 1000,
@@ -397,7 +397,7 @@ export const grubfruit: IFood = {
 }
 
 export const grubfruitPreserve: IFood = {
-  name: 'Grubfruit Preserve',
+  name: 'gd_grubfruit_preserve',
   quality: 3,
   type: 'food',
   calory: 2400,
@@ -416,7 +416,7 @@ export const grubfruitPreserve: IFood = {
 }
 
 export const hexalentFruit: IFood = {
-  name: 'Hexalent Fruit',
+  name: 'gd_hexalent_fruit',
   quality: -1,
   type: 'food',
   calory: 6400,
@@ -430,7 +430,7 @@ export const hexalentFruit: IFood = {
 }
 
 export const mixedBerryPie: IFood = {
-  name: 'Mixed Berry Pie',
+  name: 'gd_mixed_berry_pie',
   quality: 5,
   type: 'food',
   calory: 1000,
@@ -453,7 +453,7 @@ export const mixedBerryPie: IFood = {
 }
 
 export const muckroot: IFood = {
-  name: 'Muckroot',
+  name: 'gd_muckroot',
   quality: -1,
   type: 'food',
   calory: 800,
@@ -462,7 +462,7 @@ export const muckroot: IFood = {
 }
 
 export const rawEgg: IFood = {
-  name: 'Raw Egg',
+  name: 'gd_raw_egg',
   quality: 1,
   type: 'food',
   calory: 1600,
@@ -470,7 +470,7 @@ export const rawEgg: IFood = {
 }
 
 export const omelette: IFood = {
-  name: 'Omelette',
+  name: 'gd_omelette',
   quality: 2,
   type: 'food',
   calory: 2800,
@@ -484,7 +484,7 @@ export const omelette: IFood = {
 }
 
 export const mushroomQuiche: IFood = {
-  name: 'Mushroom Quiche',
+  name: 'gd_mushroom_quiche',
   quality: 5,
   type: 'food',
   calory: 6400,
@@ -507,7 +507,7 @@ export const mushroomQuiche: IFood = {
 }
 
 export const mushroomWrap: IFood = {
-  name: 'Mushroom Wrap',
+  name: 'gd_mushroom_wrap',
   quality: 4,
   type: 'food',
   calory: 4800,
@@ -526,7 +526,7 @@ export const mushroomWrap: IFood = {
 }
 
 export const nutrientBar: IFood = {
-  name: 'Nutrient Bar',
+  name: 'gd_nutrient_bar',
   quality: -1,
   type: 'food',
   calory: 800,
@@ -534,7 +534,7 @@ export const nutrientBar: IFood = {
 }
 
 export const pepperBread: IFood = {
-  name: 'Pepper Bread',
+  name: 'gd_pepper_bread',
   quality: 5,
   type: 'food',
   calory: 4000,
@@ -553,7 +553,7 @@ export const pepperBread: IFood = {
 }
 
 export const pickledMeal: IFood = {
-  name: 'Pickled Meal',
+  name: 'gd_pickled_meal',
   quality: -1,
   type: 'food',
   calory: 1800,
@@ -568,7 +568,7 @@ export const pickledMeal: IFood = {
 }
 
 export const plantMeat: IFood = {
-  name: 'Plant Meat',
+  name: 'gd_plant_meat',
   quality: 1,
   type: 'food',
   calory: 1200,
@@ -576,7 +576,7 @@ export const plantMeat: IFood = {
 }
 
 export const spindlyGrubfruit: IFood = {
-  name: 'Spindly Grubfruit',
+  name: 'gd_spindly_grubfruit',
   quality: 0,
   type: 'food',
   calory: 800,
@@ -590,7 +590,7 @@ export const spindlyGrubfruit: IFood = {
 }
 
 export const roastGrubfruitNut: IFood = {
-  name: 'Roast Grubfruit Nut',
+  name: 'gd_roast_grubfruit_nut',
   quality: 1,
   type: 'food',
   calory: 1200,
@@ -605,7 +605,7 @@ export const roastGrubfruitNut: IFood = {
 }
 
 export const soufflePancakes: IFood = {
-  name: 'Souffle Pancakes',
+  name: 'gd_souffle_pancakes',
   quality: 3,
   type: 'food',
   calory: 3600,
@@ -624,7 +624,7 @@ export const soufflePancakes: IFood = {
 }
 
 export const tofu: IFood = {
-  name: 'Tofu',
+  name: 'gd_tofu',
   quality: 2,
   type: 'food',
   calory: 3600,
@@ -643,7 +643,7 @@ export const tofu: IFood = {
 }
 
 export const spicyTofu: IFood = {
-  name: 'Spicy Tofu',
+  name: 'gd_spicy_tofu',
   quality: 5,
   type: 'food',
   calory: 4000,
@@ -662,7 +662,7 @@ export const spicyTofu: IFood = {
 }
 
 export const swampChardHeart: IFood = {
-  name: 'Swamp Chard Heart',
+  name: 'gd_swamp_chard_heart',
   quality: 1,
   type: 'food',
   calory: 2400,

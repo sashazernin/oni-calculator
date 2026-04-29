@@ -14,6 +14,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { ThemeContext } from "../../providers/app-theme-provider";
+import { useTranslation } from "../../hooks/useTranslation";
 
 const FLOAT_MS = 0.2;
 const FIELD_H = 40;
@@ -40,6 +41,8 @@ export type SelectProps<T> = {
   id?: string;
   style?: CSSProperties;
   hideLabelMargin?: boolean;
+  /** Фон поля и «таблетки» подписи (по умолчанию как у карточек — `paper`). Для хедера — цвет подложки шапки. */
+  fieldBackground?: string;
 };
 
 function objectIdIfPresent(item: unknown): string | undefined {
@@ -122,9 +125,11 @@ export function Select<T>({
   className,
   id: idProp,
   style: triggerOuterStyle,
-  hideLabelMargin
+  hideLabelMargin,
+  fieldBackground,
 }: SelectProps<T>) {
   const { colors } = useContext(ThemeContext);
+  const { t } = useTranslation();
   const generatedId = useId();
   const id = idProp ?? generatedId;
   const listboxId = `${id}-listbox`;
@@ -186,10 +191,12 @@ export function Select<T>({
 
   const primary = colors.primary.main;
   const paper = colors.background.paper;
+  const fieldSurface = fieldBackground ?? paper;
   const defaultBorder = colors.border.main;
   const errorColor = "rgb(211, 64, 64)";
-  const labelPlaceholder = `color-mix(in srgb, ${colors.text.primary} 50%, ${paper})`;
-  const labelFloatMuted = `color-mix(in srgb, ${colors.text.primary} 70%, ${paper})`;
+  const labelPlaceholder = `color-mix(in srgb, ${colors.text.primary} 50%, ${fieldSurface})`;
+  const labelFloatMuted = `color-mix(in srgb, ${colors.text.primary} 70%, ${fieldSurface})`;
+  const panelMutedText = `color-mix(in srgb, ${colors.text.primary} 50%, ${paper})`;
 
   const showError = Boolean(error);
   const borderColor = showError
@@ -208,7 +215,7 @@ export function Select<T>({
         : labelFloatMuted
       : labelPlaceholder;
 
-  const disabledFill = `color-mix(in srgb, ${colors.text.primary} 6%, ${paper})`;
+  const disabledFill = `color-mix(in srgb, ${colors.text.primary} 6%, ${fieldSurface})`;
 
   const displayLabel =
     selectedIndex >= 0 ? resolvedGetLabel(items[selectedIndex]) : "";
@@ -448,7 +455,7 @@ export function Select<T>({
         type="button"
         tabIndex={-1}
         disabled={disabled}
-        aria-label={open ? "Close list" : "Open list"}
+        aria-label={open ? t("select_close_list") : t("select_open_list")}
         onMouseDown={(e) => {
           e.preventDefault();
         }}
@@ -517,10 +524,10 @@ export function Select<T>({
               padding: "12px 14px",
               fontSize: "0.875rem",
               lineHeight: 1.25,
-              color: labelPlaceholder,
+              color: panelMutedText,
             }}
           >
-            No matches
+            {t("select_no_matches")}
           </div>
         ) : (
           filteredEntries.map((ent, i) => {
@@ -583,7 +590,7 @@ export function Select<T>({
         minHeight: FIELD_H,
         border: `1px solid ${borderColor}`,
         borderRadius: 10,
-        backgroundColor: disabled ? disabledFill : paper,
+        backgroundColor: disabled ? disabledFill : fieldSurface,
         boxShadow,
         padding: `0 ${FIELD_PAD_X}px`,
         transition: `border-color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease`,
@@ -634,7 +641,7 @@ export function Select<T>({
                     fontSize: "0.6875rem",
                     padding: "0 3px",
                     color: labelTextColor,
-                    backgroundColor: paper,
+                    backgroundColor: fieldSurface,
                   }
                   : {
                     top: "50%",

@@ -7,6 +7,7 @@ import { DupeIcon } from "../../../icons";
 import { DuplicantContext } from "../../../providers/duplicant-provider";
 import { Link } from "react-router-dom";
 import { LocalizationContext, supportedLanguages } from "../../../providers/localization-provider";
+import { useTranslation } from "../../../hooks/useTranslation";
 import { Select } from "../../select/Select";
 
 export default function Header() {
@@ -15,6 +16,8 @@ export default function Header() {
   const [dupeLinkHover, setDupeLinkHover] = useState(false);
   const accent = colors.primary.main;
   const { language, setLanguage } = useContext(LocalizationContext);
+  const { t } = useTranslation();
+
   return (
     <div
       style={{
@@ -33,24 +36,31 @@ export default function Header() {
           gap: 16,
         }}
       >
-        <div
+        <Link
+          to="/"
+          aria-label={`${t("nav_home")}, ${t("app_title")}`}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
             paddingRight: 16,
+            fontFamily: "var(--font-heading)",
             fontWeight: 700,
             fontSize: "1.125rem",
             letterSpacing: "-0.03em",
-            color: colors.text.primary
+            color: colors.text.primary,
+            textDecoration: "none",
+            whiteSpace: "nowrap",
           }}
         >
-          Simple ONI Calculator
-        </div>
+          {t("app_title")}
+        </Link>
         <div style={{ flex: 1 }}></div>
         <Link
           to="/settings?tab=game"
-          aria-label={`Game settings, ${duplicants.length} duplicants`}
+          aria-label={t("aria_game_settings_duplicants", {
+            count: duplicants.length,
+          })}
           onMouseEnter={() => setDupeLinkHover(true)}
           onMouseLeave={() => setDupeLinkHover(false)}
           style={{
@@ -113,13 +123,14 @@ export default function Header() {
           }}
         />
         <Select
+          fieldBackground={colors.layout.background}
           style={{
             width: 60,
             alignSelf: "stretch",
             justifyContent: "center",
           }}
           hideLabelMargin
-          label="Lang"
+          label={t("lang_short_label")}
           value={language}
           items={supportedLanguages}
           onChange={(value) => setLanguage(value)}

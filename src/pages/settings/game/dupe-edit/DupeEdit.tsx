@@ -7,6 +7,8 @@ import type { IDuplicate } from "../../../../types/game-data-types";
 import { safeParseZodWithFieldErrors, type ZodFieldErrorMap } from "../../../../helpers/zodFieldErrors";
 import { dupeSchema } from "../../../../schemas/gameSchemas";
 import Divider from "../../../../components/divider/Devider";
+import { useTranslation } from "../../../../hooks/useTranslation";
+import type { TranslationKey } from "../../../../i18n/translations";
 
 interface IDupeEditProps {
   open: boolean;
@@ -25,7 +27,9 @@ function defaultValues(dupe?: IDuplicate): IDuplicate {
 }
 
 export default function DupeEdit(props: IDupeEditProps) {
-  const { open, onClose, onSave, dupe, title = "Add duplicant" } = props;
+  const { t } = useTranslation();
+  const { open, onClose, onSave, dupe, title } = props;
+  const resolvedTitle = title ?? t("game_add_duplicant");
 
   const [newDupe, setNewDupe] = useState<IDuplicate>(() => defaultValues(dupe));
   const [error, setError] = useState<ZodFieldErrorMap>({});
@@ -70,15 +74,15 @@ export default function DupeEdit(props: IDupeEditProps) {
     <Popup
       open={open}
       onClose={handleClose}
-      title={title}
+      title={resolvedTitle}
       variant="fit-content"
       bottom={
         <>
           <Button onClick={handleClose} style={{ textTransform: "none" }}>
-            Cancel
+            {t("button_cancel")}
           </Button>
           <Button onClick={handleSave} style={{ textTransform: "none" }}>
-            Save
+            {t("button_save")}
           </Button>
         </>
       }
@@ -93,9 +97,9 @@ export default function DupeEdit(props: IDupeEditProps) {
         }}
       >
         <TextField
-          label="Name"
+          label={t("dupe_name_label")}
           value={newDupe.name}
-          error={error.name}
+          error={error.name ? t(error.name as TranslationKey) : undefined}
           onChange={(e) => {
             setError((prev) => {
               const next = { ...prev };
@@ -106,11 +110,11 @@ export default function DupeEdit(props: IDupeEditProps) {
           }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div>Peculiarities</div>
+          <div>{t("dupe_peculiarities")}</div>
           <Divider />
         </div>
         <Checkbox
-          label="Bottomless stomach"
+          label={t("dupe_bottomless_stomach")}
           checked={newDupe.gluttonous}
           onChange={(e) => {
             setNewDupe((d) => ({ ...d, gluttonous: e.target.checked }));

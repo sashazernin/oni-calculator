@@ -11,6 +11,7 @@ import Divider from "../../../components/divider/Devider";
 import { IoFastFoodSharp } from "react-icons/io5";
 import Chip from "../../../components/chip/chip";
 import { duplicantInfo } from "../../../game-data/dublicantInfo";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 type DupeDialog =
   | { kind: "closed" }
@@ -18,6 +19,7 @@ type DupeDialog =
   | { kind: "edit"; index: number };
 
 export default function GameSettings() {
+  const { t } = useTranslation();
   const { colors } = useContext(ThemeContext);
   const { duplicants, setDuplicants } = useContext(DuplicantContext);
 
@@ -60,7 +62,7 @@ export default function GameSettings() {
       : undefined;
 
   const dupeEditTitle =
-    dupeDialog.kind === "edit" ? "Edit duplicant" : "Add duplicant";
+    dupeDialog.kind === "edit" ? t("game_edit_duplicant") : t("game_add_duplicant");
 
   return (
     <>
@@ -107,7 +109,7 @@ export default function GameSettings() {
             </span>
           </Chip>
           <div style={{ flex: 1 }}></div>
-          <IconButton onClick={openAdd} aria-label="Add duplicant">
+          <IconButton onClick={openAdd} aria-label={t("aria_add_duplicant")}>
             <LuCirclePlus aria-hidden />
           </IconButton>
         </div>
@@ -129,7 +131,7 @@ export default function GameSettings() {
                 textAlign: "center",
               }}
             >
-              No duplicants yet. Tap + to add one.
+              {t("game_no_duplicants_hint")}
             </div>
           ) : (
             <div

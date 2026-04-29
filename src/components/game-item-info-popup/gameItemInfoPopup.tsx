@@ -12,25 +12,28 @@ import type { GameNode } from "../../types/game-data-types";
 import { Popup } from "../popup/Popup";
 import { AssetImage } from "../asset-image/AssetImage";
 import { ThemeContext } from "../../providers/app-theme-provider";
-import { getQualityData } from "../../helpers/qualityData";
+import { getQualityColor, getQualityTranslationKey } from "../../helpers/qualityData";
+import { useTranslation } from "../../hooks/useTranslation";
+import type { TranslationKey } from "../../i18n/translations";
 
-function getGameNodeTypeLabel(type: GameNode["type"]): string {
+function gameNodeTypeKey(type: GameNode["type"]): TranslationKey {
   switch (type) {
     case "food":
-      return "Food";
+      return "game_node_food";
     case "ingredient":
-      return "Ingredient";
+      return "game_node_ingredient";
     case "liquid":
-      return "Liquid";
+      return "game_node_liquid";
     case "plant":
-      return "Plant";
+      return "game_node_plant";
     case "resourse":
-      return "Resource";
+      return "game_node_resource";
     case "kitchen-tool":
-      return "Kitchen tool";
+      return "game_node_kitchen_tool";
     default: {
       const _exhaustive: never = type;
-      return _exhaustive;
+      void _exhaustive;
+      return "game_node_food";
     }
   }
 }
@@ -45,6 +48,7 @@ export interface GameItemInfoPopupProps {
 
 export default function GameItemInfoPopup({ item, children, style, cursor = "pointer", pointerBackground }: GameItemInfoPopupProps) {
   const { colors } = useContext(ThemeContext);
+  const { t, entityName } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const onClose = useCallback(() => {
@@ -57,18 +61,20 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
 
   const popup = useMemo(() => {
     const hasQuality = "quality" in item && item.quality !== undefined;
-    const qualityData = hasQuality ? getQualityData(item.quality) : undefined;
+    const qualityTint =
+      hasQuality ? getQualityColor(item.quality!) : undefined;
+    const qualityKey = hasQuality ? getQualityTranslationKey(item.quality!) : undefined;
 
     const mutedLabel = `color-mix(in srgb, ${colors.text.primary} 52%, ${colors.background.paper})`;
     const qTint =
-      hasQuality && qualityData && qualityData.color !== "inherit"
-        ? qualityData.color
+      hasQuality && qualityTint && qualityTint !== "inherit"
+        ? qualityTint
         : colors.primary.main;
 
-    const typeLabel = getGameNodeTypeLabel(item.type);
+    const typeKey = gameNodeTypeKey(item.type);
 
     return (
-      <Popup variant="fit-content" closeButton open={open} onClose={onClose} title={item.name}>
+      <Popup variant="fit-content" closeButton open={open} onClose={onClose} title={entityName(item.name)}>
         <div style={{ padding: 16, minWidth: "min(312px, 85vw)" }}>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: 16 }}>
             <div
@@ -90,7 +96,7 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
             >
               <AssetImage
                 pathRelativeToAssets={item.image}
-                alt={item.name}
+                alt={entityName(item.name)}
                 width={55}
                 height={55}
               />
@@ -106,7 +112,7 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
                   marginBottom: 6,
                 }}
               >
-                Type
+                {t("label_type")}
               </div>
               <span
                 style={{
@@ -121,10 +127,10 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
                   border: `1px solid ${colors.border.main}`,
                 }}
               >
-                {typeLabel}
+                {t(typeKey)}
               </span>
             </div>
-            {hasQuality && qualityData ? (
+            {hasQuality && qualityKey ? (
               <div>
                 <div
                   style={{
@@ -136,7 +142,7 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
                     marginBottom: 6,
                   }}
                 >
-                  Quality
+                  {t("label_quality")}
                 </div>
                 <div
                   style={{
@@ -153,14 +159,14 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
                       fontWeight: 600,
                       lineHeight: 1.35,
                       color:
-                        qualityData.color !== "inherit" ? qualityData.color : colors.text.primary,
+                        qualityTint && qualityTint !== "inherit" ? qualityTint : colors.text.primary,
                       padding: "4px 10px",
                       borderRadius: 8,
                       background: `color-mix(in srgb, ${qTint} 14%, ${colors.background.paper})`,
                       border: `1px solid color-mix(in srgb, ${qTint} 35%, ${colors.border.main})`,
                     }}
                   >
-                    {qualityData.name}
+                    {qualityKey ? t(qualityKey) : null}
                     <span
                       style={{
                         fontSize: "0.8rem",
@@ -179,7 +185,7 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
         </div>
       </Popup>
     );
-  }, [open, onClose, item, colors]);
+  }, [open, onClose, item, colors, t, entityName]);
 
   return (
     <>

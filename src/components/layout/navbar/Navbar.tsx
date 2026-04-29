@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { ThemeContext } from '../../../providers/app-theme-provider';
 import { Button, type ButtonColorOverrides } from '../../button/Button';
 import { menuItems } from '../../../menu-items/menu-items';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 function navItemActive(
   main: string,
@@ -30,6 +31,7 @@ function isItemActive(pathname: string, href: string) {
 }
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const { colors } = useContext(ThemeContext);
   const { pathname } = useLocation();
   const activeNav = useMemo(
@@ -76,7 +78,7 @@ export default function Navbar() {
                   aria-hidden
                 />
               ) : null}
-              {item.label}
+              {t(item.labelKey)}
             </Button>
           );
         })}

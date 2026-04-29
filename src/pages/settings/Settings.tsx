@@ -3,7 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import AppSettings from "./app/AppSettings";
 import Tabs from "../../components/tabs/Tabs";
 import GameSettings from "./game/GameSettings";
-import { IoGameController } from "react-icons/io5";
+import { useTranslation } from "../../hooks/useTranslation";
+import { MdHome } from "react-icons/md";
 import { GoGear } from "react-icons/go";
 import Box from "../../components/box/box";
 
@@ -21,6 +22,7 @@ function paramFromTabIndex(index: number): string {
 }
 
 export default function Settings() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const tabIndex = useMemo(
@@ -54,12 +56,12 @@ export default function Settings() {
         )}
         tabs={[
           {
-            label: "App",
+            label: t("settings_tab_app"),
             icon: <GoGear />,
           },
           {
-            label: "Game",
-            icon: <IoGameController />,
+            label: t("settings_tab_game"),
+            icon: <MdHome />,
           },
         ]}
       >
