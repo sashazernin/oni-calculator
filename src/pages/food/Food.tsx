@@ -349,7 +349,7 @@ export default function Food() {
   const foodSidebarEase = "cubic-bezier(0.32, 0.72, 0, 1)";
 
   const foodSidebarBlocks = (
-    <>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, overflow: "auto", height: '100%' }}>
       <Box
         style={{
           display: "flex",
@@ -384,7 +384,7 @@ export default function Food() {
           width: "100%",
           overflow: "hidden",
           flex: narrowFoodLayout ? "1 1 0%" : undefined,
-          minHeight: narrowFoodLayout ? 0 : undefined,
+          minHeight: '300px',
           display: narrowFoodLayout ? "flex" : undefined,
           flexDirection: narrowFoodLayout ? "column" : undefined,
         }}
@@ -457,7 +457,10 @@ export default function Food() {
                         boxSizing: "border-box",
                         borderRadius: 10,
                       }}
-                      onClick={() => setSelectedItem(item)}
+                      onClick={() => {
+                        setSelectedItem(item);
+                        setFoodPickerOpen(false);
+                      }}
                     >
                       <div
                         style={{
@@ -505,7 +508,7 @@ export default function Food() {
           </div>
         </div>
       </Box>
-    </>
+    </div>
   );
 
   return (
@@ -704,7 +707,7 @@ export default function Food() {
                 style={{
                   position: "fixed",
                   right: 0,
-                  top: "clamp(112px, 38vh, 50%)",
+                  top: '50%',
                   transform: "translateY(-50%)",
                   zIndex: 1592,
                   padding: "14px 10px 14px 12px",
