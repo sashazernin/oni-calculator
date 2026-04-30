@@ -58,6 +58,18 @@ export const translations = {
     ru: "Выберите еду справа",
     en: "Select food on the right",
   },
+  food_select_open_panel_hint: {
+    ru: "Откройте панель выбора еды справа",
+    en: "Open the food picker panel on the right",
+  },
+  aria_food_open_picker_panel: {
+    ru: "Открыть панель выбора еды",
+    en: "Open food picker panel",
+  },
+  aria_food_close_picker_panel: {
+    ru: "Закрыть панель выбора еды",
+    en: "Close food picker panel",
+  },
   food_quality_label: { ru: "Качество:", en: "Quality:" },
   food_section_plants: { ru: "Растения", en: "Plants" },
   food_section_food: { ru: "Еда", en: "Food" },

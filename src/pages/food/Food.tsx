@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { AssetImage } from "../../components/asset-image/AssetImage";
 import { Button } from "../../components/button/Button";
 import {
@@ -11,8 +12,7 @@ import { ThemeContext } from "../../providers/app-theme-provider";
 import Box from "../../components/box/box";
 import { DuplicantContext } from "../../providers/duplicant-provider";
 import Tabs from "../../components/tabs/Tabs";
-import { IoFastFoodSharp } from "react-icons/io5";
-import { IoNewspaper } from "react-icons/io5";
+import { IoChevronBackOutline, IoFastFoodSharp, IoNewspaper } from "react-icons/io5";
 import Info from "../../components/info/info";
 import { getQualityColor, getQualityTranslationKey } from "../../helpers/qualityData";
 import GameItemInfoPopup from "../../components/game-item-info-popup/gameItemInfoPopup";
@@ -21,7 +21,9 @@ import { IconButton } from "../../components/icon-button/IconButton";
 import { FiPlusCircle } from "react-icons/fi";
 import { AiOutlineMinusCircle } from "react-icons/ai";
 import { useTranslation } from "../../hooks/useTranslation";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { TextField } from "../../components/text-field/TextField";
+import { RxCross1 } from "react-icons/rx";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
@@ -256,6 +258,12 @@ export default function Food() {
     });
   }, [foodSearch, foodItemsSorted, entityName]);
 
+  const narrowFoodLayout = useMediaQuery("(max-width: 1200px)");
+  const [foodPickerOpen, setFoodPickerOpen] = useState(true);
+
+  const foodPickerHint =
+    narrowFoodLayout && !foodPickerOpen ? t("food_select_open_panel_hint") : t("food_select_prompt");
+
   const dupeCounter = useCallback(
     (accent: string, value: number, onChange: (next: number) => void) => (
       <div
@@ -337,6 +345,169 @@ export default function Food() {
     [colors, t]
   );
 
+  const foodSidebarDrawerMs = "0.28s";
+  const foodSidebarEase = "cubic-bezier(0.32, 0.72, 0, 1)";
+
+  const foodSidebarBlocks = (
+    <>
+      <Box
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: 10,
+          padding: "12px 14px",
+        }}
+      >
+        {dupeCounter("#0EAD78", greenDupe, setGreenDupe)}
+        {dupeCounter("#E53935", redDupe, setRedDupe)}
+        <Button
+          type="button"
+          variant="translucent"
+          onClick={setDefaultDupes}
+          style={{
+            marginLeft: "auto",
+            padding: "10px 18px",
+            borderRadius: 10,
+            fontSize: "0.6875rem",
+            fontWeight: 700,
+            letterSpacing: "0.07em",
+            textTransform: "uppercase",
+          }}
+        >
+          {t("food_clear")}
+        </Button>
+      </Box>
+      <Box
+        style={{
+          height: narrowFoodLayout ? undefined : "100%",
+          width: "100%",
+          overflow: "hidden",
+          flex: narrowFoodLayout ? "1 1 0%" : undefined,
+          minHeight: narrowFoodLayout ? 0 : undefined,
+          display: narrowFoodLayout ? "flex" : undefined,
+          flexDirection: narrowFoodLayout ? "column" : undefined,
+        }}
+      >
+        <TextField
+          label={t("search_label")}
+          onChange={(e) => {
+            setFoodSearch(e.target.value);
+          }}
+        />
+        <div style={{ position: 'relative', height: narrowFoodLayout ? '100%' : 'calc(100% - 40px)', width: '100%', minHeight: 0, flex: narrowFoodLayout ? 1 : undefined }}>
+          <div
+            style={{
+              position: "absolute",
+              top: narrowFoodLayout ? 8 : 16,
+              left: 0,
+              width: "100%",
+              height: narrowFoodLayout ? "calc(100% - 8px)" : "calc(100% - 32px)",
+              overflow: "auto",
+            }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
+                gap: 10,
+                minWidth: 0,
+                boxSizing: "border-box",
+              }}
+            >
+              {foodItemsFiltered.length === 0 ? (
+                <div
+                  style={{
+                    gridColumn: "1 / -1",
+                    padding: "24px 16px",
+                    textAlign: "center",
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                    color: `color-mix(in srgb, ${colors.text.primary} 52%, ${colors.background.paper})`,
+                  }}
+                >
+                  {t("food_search_no_results")}
+                </div>
+              ) : null}
+              {foodItemsFiltered.map((item) => {
+                const isSelected = selectedItem?.name === item.name;
+                return (
+                  <div
+                    key={item.name}
+                    style={{ display: "flex", minWidth: 0, minHeight: 0 }}
+                  >
+                    <Button
+                      variant="translucent"
+                      className="button--natural-case"
+                      colorOverrides={
+                        isSelected
+                          ? {
+                            main: `color-mix(in srgb, ${accent} 38%, transparent)`,
+                            hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
+                            active: `color-mix(in srgb, ${accent} 54%, transparent)`,
+                          }
+                          : undefined
+                      }
+                      style={{
+                        width: "100%",
+                        aspectRatio: "1",
+                        minHeight: 0,
+                        padding: "clamp(8px, 2vw, 12px)",
+                        boxSizing: "border-box",
+                        borderRadius: 10,
+                      }}
+                      onClick={() => setSelectedItem(item)}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8,
+                          height: "100%",
+                          width: "100%",
+                          color: "inherit",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "0.75rem",
+                            lineHeight: 1.2,
+                            color: "inherit",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis"
+                          }}
+                        >
+                          {entityName(item.name)}
+                        </div>
+                        <div
+                          style={{
+                            flex: 1,
+                            minHeight: 0,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <AssetImage
+                            pathRelativeToAssets={item.image}
+                            alt={entityName(item.name)}
+                            width="100%"
+                            height="100%"
+                          />
+                        </div>
+                      </div>
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </Box>
+    </>
+  );
+
   return (
     <div
       style={{
@@ -351,7 +522,7 @@ export default function Food() {
         style={{
           display: "flex",
           flexDirection: "column",
-          width: "60%",
+          width: narrowFoodLayout ? "100%" : "60%",
           minWidth: 0,
           gap: 14,
           height: "100%",
@@ -362,7 +533,7 @@ export default function Food() {
           header={
             <>
               <div style={{ flex: 1 }} />
-              <div style={{ display: "flex", justifyContent: "center", alignItems: 'center' }}>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: 'center', marginLeft: 8 }}>
                 <Info message={t("food_resource_info_tooltip")} />
               </div>
             </>}
@@ -453,7 +624,7 @@ export default function Food() {
                   color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
                 }}
               >
-                {t("food_select_prompt")}
+                {foodPickerHint}
               </div>
             )}
           </div>
@@ -498,170 +669,113 @@ export default function Food() {
                 color: `color-mix(in srgb, ${colors.text.primary} 48%, ${colors.background.paper})`,
                 height: "100%", width: "100%",
               }}>
-              {t("food_select_prompt")}
+              {foodPickerHint}
             </div>}
           </div>
         </Tabs>
       </Box>
-      <div style={{
-        height: "100%",
-        width: "40%",
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 16,
-      }}>
-        <Box
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            gap: 10,
-            padding: "12px 14px",
-          }}
-        >
-          {dupeCounter("#0EAD78", greenDupe, setGreenDupe)}
-          {dupeCounter("#E53935", redDupe, setRedDupe)}
-          <Button
-            type="button"
-            variant="translucent"
-            onClick={setDefaultDupes}
-            style={{
-              marginLeft: "auto",
-              padding: "10px 18px",
-              borderRadius: 10,
-              fontSize: "0.6875rem",
-              fontWeight: 700,
-              letterSpacing: "0.07em",
-              textTransform: "uppercase",
-            }}
-          >
-            {t("food_clear")}
-          </Button>
-        </Box>
-        <Box
-          style={{
-            height: "100%",
-            width: "100%",
-            overflow: "hidden",
-          }}
-        >
-          <TextField
-            label={t("search_label")}
-            onChange={(e) => {
-              setFoodSearch(e.target.value);
-            }}
-          />
-          <div style={{ position: 'relative', height: 'calc(100% - 40px)', width: '100%' }}>
-            <div
+      {narrowFoodLayout
+        ? createPortal(
+          <>
+            <button
+              type="button"
+              aria-label={t("aria_food_close_picker_panel")}
+              onClick={() => setFoodPickerOpen(false)}
               style={{
-                position: "absolute",
-                top: 16,
-                left: 0,
-                width: "100%",
-                height: "calc(100% - 32px)",
-                overflow: "auto",
+                position: "fixed",
+                inset: 0,
+                zIndex: 1590,
+                border: "none",
+                padding: 0,
+                margin: 0,
+                cursor: "pointer",
+                backgroundColor: "rgba(0, 0, 0, 0.45)",
+                opacity: foodPickerOpen ? 1 : 0,
+                pointerEvents: foodPickerOpen ? "auto" : "none",
+                transition: `opacity ${foodSidebarDrawerMs} ease`,
               }}
-            >
-              <div
+            />
+            {!foodPickerOpen ? (
+              <Button
+                type="button"
+                variant="translucent"
+                aria-label={t("aria_food_open_picker_panel")}
+                onClick={() => setFoodPickerOpen(true)}
                 style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
-                  gap: 10,
-                  minWidth: 0,
-                  boxSizing: "border-box",
+                  position: "fixed",
+                  right: 0,
+                  top: "clamp(112px, 38vh, 50%)",
+                  transform: "translateY(-50%)",
+                  zIndex: 1592,
+                  padding: "14px 10px 14px 12px",
+                  borderRadius: "12px 0 0 12px",
+                  boxShadow: colors.shadow.default,
                 }}
               >
-                {foodItemsFiltered.length === 0 ? (
-                  <div
-                    style={{
-                      gridColumn: "1 / -1",
-                      padding: "24px 16px",
-                      textAlign: "center",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      color: `color-mix(in srgb, ${colors.text.primary} 52%, ${colors.background.paper})`,
-                    }}
-                  >
-                    {t("food_search_no_results")}
-                  </div>
-                ) : null}
-                {foodItemsFiltered.map((item) => {
-                  const isSelected = selectedItem?.name === item.name;
-                  return (
-                    <div
-                      key={item.name}
-                      style={{ display: "flex", minWidth: 0, minHeight: 0 }}
-                    >
-                      <Button
-                        variant="translucent"
-                        className="button--natural-case"
-                        colorOverrides={
-                          isSelected
-                            ? {
-                              main: `color-mix(in srgb, ${accent} 38%, transparent)`,
-                              hover: `color-mix(in srgb, ${accent} 48%, transparent)`,
-                              active: `color-mix(in srgb, ${accent} 54%, transparent)`,
-                            }
-                            : undefined
-                        }
-                        style={{
-                          width: "100%",
-                          aspectRatio: "1",
-                          minHeight: 0,
-                          padding: "clamp(8px, 2vw, 12px)",
-                          boxSizing: "border-box",
-                          borderRadius: 10,
-                        }}
-                        onClick={() => setSelectedItem(item)}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 8,
-                            height: "100%",
-                            width: "100%",
-                            color: "inherit",
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: "0.75rem",
-                              lineHeight: 1.2,
-                              color: "inherit",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis"
-                            }}
-                          >
-                            {entityName(item.name)}
-                          </div>
-                          <div
-                            style={{
-                              flex: 1,
-                              minHeight: 0,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <AssetImage
-                              pathRelativeToAssets={item.image}
-                              alt={entityName(item.name)}
-                              width="100%"
-                              height="100%"
-                            />
-                          </div>
-                        </div>
-                      </Button>
-                    </div>
-                  );
-                })}
+                <IoChevronBackOutline size={22} aria-hidden />
+              </Button>
+            ) : null}
+            <aside
+              role="dialog"
+              aria-modal={foodPickerOpen}
+              aria-hidden={!foodPickerOpen}
+              style={{
+                position: "fixed",
+                top: 0,
+                right: 0,
+                height: "100%",
+                width: "min(470px, 100vw)",
+                zIndex: 1592,
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                padding: "14px 14px calc(14px + env(safe-area-inset-bottom, 0px))",
+                paddingTop: 48,
+                boxSizing: "border-box",
+                backgroundColor: colors.layout.background,
+                boxShadow: foodPickerOpen ? colors.shadow.default : "none",
+                transform: foodPickerOpen ? "translateX(0)" : "translateX(100%)",
+                transition: `transform ${foodSidebarDrawerMs} ${foodSidebarEase}`,
+                pointerEvents: foodPickerOpen ? "auto" : "none",
+                willChange: "transform",
+                minHeight: 0,
+              }}
+            >
+              <IconButton
+                color="action"
+                aria-label={t("aria_food_close_picker_panel")}
+                onClick={() => setFoodPickerOpen(false)}
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  zIndex: 1,
+                }}
+              >
+                <RxCross1 size={18} />
+              </IconButton>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
+                {foodSidebarBlocks}
               </div>
-            </div>
-          </div>
-        </Box>
-      </div>
+            </aside>
+          </>,
+          document.body
+        )
+        : null}
+      {!narrowFoodLayout ? (
+        <div
+          style={{
+            height: "100%",
+            width: "40%",
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+            minHeight: 0,
+          }}
+        >
+          {foodSidebarBlocks}
+        </div>
+      ) : null}
     </div>
   );
 }
