@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { ThemeContext } from "../../../providers/app-theme-provider";
 import { FaRegMoon } from "react-icons/fa";
 import { IconButton } from "../../icon-button/IconButton";
@@ -26,14 +26,6 @@ export default function Header() {
   const { t } = useTranslation();
   const { isMobile, drawerOpen, toggleDrawer } = useMobileNav();
 
-  const toolbarRef = useRef<HTMLDivElement>(null);
-  const [compactLevel, setCompactLevel] = useState(0);
-
-
-  const hideTheme = compactLevel >= 1;
-  const hideLang = compactLevel >= 2;
-  const hideDupe = compactLevel >= 3;
-
   return (
     <div
       style={{
@@ -43,7 +35,6 @@ export default function Header() {
       }}
     >
       <div
-        ref={toolbarRef}
         style={{
           display: "grid",
           gridTemplateColumns: isMobile
