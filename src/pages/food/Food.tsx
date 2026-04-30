@@ -259,7 +259,7 @@ export default function Food() {
   }, [foodSearch, foodItemsSorted, entityName]);
 
   const narrowFoodLayout = useMediaQuery("(max-width: 1200px)");
-  const [foodPickerOpen, setFoodPickerOpen] = useState(true);
+  const [foodPickerOpen, setFoodPickerOpen] = useState(false);
 
   const foodPickerHint =
     narrowFoodLayout && !foodPickerOpen ? t("food_select_open_panel_hint") : t("food_select_prompt");
