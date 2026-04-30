@@ -4,7 +4,7 @@ import Box from "../../components/box/box";
 import { useTranslation } from "../../hooks/useTranslation";
 import { ThemeContext } from "../../providers/app-theme-provider";
 
-const CONTACT_EMAIL = "znmyinbox@gmail.com";
+const CONTACT_EMAIL = "sashazernin1@gmail.com";
 
 export default function Home() {
   const { t } = useTranslation();

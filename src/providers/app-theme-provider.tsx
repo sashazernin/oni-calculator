@@ -190,6 +190,28 @@ export function AppThemeProvider({
       '--border',
       colors.border.main
     );
+    document.documentElement.style.setProperty(
+      'color-scheme',
+      colors.mode === 'dark' ? 'dark' : 'light'
+    );
+
+    /** Смесь с opaque-фоном, не с `transparent` — у WebKit смесь с transparent даёт «белее» дорожку. */
+    const pageBg = colors.background.default;
+    document.documentElement.style.setProperty('--page-bg-for-scrollbar', pageBg);
+    const text = colors.text.primary;
+    document.documentElement.style.setProperty(
+      '--scrollbar-thumb',
+      `color-mix(in srgb, ${text} 38%, ${pageBg})`
+    );
+    document.documentElement.style.setProperty(
+      '--scrollbar-thumb-hover',
+      `color-mix(in srgb, ${text} 56%, ${pageBg})`
+    );
+    document.documentElement.style.setProperty('--scrollbar-track', 'transparent');
+    document.documentElement.style.setProperty(
+      '--scrollbar-corner',
+      pageBg
+    );
   }, [colors]);
 
   return (
