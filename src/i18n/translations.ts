@@ -15,6 +15,9 @@ export const translations = {
   nav_home: { ru: "Главная", en: "Home" },
   nav_food: { ru: "Еда", en: "Food" },
   nav_settings: { ru: "Настройки", en: "Settings" },
+  nav_open_menu: { ru: "Открыть меню", en: "Open menu" },
+  nav_close_menu: { ru: "Закрыть меню", en: "Close menu" },
+  nav_menu_title: { ru: "Меню", en: "Menu" },
 
   page_home_intro: {
     ru: "Это вспомогательный калькулятор для игры Oxygen Not Included.",

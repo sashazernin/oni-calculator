@@ -89,3 +89,11 @@ code {
 div {
   box-sizing: border-box;
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE и Edge */
+  scrollbar-width: none; /* Firefox */
+}

@@ -1,0 +1,15 @@
+@media (max-width: 515px) {
+  .dupe-hide {
+    display: none !important;
+  }
+}
+@media (max-width: 415px) {
+  .lang-hide {
+    display: none !important;
+  }
+}
+@media (max-width: 305px) {
+  .theme-hide {
+    display: none !important;
+  }
+}

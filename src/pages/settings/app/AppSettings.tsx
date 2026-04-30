@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { supportedThemes, ThemeContext } from "../../../providers/app-theme-provider";
 import { Select } from "../../../components/select/Select";
-import { Languages, LocalizationContext, supportedLanguages } from "../../../providers/localization-provider";
+import { Languages, LocalizationContext } from "../../../providers/localization-provider";
 import { useTranslation } from "../../../hooks/useTranslation";
 import type { TranslationKey } from "../../../i18n/translations";
 

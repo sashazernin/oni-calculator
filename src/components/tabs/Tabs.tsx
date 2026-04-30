@@ -42,6 +42,8 @@ export default function Tabs({
   const primary = colors.primary.main;
 
   const trackRef = useRef<HTMLDivElement>(null);
+  /** Горизонтальный скролл вкладок — у внешней обёртки (track растягивается по контенту и сам не скроллится). */
+  const tabStripScrollRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [ind, setInd] = useState({ left: 0, width: 0 });
 
@@ -80,101 +82,140 @@ export default function Tabs({
     updateIndicator();
   }, [updateIndicator]);
 
-  const rootStyle: CSSProperties = {
-    height: "100%",
-    width: "100%",
-    display: "flex",
-    flexDirection: "column",
-    boxSizing: "border-box",
-    minHeight: 0
-  };
+  const scrollTabIntoView = useCallback((index: number) => {
+    const viewport = tabStripScrollRef.current;
+    const tab = tabRefs.current[index];
+    if (!viewport || !tab) return;
+    const pad = 8;
+    const vr = viewport.getBoundingClientRect();
+    const br = tab.getBoundingClientRect();
+    let next = viewport.scrollLeft;
+    if (br.left < vr.left + pad) {
+      next = viewport.scrollLeft + (br.left - vr.left - pad);
+    } else if (br.right > vr.right - pad) {
+      next = viewport.scrollLeft + (br.right - vr.right + pad);
+    } else {
+      return;
+    }
+    const max = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    next = Math.max(0, Math.min(next, max));
+    if (Math.abs(next - viewport.scrollLeft) < 1) return;
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
+      .matches
+      ? "auto"
+      : "smooth";
+    viewport.scrollTo({ left: next, behavior });
+  }, []);
+
+  useLayoutEffect(() => {
+    scrollTabIntoView(value);
+  }, [value, tabs, scrollTabIntoView]);
 
   const pages = Children.toArray(children);
 
   return (
-    <div style={rootStyle}>
+    <div style={{
+      height: "100%",
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      boxSizing: "border-box",
+      minHeight: 0
+    }}>
       <div
-        ref={trackRef}
+        ref={tabStripScrollRef}
         onScroll={onScroll}
-        style={{
-          position: "relative",
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "stretch",
-          flexShrink: 0,
-          backgroundColor: panelBg,
-          overflowX: "auto",
-          overflowY: "hidden",
-          scrollbarWidth: "thin",
-        }}
+        style={{ position: "relative", height: "40.5px", overflow: "auto" }}
+        className="hide-scrollbar"
       >
-        {tabs?.map((tab, index) => {
-          const isActive = index === value;
-          return (
-            <Button
-              key={index}
-              ref={(el) => {
-                tabRefs.current[index] = el as HTMLButtonElement;
-              }}
-              variant="translucent"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => onChange(index)}
-              colorOverrides={{
-                main: 'transparent',
-                contrastText: isActive ? colors.primary.main : colors.text.primary,
-              }}
-              style={{
-                gap: 8,
-              }}
-            >
-              {tab.icon != null ? (
-                <span
-                  style={{
-                    display: "inline-flex",
-                    color: "inherit",
-                    fontSize: "1.25rem",
-                    flexShrink: 0
+        <div style={{ position: "absolute", top: 0, left: 0, minWidth: "100%" }}>
+          <div
+            ref={trackRef}
+            style={{
+              position: "relative",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "stretch",
+              flexShrink: 0,
+              backgroundColor: panelBg,
+              overflowX: "visible",
+              overflowY: "hidden",
+            }}
+          >
+            {tabs?.map((tab, index) => {
+              const isActive = index === value;
+              return (
+                <Button
+                  key={index}
+                  ref={(el) => {
+                    tabRefs.current[index] = el as HTMLButtonElement;
                   }}
-                  aria-hidden
+                  variant="translucent"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => {
+                    onChange(index);
+                    if (index === value) {
+                      requestAnimationFrame(() => scrollTabIntoView(index));
+                    }
+                  }}
+                  colorOverrides={{
+                    main: 'transparent',
+                    contrastText: isActive ? colors.primary.main : colors.text.primary,
+                  }}
+                  style={{
+                    gap: 8,
+                  }}
                 >
-                  {tab.icon}
-                </span>
-              ) : null}
-              {tab.label}
-            </Button>
-          );
-        })}
+                  {tab.icon != null ? (
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        color: "inherit",
+                        fontSize: "1.25rem",
+                        flexShrink: 0
+                      }}
+                      aria-hidden
+                    >
+                      {tab.icon}
+                    </span>
+                  ) : null}
+                  {tab.label}
+                </Button>
+              );
+            })}
 
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 1,
-            backgroundColor: lineColor,
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: ind.left,
-            width: ind.width,
-            height: 2,
-            backgroundColor: primary,
-            borderRadius: "2px 2px 0 0",
-            pointerEvents: "none",
-            transition: `left ${INDICATOR_MS}ms ${INDICATOR_EASING}, width ${INDICATOR_MS}ms ${INDICATOR_EASING}`,
-            zIndex: 2,
-            marginBottom: 0,
-          }}
-        />
-        {header}
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 1,
+                backgroundColor: lineColor,
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: ind.left,
+                width: ind.width,
+                height: 2,
+                backgroundColor: primary,
+                borderRadius: "2px 2px 0 0",
+                pointerEvents: "none",
+                transition: `left ${INDICATOR_MS}ms ${INDICATOR_EASING}, width ${INDICATOR_MS}ms ${INDICATOR_EASING}`,
+                zIndex: 2,
+                marginBottom: 0,
+              }}
+            />
+            {header}
+          </div>
+        </div>
       </div>
       <div
         style={{
