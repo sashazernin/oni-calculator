@@ -64,6 +64,7 @@ export const gameDataTranslations = {
   gd_polluted_water: { ru: "Загрязнённая вода", en: "Polluted Water" },
   gd_ethanol: { ru: "Этанол", en: "Ethanol" },
   gd_salt_water: { ru: "Солёная вода", en: "Salt Water" },
+  gd_petroleum: { ru: "Нефть", en: "Petroleum" },
 
   gd_dirt: { ru: "Земля", en: "Dirt" },
   gd_phosphorite: { ru: "Аппатит", en: "Phosphorite" },

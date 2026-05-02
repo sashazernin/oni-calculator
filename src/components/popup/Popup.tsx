@@ -8,7 +8,7 @@ const Portal = ({ children }: { children: ReactNode }) => {
   return createPortal(children, document.body);
 };
 
-interface IPopupProps {
+export interface IPopupProps {
   open: boolean;
   title?: string;
   header?: ReactNode;
@@ -21,7 +21,7 @@ interface IPopupProps {
   disableCloseOnEscape?: boolean;
   disableCloseOnClickOutside?: boolean;
   closeButton?: boolean;
-  variant?: "standard" | "fit-content";
+  variant?: "standard" | "fit-content" | "fullscreen";
 }
 
 const TRANSITION_MS = 280;
@@ -110,11 +110,25 @@ export function Popup(props: Readonly<IPopupProps>) {
         height: "calc(100vh - 4rem)",
         maxHeight: "calc(100vh - 2rem)",
       }
-      : {
-        width: "max-content",
-        height: "max-content",
-        maxWidth: "min(100vw - 2rem, 900px)",
-      };
+      : variant === "fullscreen"
+        ? {
+          width: "100%",
+          height: "100%",
+          maxWidth: "none",
+          maxHeight: "none",
+        }
+        : {
+          width: "max-content",
+          height: "max-content",
+          maxWidth: "min(100vw - 2rem, 900px)",
+        };
+
+  const dialogFrameStyle: CSSProperties = {
+    margin: variant === "fullscreen" ? 0 : 32,
+    borderRadius: variant === "fullscreen" ? 0 : 8,
+    border:
+      variant === "fullscreen" ? "none" : `1px solid ${colors.border.main}`,
+  };
 
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -205,16 +219,19 @@ export function Popup(props: Readonly<IPopupProps>) {
             position: "relative",
             display: "flex",
             flexDirection: "column",
-            margin: 32,
-            borderRadius: 8,
-            border: `1px solid ${colors.border.main}`,
             minHeight: 0,
             color: colors.text.primary,
             opacity: visible ? 1 : 0,
-            transform: visible
-              ? "translate3d(0, 0, 0) scale(1)"
-              : `translate3d(0, ${DIALOG_IDLE_Y}px, 0) scale(${DIALOG_IDLE_SCALE})`,
+            transform:
+              variant === "fullscreen"
+                ? visible
+                  ? "translate3d(0, 0, 0) scale(1)"
+                  : `translate3d(0, ${DIALOG_IDLE_Y * 0.5}px, 0) scale(${DIALOG_IDLE_SCALE})`
+                : visible
+                  ? "translate3d(0, 0, 0) scale(1)"
+                  : `translate3d(0, ${DIALOG_IDLE_Y}px, 0) scale(${DIALOG_IDLE_SCALE})`,
             transition: `opacity ${TRANSITION_MS}ms ${EASE}, transform ${TRANSITION_MS}ms ${EASE}`,
+            ...dialogFrameStyle,
             ...dialogLayoutStyle,
             ...dialogSurface,
           }}
@@ -260,7 +277,7 @@ export function Popup(props: Readonly<IPopupProps>) {
               minHeight: 0,
               display: "flex",
               flexDirection: "column",
-              flex: variant === "standard" ? 1 : "0 1 auto",
+              flex: variant === "standard" || variant === "fullscreen" ? 1 : "0 1 auto",
             }}
           >
             {children}

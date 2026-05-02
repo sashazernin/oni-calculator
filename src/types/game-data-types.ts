@@ -53,3 +53,26 @@ export interface IDuplicate {
   name: string;
   gluttonous: boolean;
 }
+
+export interface IRocketEngine {
+  name: string;
+  consumption: number;
+  fuel: IGas | IResourse | ILiquid | IOther;
+  image: string;
+  maxHeight: number;
+  type: 'rocket-engine';
+  tank?: number;
+  height: number;
+}
+
+export interface IGas {
+  name: string;
+  type: 'gas';
+  image: string;
+}
+
+export interface IOther {
+  name: string;
+  type: 'other';
+  image: string;
+}

@@ -1,7 +1,7 @@
 import type { IconType } from "react-icons";
 import Home from "../pages/home/home";
 import Settings from "../pages/settings/Settings";
-import { IoHomeOutline } from "react-icons/io5";
+import { IoHomeOutline, IoRocketOutline, IoRocketSharp } from "react-icons/io5";
 import { IoHomeSharp } from "react-icons/io5";
 import { GoGear } from "react-icons/go";
 import { FaGear } from "react-icons/fa6";
@@ -9,6 +9,7 @@ import Food from "../pages/food/Food";
 import { IoFastFoodSharp } from "react-icons/io5";
 import { IoFastFoodOutline } from "react-icons/io5";
 import type { TranslationKey } from "../i18n/translations";
+import Rocket from "../pages/rocket/rocket";
 
 export type MenuItem = {
   labelKey: TranslationKey;
@@ -33,6 +34,13 @@ export const menuItems: MenuItem[] = [
     component: <Food />,
     icon: IoFastFoodOutline,
     activeIcon: IoFastFoodSharp
+  },
+  {
+    labelKey: "nav_rocket_engines",
+    href: "rocket",
+    component: <Rocket />,
+    icon: IoRocketOutline,
+    activeIcon: IoRocketSharp
   },
   {
     labelKey: "nav_settings",

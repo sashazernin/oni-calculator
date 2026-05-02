@@ -14,6 +14,7 @@ export const translations = {
 
   nav_home: { ru: "Главная", en: "Home" },
   nav_food: { ru: "Еда", en: "Food" },
+  nav_rocket_engines: { ru: "Ракета", en: "Rocket" },
   nav_settings: { ru: "Настройки", en: "Settings" },
   nav_open_menu: { ru: "Открыть меню", en: "Open menu" },
   nav_close_menu: { ru: "Закрыть меню", en: "Close menu" },
