@@ -1,52 +1,25 @@
 import { useCallback, useContext, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { IoMdPlanet, IoMdWarning } from "react-icons/io";
-import { cellNumberFromAxial, HexMapPopup, type HexMapObjectItem } from "../../../components/hex-map/HexMap";
-import { HEX_MAP_CELLS } from "../../../components/hex-map/hex-map-geometry";
+import { WiSmog } from "react-icons/wi";
+import {
+  HexMapPopup,
+  type HexMapObjectItem,
+  type HexMapObjectType,
+} from "../../../components/hex-map/HexMap";
+import { HEX_MAP_CELLS } from "../../../helpers/hex-map-geometry";
 import { Button } from "../../../components/button/Button";
 import Divider from "../../../components/divider/Devider";
 import { ThemeContext } from "../../../providers/app-theme-provider";
 import { useTranslation } from "../../../hooks/useTranslation";
 import StarMapObjectCard from "./star-map-object-card/StarMapObjectCard";
 import StarMapObjectEdit from "./star-map-object-edit/StarMapObjectEdit";
+import { readStoredStarMapObjects, STAR_MAP_OBJECTS_KEY } from "../../../helpers/readStoredStarMapObjects";
 
-const STAR_MAP_OBJECTS_KEY = "oni-calculator.star-map.objects";
-
-const initialObjects = (): HexMapObjectItem[] => {
-  const planet = cellNumberFromAxial(0, 0);
-  const out: HexMapObjectItem[] = [];
-  if (planet != null) out.push({ cellNumber: planet, name: "Home planet", type: "planet", main: true });
-  return out;
+const STAR_MAP_TYPE_ORDER: Record<HexMapObjectType, number> = {
+  planet: 0,
+  nebula: 1,
+  wreck: 2,
 };
-
-function readStoredStarMapObjects(): HexMapObjectItem[] {
-  if (typeof window === "undefined") return initialObjects();
-  try {
-    const raw = window.localStorage.getItem(STAR_MAP_OBJECTS_KEY);
-    if (!raw) return initialObjects();
-    const data: unknown = JSON.parse(raw);
-    if (!Array.isArray(data)) return initialObjects();
-    const parsed: HexMapObjectItem[] = [];
-    for (const x of data) {
-      if (!x || typeof x !== "object") continue;
-      const rec = x as Record<string, unknown>;
-      const cellNumber = rec.cellNumber;
-      const name = rec.name;
-      const type = rec.type;
-      if (typeof cellNumber !== "number" || !Number.isFinite(cellNumber)) continue;
-      if (typeof name !== "string") continue;
-      if (type !== "planet" && type !== "wreck") continue;
-      parsed.push({
-        cellNumber,
-        name,
-        type,
-        main: typeof rec.main === "boolean" ? rec.main : undefined,
-      });
-    }
-    return parsed.length > 0 ? parsed : initialObjects();
-  } catch {
-    return initialObjects();
-  }
-}
 
 export default function StarMap() {
   const { colors } = useContext(ThemeContext);
@@ -79,17 +52,19 @@ export default function StarMap() {
     setObjects((prev) => prev.map((o) => (o.cellNumber === item.cellNumber ? { ...item } : o)));
   }, []);
 
-  const { catalogSorted, planetCount, wreckCount } = useMemo(() => {
+  const { catalogSorted, planetCount, nebulaCount, wreckCount } = useMemo(() => {
     const p = objects.filter((o) => o.type === "planet");
+    const n = objects.filter((o) => o.type === "nebula");
     const w = objects.filter((o) => o.type === "wreck");
     const sorted = [...objects].sort((a, b) => {
       if (Boolean(a.main) !== Boolean(b.main)) return a.main ? -1 : 1;
-      if (a.type !== b.type) return a.type === "planet" ? -1 : 1;
+      if (a.type !== b.type) return STAR_MAP_TYPE_ORDER[a.type] - STAR_MAP_TYPE_ORDER[b.type];
       return a.name.localeCompare(b.name, "ru");
     });
     return {
       catalogSorted: sorted,
       planetCount: p.length,
+      nebulaCount: n.length,
       wreckCount: w.length,
     };
   }, [objects]);
@@ -137,6 +112,14 @@ export default function StarMap() {
           <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
             <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
               {planetCount}
+            </span>
+          </div>
+        </div>
+        <div style={statCardStyle()}>
+          <WiSmog size={28} style={{ color: "rgba(195, 165, 245, 0.95)", flexShrink: 0 }} aria-hidden />
+          <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
+              {nebulaCount}
             </span>
           </div>
         </div>

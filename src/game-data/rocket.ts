@@ -1,4 +1,4 @@
-import type { IRocketEngine } from "../types/game-data-types"
+import type { IRocketEngine, IRocketModule } from "../types/game-data-types"
 import { gas } from "./gas"
 import { liquids } from "./liquids"
 import { other } from "./other"
@@ -12,7 +12,8 @@ const carbonDioxide: IRocketEngine = {
   image: "rocket/Carbon_Dioxide_Engine.webp",
   maxHeight: 10,
   tank: 100,
-  height: 2
+  height: 2,
+  width: 3,
 }
 
 const sugar: IRocketEngine = {
@@ -23,7 +24,8 @@ const sugar: IRocketEngine = {
   image: "rocket/Sugar_Engine.webp",
   maxHeight: 16,
   tank: 450,
-  height: 3
+  height: 3,
+  width: 3,
 }
 
 const steam: IRocketEngine = {
@@ -34,7 +36,8 @@ const steam: IRocketEngine = {
   image: "rocket/Steam_Engine.webp",
   maxHeight: 25,
   tank: 150,
-  height: 5
+  height: 5,
+  width: 7,
 }
 
 const smallPetroleum: IRocketEngine = {
@@ -44,7 +47,8 @@ const smallPetroleum: IRocketEngine = {
   fuel: liquids.Petroleum,
   image: "rocket/Small_Petroleum_Engine.webp",
   maxHeight: 20,
-  height: 4
+  height: 4,
+  width: 3,
 }
 
 const petroleum: IRocketEngine = {
@@ -54,7 +58,8 @@ const petroleum: IRocketEngine = {
   fuel: liquids.Petroleum,
   image: "rocket/Petroleum_Engine.webp",
   maxHeight: 35,
-  height: 5
+  height: 5,
+  width: 7,
 }
 
 const radbolt: IRocketEngine = {
@@ -65,7 +70,8 @@ const radbolt: IRocketEngine = {
   image: "rocket/Radbolt_Engine.webp",
   maxHeight: 20,
   tank: 4000,
-  height: 5
+  height: 5,
+  width: 5,
 }
 
 const hydrogen: IRocketEngine = {
@@ -75,7 +81,8 @@ const hydrogen: IRocketEngine = {
   fuel: gas.hydrogen,
   image: "rocket/Hydrogen_Engine.webp",
   maxHeight: 35,
-  height: 5
+  height: 5,
+  width: 7,
 }
 
 export const rocketEngines = {
@@ -85,5 +92,33 @@ export const rocketEngines = {
   smallPetroleum,
   petroleum,
   radbolt,
-  hydrogen
+  hydrogen,
+} as const;
+
+export type RocketEngineId = keyof typeof rocketEngines;
+
+const rocketPlatform: IRocketModule = {
+  name: "Rocket Platform",
+  type: 'rocket-module',
+  image: "rocket/Rocket_Platform.png",
+  height: 2,
+  width: 7,
+}
+
+export const rocketModules = {
+  rocketPlatform
+}
+
+/** Ширина сетки ракеты в ячейках (по платформе). */
+export const ROCKET_GRID_COLUMNS = rocketModules.rocketPlatform.width
+
+/**
+ * Каталог модулей для стопки над двигателем (не платформа).
+ * Добавляйте сюда элементы — они появятся в диалоге «+».
+ */
+export const rocketStackModules: Record<string, IRocketModule> = {}
+
+/** Сколько рядов ячеек сетки доступно под модули над двигателем (maxHeight минус высота двигателя, без платформы). */
+export function rocketModuleCellBudget(engine: IRocketEngine): number {
+  return Math.max(0, engine.maxHeight - engine.height)
 }

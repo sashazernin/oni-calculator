@@ -63,6 +63,7 @@ export interface IRocketEngine {
   type: 'rocket-engine';
   tank?: number;
   height: number;
+  width: number;
 }
 
 export interface IGas {
@@ -75,4 +76,12 @@ export interface IOther {
   name: string;
   type: 'other';
   image: string;
+}
+
+export interface IRocketModule {
+  name: string;
+  type: 'rocket-module';
+  image: string;
+  height: number;
+  width: number;
 }

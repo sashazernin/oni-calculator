@@ -3,11 +3,18 @@ import { Popup } from "../../../../components/popup/Popup";
 import { Button } from "../../../../components/button/Button";
 import { TextField } from "../../../../components/text-field/TextField";
 import type { HexMapObjectItem, HexMapObjectType } from "../../../../components/hex-map/HexMap";
-import { HEX_MAP_CELLS } from "../../../../components/hex-map/hex-map-geometry";
+import { HEX_MAP_CELLS } from "../../../../helpers/hex-map-geometry";
+import type { TranslationKey } from "../../../../i18n/translations";
 import { ThemeContext } from "../../../../providers/app-theme-provider";
 import { useTranslation } from "../../../../hooks/useTranslation";
 
-const TYPE_VALUES: HexMapObjectType[] = ["planet", "wreck"];
+const TYPE_VALUES: HexMapObjectType[] = ["planet", "nebula", "wreck"];
+
+const TYPE_LABEL_KEYS: Record<HexMapObjectType, TranslationKey> = {
+  planet: "star_map_type_planet",
+  nebula: "star_map_type_nebula",
+  wreck: "star_map_type_wreck",
+};
 
 function defaultDraft(item?: HexMapObjectItem): { name: string; type: HexMapObjectType } {
   return {
@@ -127,7 +134,7 @@ export default function StarMapObjectEdit({ open, onClose, item, onSave }: StarM
           >
             {TYPE_VALUES.map((value) => {
               const active = draft.type === value;
-              const label = value === "planet" ? t("star_map_type_planet") : t("star_map_type_wreck");
+              const label = t(TYPE_LABEL_KEYS[value]);
               return (
                 <button
                   key={value}

@@ -1,10 +1,11 @@
 import type { CSSProperties } from "react";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { IoMdPlanet, IoMdWarning } from "react-icons/io";
+import { WiSmog } from "react-icons/wi";
 import { RxCross1 } from "react-icons/rx";
 import spaceBg from "../../../assets/space_bg.jpg";
 import { ThemeContext } from "../../providers/app-theme-provider";
-import type { HexMapObjectItem, HexMapObjectType } from "./hex-map-types";
+import type { HexMapObjectItem, HexMapObjectType } from "../../types/hex-map-types";
 import {
   AXIAL_NEIGHBOR_DR,
   AXIAL_TO_CELL_INDEX,
@@ -17,18 +18,13 @@ import {
   axialToPixelFlat,
   flatTopHexCorners,
   shortestHexPathAvoidPlanets,
-} from "./hex-map-geometry";
+} from "../../helpers/hex-map-geometry";
 import { Popup, type IPopupProps } from "../popup/Popup";
 import { TextField } from "../text-field/TextField";
 import { IconButton } from "../icon-button/IconButton";
 import Info from "../info/info";
 
-export {
-  cellNumberFromAxial,
-  HEX_MAP_CENTER_CELL_INDEX,
-  shortestHexPathAvoidPlanets,
-} from "./hex-map-geometry";
-export type { HexMapObjectItem, HexMapObjectType } from "./hex-map-types";
+export type { HexMapObjectItem, HexMapObjectType } from "../../types/hex-map-types";
 
 const FIT_PADDING_FRAC = 0.045;
 /** Плавность зума колесом: чем больше τ (мс), тем медленнее подстраивается масштаб. */
@@ -42,6 +38,7 @@ const SELECT_ROUTE_ARROW_HALF_WIDTH = 5;
 
 const CREATE_TYPE_SEGMENTS: readonly { value: HexMapObjectType; label: string }[] = [
   { value: "planet", label: "Планета" },
+  { value: "nebula", label: "Туманность" },
   { value: "wreck", label: "Обломок" },
 ];
 
@@ -126,6 +123,9 @@ export interface HexMapProps {
    * `select` — без создания и без панели; ЛКМ — новый путь от центра (0,0), ПКМ по гексу — продолжить от конца текущего. Промежуточно через планеты нельзя, финиш на планете можно.
    */
   mode?: "edit" | "select";
+  /** Маршрут в режиме `select`: индексы клеток по порядку; `null` — маршрута нет. */
+  rocketWay?: number[] | null;
+  onWayChange?: (way: number[] | null) => void;
 }
 
 const cells = HEX_MAP_CELLS;
@@ -142,6 +142,8 @@ export default function HexMap({
   style,
   minHeightPx = 280,
   mode = "edit",
+  rocketWay = null,
+  onWayChange,
 }: HexMapProps) {
   const { colors } = useContext(ThemeContext);
   const objects = objectsProp ?? EMPTY_OBJECTS;
@@ -201,9 +203,6 @@ export default function HexMap({
 
   const [inspectorEditName, setInspectorEditName] = useState("");
   const [inspectorEditType, setInspectorEditType] = useState<HexMapObjectType>("planet");
-
-  /** Цепочка индексов ячеек от центра для режима select (стрелка по кратчайшему пути). */
-  const [selectPathIndices, setSelectPathIndices] = useState<number[] | null>(null);
 
   const neighborKeySet = useMemo(() => {
     const s = new Set<string>();
@@ -389,24 +388,25 @@ export default function HexMap({
       setCreateDraft(null);
       setInspectorCell(null);
     } else {
-      setSelectPathIndices(null);
+      onWayChange?.(null);
     }
-  }, [mode]);
+  }, [mode, onWayChange]);
 
   useEffect(() => {
     if (mode !== "select") return;
-    setSelectPathIndices((prev) => {
-      if (!prev?.length) return prev;
-      const last = prev.length - 1;
-      for (let i = 0; i < prev.length; i++) {
-        const ii = prev[i];
-        if (i === last) continue;
-        if (i === 0) continue;
-        if (planetCellIndices.has(ii)) return null;
+    const prev = rocketWay;
+    if (!prev?.length) return;
+    const last = prev.length - 1;
+    for (let i = 0; i < prev.length; i++) {
+      const ii = prev[i];
+      if (i === last) continue;
+      if (i === 0) continue;
+      if (planetCellIndices.has(ii)) {
+        onWayChange?.(null);
+        return;
       }
-      return prev;
-    });
-  }, [mode, planetCellIndices]);
+    }
+  }, [mode, planetCellIndices, rocketWay, onWayChange]);
 
   useEffect(() => {
     if (!onCreateObject) setCreateDraft(null);
@@ -422,18 +422,18 @@ export default function HexMap({
     const active =
       createDraft != null ||
       inspectorCell != null ||
-      (mode === "select" && selectPathIndices != null);
+      (mode === "select" && rocketWay != null);
     if (!active) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setCreateDraft(null);
         setInspectorCell(null);
-        if (mode === "select") setSelectPathIndices(null);
+        if (mode === "select") onWayChange?.(null);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [createDraft, inspectorCell, mode, selectPathIndices]);
+  }, [createDraft, inspectorCell, mode, rocketWay, onWayChange]);
 
   useEffect(() => {
     if (inspectorCell === null) return;
@@ -456,18 +456,20 @@ export default function HexMap({
         setCreateDraft(null);
         setInspectorCell(null);
         if (selectExtendRoute) {
-          setSelectPathIndices((prev) => {
-            const from =
-              prev != null && prev.length > 0 ? prev[prev.length - 1]! : HEX_MAP_CENTER_CELL_INDEX;
-            if (from === idx) return prev;
+          const prev = rocketWay;
+          const from =
+            prev != null && prev.length > 0 ? prev[prev.length - 1]! : HEX_MAP_CENTER_CELL_INDEX;
+          if (from !== idx) {
             const segment = shortestHexPathAvoidPlanets(from, idx, planetCellIndices);
-            if (segment == null) return prev;
-            if (prev == null || prev.length === 0) return segment;
-            return [...prev, ...segment.slice(1)];
-          });
+            if (segment != null) {
+              const next =
+                prev == null || prev.length === 0 ? segment : [...prev, ...segment.slice(1)];
+              onWayChange?.(next);
+            }
+          }
         } else {
           const path = shortestHexPathAvoidPlanets(HEX_MAP_CENTER_CELL_INDEX, idx, planetCellIndices);
-          setSelectPathIndices(path);
+          onWayChange?.(path);
         }
         onHexClick?.(idx, q, r);
         return;
@@ -503,6 +505,8 @@ export default function HexMap({
       onHexClick,
       onCreateObject,
       planetCellIndices,
+      rocketWay,
+      onWayChange,
     ]
   );
 
@@ -630,9 +634,9 @@ export default function HexMap({
   const formLabelColor = `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.default})`;
 
   const selectRouteArrow = useMemo(() => {
-    if (mode !== "select" || !selectPathIndices || selectPathIndices.length < 2) return null;
+    if (mode !== "select" || !rocketWay || rocketWay.length < 2) return null;
     const pts: { x: number; y: number }[] = [];
-    for (const ii of selectPathIndices) {
+    for (const ii of rocketWay) {
       const a = cells[ii];
       if (!a) return null;
       pts.push(axialToPixelFlat(a.q, a.r, HEX_PIXEL_R));
@@ -664,13 +668,13 @@ export default function HexMap({
     }
     const arrowPoints = `${tip.x},${tip.y} ${p1x},${p1y} ${p2x},${p2y}`;
     return { lineD, arrowPoints };
-  }, [mode, selectPathIndices]);
+  }, [mode, rocketWay]);
 
   /** Число перемещений между соседними клетками вдоль текущего маршрута (ребра пути). */
   const selectMoveCount = useMemo(() => {
-    if (!selectPathIndices?.length) return 0;
-    return selectPathIndices.length - 1;
-  }, [selectPathIndices]);
+    if (!rocketWay?.length) return 0;
+    return rocketWay.length - 1;
+  }, [rocketWay]);
 
   return (
     <div
@@ -706,7 +710,7 @@ export default function HexMap({
           ...bgStyle,
         }}
       >
-        {mode === "select" && selectPathIndices != null ? (
+        {mode === "select" && rocketWay != null ? (
           <div
             aria-live="polite"
             style={{
@@ -830,6 +834,11 @@ export default function HexMap({
               stroke: rgba(255, 200, 120, 0.28);
               stroke-width: 0.9;
             }
+            .rocketHexNebulaBase {
+              fill: rgba(56, 36, 92, 0.34);
+              stroke: rgba(186, 150, 235, 0.32);
+              stroke-width: 0.9;
+            }
             .hexMapCreateBlocked {
               cursor: not-allowed !important;
             }
@@ -846,7 +855,14 @@ export default function HexMap({
               const idx = AXIAL_TO_CELL_INDEX.get(axialKey(q, r))!;
               const k = axialKey(q, r);
               const obj = objectByCell.get(idx);
-              const kind = obj?.type === "planet" ? "planet" : obj?.type === "wreck" ? "wreck" : "empty";
+              const kind =
+                obj?.type === "planet"
+                  ? "planet"
+                  : obj?.type === "wreck"
+                    ? "wreck"
+                    : obj?.type === "nebula"
+                      ? "nebula"
+                      : "empty";
               const planetClusterLit =
                 neighborHoverPlanetCell !== null &&
                 (neighborKeySet.has(k) || (kind === "planet" && neighborHoverPlanetCell === idx));
@@ -857,7 +873,9 @@ export default function HexMap({
                   ? "rocketHexPlanetBase"
                   : kind === "wreck"
                     ? "rocketHexWreckBase"
-                    : "rocketHexGhost";
+                    : kind === "nebula"
+                      ? "rocketHexNebulaBase"
+                      : "rocketHexGhost";
               const createBlocked =
                 mode === "edit" &&
                 onCreateObject != null &&
@@ -880,14 +898,18 @@ export default function HexMap({
                       ? "rgba(0,0,0,0.22)"
                       : kind === "planet"
                         ? "rgba(0,0,0,0.28)"
-                        : "rgba(80, 40, 18, 0.32)"
+                        : kind === "nebula"
+                          ? "rgba(56, 36, 92, 0.34)"
+                          : "rgba(80, 40, 18, 0.32)"
                   }
                   stroke={
                     kind === "empty"
                       ? "rgba(255,255,255,0.15)"
                       : kind === "planet"
                         ? "rgba(255,255,255,0.2)"
-                        : "rgba(255, 200, 120, 0.28)"
+                        : kind === "nebula"
+                          ? "rgba(186, 150, 235, 0.32)"
+                          : "rgba(255, 200, 120, 0.28)"
                   }
                   strokeWidth={0.85}
                   onKeyDown={
@@ -1012,6 +1034,51 @@ export default function HexMap({
                         }}
                       >
                         <IoMdWarning size={wIcon} aria-hidden />
+                      </div>
+                    </foreignObject>
+                    <text
+                      x={x}
+                      y={labelY}
+                      textAnchor="middle"
+                      fill={colors.text.primary}
+                      fontSize={10}
+                      fontWeight={500}
+                      style={{
+                        pointerEvents: "none",
+                        userSelect: "none",
+                        textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+                      }}
+                    >
+                      {obj.name}
+                    </text>
+                  </g>
+                );
+              }
+
+              if (obj.type === "nebula") {
+                const nFo = HEX_DRAW_R * 2.2;
+                const nIcon = HEX_DRAW_R * 1.45;
+                return (
+                  <g key={`ov-${idx}`} style={{ pointerEvents: "none" }}>
+                    <foreignObject
+                      x={x - nFo / 2}
+                      y={y - nFo / 2}
+                      width={nFo}
+                      height={nFo}
+                      style={{ overflow: "visible", pointerEvents: "none" }}
+                    >
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "rgba(195, 165, 245, 0.95)",
+                          userSelect: "none",
+                        }}
+                      >
+                        <WiSmog size={nIcon} aria-hidden />
                       </div>
                     </foreignObject>
                     <text
@@ -1221,6 +1288,8 @@ export default function HexMap({
             >
               {inspectorEditType === "planet" ? (
                 <IoMdPlanet size={28} style={{ color: colors.primary.main, opacity: 0.95 }} />
+              ) : inspectorEditType === "nebula" ? (
+                <WiSmog size={28} style={{ color: "rgba(195, 165, 245, 0.95)" }} />
               ) : (
                 <IoMdWarning size={24} style={{ color: "rgba(255, 200, 120, 0.92)" }} />
               )}

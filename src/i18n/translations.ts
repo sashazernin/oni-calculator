@@ -136,16 +136,17 @@ export const translations = {
   aria_star_map_delete_object: { ru: "Удалить объект", en: "Delete object" },
   star_map_type_planet: { ru: "Планета", en: "Planet" },
   star_map_type_wreck: { ru: "Обломок", en: "Wreck" },
+  star_map_type_nebula: { ru: "Туманность", en: "Nebula" },
   star_map_main_short: { ru: "основная", en: "home" },
   star_map_cell_coords: {
     ru: "Клетка {{cell}} · q {{q}}, r {{r}}",
     en: "Cell {{cell}} · q {{q}}, r {{r}}",
   },
   star_map_empty_catalog: {
-    ru: "На карте пока нет объектов — откройте редактор и добавьте планеты или обломки.",
-    en: "No objects on the map yet — open the editor to add planets or wrecks.",
+    ru: "На карте пока нет объектов — откройте редактор и добавьте планеты, туманности или обломки.",
+    en: "No objects on the map yet — open the editor to add planets, nebulae, or wrecks.",
   },
-  star_map_open_editor: { ru: "Редактировать карту", en: "Edit map" },
+  star_map_open_editor: { ru: "Изменить карту", en: "Edit map" },
 
   label_type: { ru: "Тип", en: "Type" },
   label_quality: { ru: "Качество", en: "Quality" },

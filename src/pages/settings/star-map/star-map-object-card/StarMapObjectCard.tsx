@@ -1,5 +1,6 @@
 import { useContext, type CSSProperties } from "react";
 import { IoMdPlanet, IoMdWarning } from "react-icons/io";
+import { WiSmog } from "react-icons/wi";
 import { LuPencil, LuTrash2 } from "react-icons/lu";
 import { IconButton } from "../../../../components/icon-button/IconButton";
 import Confirmation from "../../../../components/confirmation/confirmation";
@@ -45,7 +46,9 @@ export default function StarMapObjectCard({ item, cellLine, onEdit, onDelete }: 
     boxSizing: "border-box",
     ...(item.type === "planet"
       ? { borderTop: `3px solid ${colors.primary.main}` }
-      : { borderTop: `3px solid rgba(255, 200, 120, 0.75)` }),
+      : item.type === "nebula"
+        ? { borderTop: `3px solid rgba(186, 150, 235, 0.85)` }
+        : { borderTop: `3px solid rgba(255, 200, 120, 0.75)` }),
   };
 
   const deleteBtnStyle = {
@@ -100,6 +103,8 @@ export default function StarMapObjectCard({ item, cellLine, onEdit, onDelete }: 
       >
         {item.type === "planet" ? (
           <IoMdPlanet size={32} style={{ color: colors.primary.main, opacity: 0.95 }} aria-hidden />
+        ) : item.type === "nebula" ? (
+          <WiSmog size={32} style={{ color: "rgba(195, 165, 245, 0.95)" }} aria-hidden />
         ) : (
           <IoMdWarning size={30} style={{ color: "rgba(255, 200, 120, 0.92)" }} aria-hidden />
         )}
@@ -117,7 +122,11 @@ export default function StarMapObjectCard({ item, cellLine, onEdit, onDelete }: 
         {item.name}
       </div>
       <div style={{ fontSize: "0.7rem", lineHeight: 1.2, color: muted, textAlign: "center" }}>
-        {item.type === "planet" ? t("star_map_type_planet") : t("star_map_type_wreck")}
+        {item.type === "planet"
+          ? t("star_map_type_planet")
+          : item.type === "nebula"
+            ? t("star_map_type_nebula")
+            : t("star_map_type_wreck")}
         {isMain ? ` · ${t("star_map_main_short")}` : null}
       </div>
       <div style={{ fontSize: "0.65rem", lineHeight: 1.3, color: muted, textAlign: "center" }}>

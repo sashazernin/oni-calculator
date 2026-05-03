@@ -1,4 +1,4 @@
-export type HexMapObjectType = "planet" | "wreck";
+export type HexMapObjectType = "planet" | "wreck" | "nebula";
 
 export interface HexMapObjectItem {
   cellNumber: number;
