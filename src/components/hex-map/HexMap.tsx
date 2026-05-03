@@ -2,30 +2,43 @@ import type { CSSProperties } from "react";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { IoMdPlanet, IoMdWarning } from "react-icons/io";
 import { RxCross1 } from "react-icons/rx";
+import spaceBg from "../../../assets/space_bg.jpg";
 import { ThemeContext } from "../../providers/app-theme-provider";
 import type { HexMapObjectItem, HexMapObjectType } from "./hex-map-types";
 import {
   AXIAL_NEIGHBOR_DR,
   AXIAL_TO_CELL_INDEX,
   HEX_DRAW_R,
+  HEX_MAP_CENTER_CELL_INDEX,
   HEX_MAP_CELLS,
   HEX_MAP_VIEW_BOX,
   HEX_PIXEL_R,
   axialKey,
   axialToPixelFlat,
   flatTopHexCorners,
+  shortestHexPathAvoidPlanets,
 } from "./hex-map-geometry";
 import { Popup, type IPopupProps } from "../popup/Popup";
 import { TextField } from "../text-field/TextField";
 import { IconButton } from "../icon-button/IconButton";
+import Info from "../info/info";
 
-export { cellNumberFromAxial } from "./hex-map-geometry";
+export {
+  cellNumberFromAxial,
+  HEX_MAP_CENTER_CELL_INDEX,
+  shortestHexPathAvoidPlanets,
+} from "./hex-map-geometry";
 export type { HexMapObjectItem, HexMapObjectType } from "./hex-map-types";
 
 const FIT_PADDING_FRAC = 0.045;
 /** Плавность зума колесом: чем больше τ (мс), тем медленнее подстраивается масштаб. */
 const ZOOM_SMOOTH_TAU_MS = 95;
 const ZOOM_RAF_DT_CAP_MS = 32;
+
+/** Длина наконечника маршрута (от основания до острия) в координатах карты. */
+const SELECT_ROUTE_ARROW_LENGTH = 10;
+/** Половина ширины наконечника у основания (в тех же координатах). */
+const SELECT_ROUTE_ARROW_HALF_WIDTH = 5;
 
 const CREATE_TYPE_SEGMENTS: readonly { value: HexMapObjectType; label: string }[] = [
   { value: "planet", label: "Планета" },
@@ -96,8 +109,6 @@ function clampTranslate(tx: number, ty: number, scale: number, bounds: MapBounds
 
 export interface HexMapProps {
   objects?: HexMapObjectItem[];
-  /** Путь к JPG/PNG или URL для фона вьюпорта. */
-  backgroundImageSrc?: string;
   /** Короткий ЛКМ (если клик не открыл форму создания). */
   onHexClick?: (cellNumber: number, q: number, r: number) => void;
   /** Если передан — пустые клетки не рядом с планетой открывают форму; по «Добавить» вызывается с готовым объектом. */
@@ -110,6 +121,11 @@ export interface HexMapProps {
   style?: CSSProperties;
   /** Минимальная высота вьюпорта карты в px. */
   minHeightPx?: number;
+  /**
+   * `edit` — создание/панель редактирования как обычно.
+   * `select` — без создания и без панели; ЛКМ — новый путь от центра (0,0), ПКМ по гексу — продолжить от конца текущего. Промежуточно через планеты нельзя, финиш на планете можно.
+   */
+  mode?: "edit" | "select";
 }
 
 const cells = HEX_MAP_CELLS;
@@ -118,7 +134,6 @@ const EMPTY_OBJECTS: HexMapObjectItem[] = [];
 
 export default function HexMap({
   objects: objectsProp,
-  backgroundImageSrc,
   onHexClick,
   onCreateObject,
   onUpdateObject,
@@ -126,6 +141,7 @@ export default function HexMap({
   className,
   style,
   minHeightPx = 280,
+  mode = "edit",
 }: HexMapProps) {
   const { colors } = useContext(ThemeContext);
   const objects = objectsProp ?? EMPTY_OBJECTS;
@@ -143,6 +159,14 @@ export default function HexMap({
       }
     }
     return m;
+  }, [objects]);
+
+  const planetCellIndices = useMemo(() => {
+    const s = new Set<number>();
+    for (const o of objects) {
+      if (o.type === "planet") s.add(o.cellNumber);
+    }
+    return s;
   }, [objects]);
 
   const axialKeysAdjacentToAnyPlanet = useMemo(() => {
@@ -178,6 +202,9 @@ export default function HexMap({
   const [inspectorEditName, setInspectorEditName] = useState("");
   const [inspectorEditType, setInspectorEditType] = useState<HexMapObjectType>("planet");
 
+  /** Цепочка индексов ячеек от центра для режима select (стрелка по кратчайшему пути). */
+  const [selectPathIndices, setSelectPathIndices] = useState<number[] | null>(null);
+
   const neighborKeySet = useMemo(() => {
     const s = new Set<string>();
     if (neighborHoverPlanetCell === null) return s;
@@ -206,7 +233,9 @@ export default function HexMap({
   const [ty, setTy] = useState(0);
   const [dragging, setDragging] = useState(false);
   const panMoved = useRef(false);
-  const pendingHexPick = useRef<{ q: number; r: number; cellIdx: number } | null>(null);
+  const pendingHexPick = useRef<{ q: number; r: number; cellIdx: number; button: 0 | 2 } | null>(
+    null
+  );
   const panning = useRef({
     active: false,
     startX: 0,
@@ -356,6 +385,30 @@ export default function HexMap({
   }, []);
 
   useEffect(() => {
+    if (mode === "select") {
+      setCreateDraft(null);
+      setInspectorCell(null);
+    } else {
+      setSelectPathIndices(null);
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (mode !== "select") return;
+    setSelectPathIndices((prev) => {
+      if (!prev?.length) return prev;
+      const last = prev.length - 1;
+      for (let i = 0; i < prev.length; i++) {
+        const ii = prev[i];
+        if (i === last) continue;
+        if (i === 0) continue;
+        if (planetCellIndices.has(ii)) return null;
+      }
+      return prev;
+    });
+  }, [mode, planetCellIndices]);
+
+  useEffect(() => {
     if (!onCreateObject) setCreateDraft(null);
   }, [onCreateObject]);
 
@@ -366,16 +419,21 @@ export default function HexMap({
   }, [createDraft, objectByCell]);
 
   useEffect(() => {
-    if (!createDraft && inspectorCell === null) return;
+    const active =
+      createDraft != null ||
+      inspectorCell != null ||
+      (mode === "select" && selectPathIndices != null);
+    if (!active) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setCreateDraft(null);
         setInspectorCell(null);
+        if (mode === "select") setSelectPathIndices(null);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [createDraft, inspectorCell]);
+  }, [createDraft, inspectorCell, mode, selectPathIndices]);
 
   useEffect(() => {
     if (inspectorCell === null) return;
@@ -389,10 +447,32 @@ export default function HexMap({
   }, [inspectorCell, inspectorObject]);
 
   const handleHexActivation = useCallback(
-    (q: number, r: number) => {
+    (q: number, r: number, selectExtendRoute = false) => {
       const idx = AXIAL_TO_CELL_INDEX.get(axialKey(q, r));
       if (idx === undefined) return;
       const k = axialKey(q, r);
+
+      if (mode === "select") {
+        setCreateDraft(null);
+        setInspectorCell(null);
+        if (selectExtendRoute) {
+          setSelectPathIndices((prev) => {
+            const from =
+              prev != null && prev.length > 0 ? prev[prev.length - 1]! : HEX_MAP_CENTER_CELL_INDEX;
+            if (from === idx) return prev;
+            const segment = shortestHexPathAvoidPlanets(from, idx, planetCellIndices);
+            if (segment == null) return prev;
+            if (prev == null || prev.length === 0) return segment;
+            return [...prev, ...segment.slice(1)];
+          });
+        } else {
+          const path = shortestHexPathAvoidPlanets(HEX_MAP_CENTER_CELL_INDEX, idx, planetCellIndices);
+          setSelectPathIndices(path);
+        }
+        onHexClick?.(idx, q, r);
+        return;
+      }
+
       if (objectByCell.has(idx)) {
         setCreateDraft(null);
         setInspectorCell(idx);
@@ -416,51 +496,60 @@ export default function HexMap({
       setInspectorCell(null);
       onHexClick?.(idx, q, r);
     },
-    [objectByCell, axialKeysAdjacentToAnyPlanet, onHexClick, onCreateObject]
+    [
+      mode,
+      objectByCell,
+      axialKeysAdjacentToAnyPlanet,
+      onHexClick,
+      onCreateObject,
+      planetCellIndices,
+    ]
   );
 
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
-    const left = e.button === 0;
-    const right = e.button === 2;
-    if (!left && !right) return;
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      const left = e.button === 0;
+      const right = e.button === 2;
+      if (!left && !right) return;
 
-    pendingHexPick.current = null;
-    if (left) {
-      const t = e.target;
-      const cell = t instanceof Element ? t.closest(".rocketHexCell, .hexMapPickTarget") : null;
-      if (cell) {
+      pendingHexPick.current = null;
+      const tryPickHex = (button: 0 | 2) => {
+        const t = e.target;
+        const cell = t instanceof Element ? t.closest(".rocketHexCell, .hexMapPickTarget") : null;
+        if (!cell) return;
         const dq = cell.getAttribute("data-q");
         const dr = cell.getAttribute("data-r");
-        if (dq != null && dr != null) {
-          const q = Number(dq);
-          const r = Number(dr);
-          if (!Number.isNaN(q) && !Number.isNaN(r)) {
-            const cellIdx = AXIAL_TO_CELL_INDEX.get(axialKey(q, r));
-            if (cellIdx !== undefined) pendingHexPick.current = { q, r, cellIdx };
-          }
-        }
-      }
-    }
+        if (dq == null || dr == null) return;
+        const q = Number(dq);
+        const r = Number(dr);
+        if (Number.isNaN(q) || Number.isNaN(r)) return;
+        const cellIdx = AXIAL_TO_CELL_INDEX.get(axialKey(q, r));
+        if (cellIdx !== undefined) pendingHexPick.current = { q, r, cellIdx, button };
+      };
+      if (left) tryPickHex(0);
+      else if (right && mode === "select") tryPickHex(2);
 
-    if (right) e.preventDefault();
-    if (zoomRafRef.current !== 0) {
-      cancelAnimationFrame(zoomRafRef.current);
-      zoomRafRef.current = 0;
-      zoomLastTsRef.current = 0;
-      zoomTargetSRef.current = scaleRef.current;
-    }
-    e.currentTarget.setPointerCapture(e.pointerId);
-    panMoved.current = false;
-    setDragging(true);
-    panning.current = {
-      active: true,
-      startX: e.clientX,
-      startY: e.clientY,
-      startTx: txRef.current,
-      startTy: tyRef.current,
-      pointerId: e.pointerId,
-    };
-  }, []);
+      if (right) e.preventDefault();
+      if (zoomRafRef.current !== 0) {
+        cancelAnimationFrame(zoomRafRef.current);
+        zoomRafRef.current = 0;
+        zoomLastTsRef.current = 0;
+        zoomTargetSRef.current = scaleRef.current;
+      }
+      e.currentTarget.setPointerCapture(e.pointerId);
+      panMoved.current = false;
+      setDragging(true);
+      panning.current = {
+        active: true,
+        startX: e.clientX,
+        startY: e.clientY,
+        startTx: txRef.current,
+        startTy: tyRef.current,
+        pointerId: e.pointerId,
+      };
+    },
+    [mode]
+  );
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
@@ -488,8 +577,9 @@ export default function HexMap({
       pendingHexPick.current = null;
       setDragging(false);
       panning.current = { ...p, active: false, pointerId: -1 };
-      if (e.button === 0 && pick != null && !panMoved.current) {
-        handleHexActivation(pick.q, pick.r);
+      if (pick != null && !panMoved.current && e.button === pick.button) {
+        if (pick.button === 2) handleHexActivation(pick.q, pick.r, true);
+        else handleHexActivation(pick.q, pick.r, false);
       }
       panMoved.current = false;
     },
@@ -499,23 +589,17 @@ export default function HexMap({
   const foSize = HEX_DRAW_R * 2.6;
   const iconPx = HEX_DRAW_R * 1.85;
 
-  const bgStyle =
-    backgroundImageSrc != null
-      ? ({
-        backgroundColor: "rgb(6 4 14)",
-        backgroundImage: `linear-gradient(
-              to bottom,
-              rgba(6, 4, 18, 0.35),
-              rgba(4, 3, 12, 0.55)
-            ), url(${backgroundImageSrc})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      } as const)
-      : ({
-        backgroundColor: colors.background.paper,
-        backgroundImage: "none",
-      } as const);
+  const bgStyle = {
+    backgroundColor: "rgb(6 4 14)",
+    backgroundImage: `linear-gradient(
+      to bottom,
+      rgba(6, 4, 18, 0.35),
+      rgba(4, 3, 12, 0.55)
+    ), url(${spaceBg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  } as const;
 
   const submitCreate = () => {
     if (!createDraft) return;
@@ -545,6 +629,49 @@ export default function HexMap({
 
   const formLabelColor = `color-mix(in srgb, ${colors.text.primary} 72%, ${colors.background.default})`;
 
+  const selectRouteArrow = useMemo(() => {
+    if (mode !== "select" || !selectPathIndices || selectPathIndices.length < 2) return null;
+    const pts: { x: number; y: number }[] = [];
+    for (const ii of selectPathIndices) {
+      const a = cells[ii];
+      if (!a) return null;
+      pts.push(axialToPixelFlat(a.q, a.r, HEX_PIXEL_R));
+    }
+    const tip = pts[pts.length - 1]!;
+    const prev = pts[pts.length - 2]!;
+    let dx = tip.x - prev.x;
+    let dy = tip.y - prev.y;
+    const segLen = Math.hypot(dx, dy);
+    if (segLen < 1e-6) return null;
+    dx /= segLen;
+    dy /= segLen;
+    const effLen = Math.min(SELECT_ROUTE_ARROW_LENGTH, segLen * 0.88);
+    const baseMidX = tip.x - dx * effLen;
+    const baseMidY = tip.y - dy * effLen;
+    const perpX = -dy;
+    const perpY = dx;
+    const p1x = baseMidX + perpX * SELECT_ROUTE_ARROW_HALF_WIDTH;
+    const p1y = baseMidY + perpY * SELECT_ROUTE_ARROW_HALF_WIDTH;
+    const p2x = baseMidX - perpX * SELECT_ROUTE_ARROW_HALF_WIDTH;
+    const p2y = baseMidY - perpY * SELECT_ROUTE_ARROW_HALF_WIDTH;
+
+    let lineD = `M ${pts[0].x} ${pts[0].y}`;
+    if (pts.length === 2) {
+      lineD += ` L ${baseMidX} ${baseMidY}`;
+    } else {
+      for (let i = 1; i < pts.length - 1; i++) lineD += ` L ${pts[i].x} ${pts[i].y}`;
+      lineD += ` L ${baseMidX} ${baseMidY}`;
+    }
+    const arrowPoints = `${tip.x},${tip.y} ${p1x},${p1y} ${p2x},${p2y}`;
+    return { lineD, arrowPoints };
+  }, [mode, selectPathIndices]);
+
+  /** Число перемещений между соседними клетками вдоль текущего маршрута (ребра пути). */
+  const selectMoveCount = useMemo(() => {
+    if (!selectPathIndices?.length) return 0;
+    return selectPathIndices.length - 1;
+  }, [selectPathIndices]);
+
   return (
     <div
       className={className}
@@ -567,6 +694,7 @@ export default function HexMap({
         onPointerCancel={onPointerUp}
         onContextMenu={(e) => e.preventDefault()}
         style={{
+          position: "relative",
           flex: 1,
           minHeight: 0,
           display: "flex",
@@ -578,6 +706,54 @@ export default function HexMap({
           ...bgStyle,
         }}
       >
+        {mode === "select" && selectPathIndices != null ? (
+          <div
+            aria-live="polite"
+            style={{
+              position: "absolute",
+              top: 10,
+              left: 10,
+              zIndex: 6,
+              pointerEvents: "none",
+              padding: "8px 12px",
+              borderRadius: 8,
+              backgroundColor: colors.background.paper,
+              border: `1px solid ${colors.border.main}`,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+              fontSize: 13,
+              fontWeight: 600,
+              color: colors.text.primary,
+              lineHeight: 1.3,
+            }}
+          >
+            Перемещений между клетками:{" "}
+            <span style={{ color: colors.primary.main }}>{selectMoveCount}</span>
+          </div>
+        ) : null}
+        {mode === "select" ? (
+          <div
+            style={{
+              position: "absolute",
+              left: 10,
+              bottom: 10,
+              zIndex: 6,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 8,
+              borderRadius: 8,
+              backgroundColor: colors.background.paper,
+              border: `1px solid ${colors.border.main}`,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+              color: colors.primary.main,
+            }}
+          >
+            <Info
+              placement="top"
+              message="Начальный маршрут — ЛКМ по клетке (от центра карты). Продолжение маршрута — ПКМ по следующей клетке от текущего конца пути."
+            />
+          </div>
+        ) : null}
         <div
           style={{
             width: "100%",
@@ -683,7 +859,10 @@ export default function HexMap({
                     ? "rocketHexWreckBase"
                     : "rocketHexGhost";
               const createBlocked =
-                onCreateObject != null && kind === "empty" && axialKeysAdjacentToAnyPlanet.has(k);
+                mode === "edit" &&
+                onCreateObject != null &&
+                kind === "empty" &&
+                axialKeysAdjacentToAnyPlanet.has(k);
 
               return (
                 <path
@@ -856,6 +1035,24 @@ export default function HexMap({
 
               return null;
             })}
+
+            {selectRouteArrow ? (
+              <g pointerEvents="none" style={{ opacity: 0.95 }}>
+                <path
+                  d={selectRouteArrow.lineD}
+                  fill="none"
+                  stroke={colors.primary.main}
+                  strokeWidth={2.35}
+                  strokeLinecap="butt"
+                  strokeLinejoin="round"
+                />
+                <polygon
+                  points={selectRouteArrow.arrowPoints}
+                  fill={colors.primary.main}
+                  stroke="none"
+                />
+              </g>
+            ) : null}
           </svg>
         </div>
       </div>

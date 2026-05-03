@@ -115,7 +115,7 @@ export default function Header() {
           }}
         >
           <Link
-            to="/settings?tab=game"
+            to="/settings?tab=colony"
             aria-label={t("aria_game_settings_duplicants", {
               count: duplicants.length,
             })}

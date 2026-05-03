@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import Box from "../../components/box/box";
-import spaceBg from "../../../assets/space_bg.jpg";
 import { cellNumberFromAxial, HexMapPopup, type HexMapObjectItem } from "../../components/hex-map/HexMap";
 import { Button } from "../../components/button/Button";
 
@@ -38,6 +37,7 @@ export default function Rocket() {
   }, []);
 
   const [open, setOpen] = useState(false);
+  const [mapMode, setMapMode] = useState<"edit" | "select">("edit");
 
   return (
     <div
@@ -67,17 +67,26 @@ export default function Rocket() {
         </p>
         <Button onClick={() => setOpen(true)}>Open edit</Button>
         <Button onClick={() => setOpen(false)}>Close select</Button>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 14, opacity: 0.85 }}>Режим карты:</span>
+          <Button onClick={() => setMapMode("edit")} disabled={mapMode === "edit"}>
+            Редактирование
+          </Button>
+          <Button onClick={() => setMapMode("select")} disabled={mapMode === "select"}>
+            Выбор траектории
+          </Button>
+        </div>
         <HexMapPopup
           open={open}
           onClose={() => setOpen(false)}
           mapProps={{
-            backgroundImageSrc: spaceBg,
             objects: objects,
             onCreateObject: onCreateObject,
             onUpdateObject: onUpdateObject,
             onDeleteObject: onDeleteObject,
             onHexClick: onHexClick,
             minHeightPx: 280,
+            mode: mapMode,
           }}
         />
       </Box>

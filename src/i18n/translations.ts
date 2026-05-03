@@ -85,6 +85,7 @@ export const translations = {
 
   settings_tab_app: { ru: "Приложение", en: "App" },
   settings_tab_game: { ru: "Колония", en: "Colony" },
+  settings_tab_space_map: { ru: "Звездная карта", en: "Star map" },
 
   settings_theme: { ru: "Тема", en: "Theme" },
   settings_language: { ru: "Язык", en: "Language" },
@@ -125,6 +126,26 @@ export const translations = {
   button_cancel: { ru: "Отмена", en: "Cancel" },
   button_confirm: { ru: "Подтвердить", en: "Confirm" },
   button_save: { ru: "Сохранить", en: "Save" },
+
+  star_map_edit_object: { ru: "Объект на карте", en: "Map object" },
+  star_map_delete_object_confirm: {
+    ru: "Удалить «{{name}}» с карты?",
+    en: 'Remove "{{name}}" from the map?',
+  },
+  aria_star_map_edit_object: { ru: "Редактировать объект", en: "Edit object" },
+  aria_star_map_delete_object: { ru: "Удалить объект", en: "Delete object" },
+  star_map_type_planet: { ru: "Планета", en: "Planet" },
+  star_map_type_wreck: { ru: "Обломок", en: "Wreck" },
+  star_map_main_short: { ru: "основная", en: "home" },
+  star_map_cell_coords: {
+    ru: "Клетка {{cell}} · q {{q}}, r {{r}}",
+    en: "Cell {{cell}} · q {{q}}, r {{r}}",
+  },
+  star_map_empty_catalog: {
+    ru: "На карте пока нет объектов — откройте редактор и добавьте планеты или обломки.",
+    en: "No objects on the map yet — open the editor to add planets or wrecks.",
+  },
+  star_map_open_editor: { ru: "Редактировать карту", en: "Edit map" },
 
   label_type: { ru: "Тип", en: "Type" },
   label_quality: { ru: "Качество", en: "Quality" },
