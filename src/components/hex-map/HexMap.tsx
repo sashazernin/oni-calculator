@@ -419,21 +419,17 @@ export default function HexMap({
   }, [createDraft, objectByCell]);
 
   useEffect(() => {
-    const active =
-      createDraft != null ||
-      inspectorCell != null ||
-      (mode === "select" && rocketWay != null);
+    const active = createDraft != null || inspectorCell != null;
     if (!active) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setCreateDraft(null);
         setInspectorCell(null);
-        if (mode === "select") onWayChange?.(null);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [createDraft, inspectorCell, mode, rocketWay, onWayChange]);
+  }, [createDraft, inspectorCell]);
 
   useEffect(() => {
     if (inspectorCell === null) return;
@@ -676,6 +672,13 @@ export default function HexMap({
     return rocketWay.length - 1;
   }, [rocketWay]);
 
+  /** Маршрут с нарисованной стрелкой заканчивается не на центральной клетке — «в один конец». */
+  const selectWayOneWayWarning =
+    mode === "select" &&
+    rocketWay != null &&
+    rocketWay.length >= 2 &&
+    rocketWay[rocketWay.length - 1] !== HEX_MAP_CENTER_CELL_INDEX;
+
   return (
     <div
       className={className}
@@ -712,26 +715,64 @@ export default function HexMap({
       >
         {mode === "select" && rocketWay != null ? (
           <div
-            aria-live="polite"
             style={{
               position: "absolute",
               top: 10,
               left: 10,
               zIndex: 6,
               pointerEvents: "none",
-              padding: "8px 12px",
-              borderRadius: 8,
-              backgroundColor: colors.background.paper,
-              border: `1px solid ${colors.border.main}`,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
-              fontSize: 13,
-              fontWeight: 600,
-              color: colors.text.primary,
-              lineHeight: 1.3,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+              maxWidth: "min(360px, calc(100% - 20px))",
             }}
           >
-            Перемещений между клетками:{" "}
-            <span style={{ color: colors.primary.main }}>{selectMoveCount}</span>
+            <div
+              aria-live="polite"
+              style={{
+                padding: "8px 12px",
+                borderRadius: 8,
+                backgroundColor: colors.background.paper,
+                border: `1px solid ${colors.border.main}`,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+                fontSize: 13,
+                fontWeight: 600,
+                color: colors.text.primary,
+                lineHeight: 1.3,
+              }}
+            >
+              Перемещений между клетками:{" "}
+              <span style={{ color: colors.primary.main }}>{selectMoveCount}</span>
+            </div>
+            {selectWayOneWayWarning ? (
+              <div
+                role="alert"
+                aria-live="assertive"
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 10,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  backgroundColor: "color-mix(in srgb, rgba(255, 180, 72, 0.12) 100%, transparent)",
+                  border: "1px solid color-mix(in srgb, rgba(255, 180, 72, 0.55) 100%, transparent)",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: colors.text.primary,
+                  lineHeight: 1.4,
+                }}
+              >
+                <IoMdWarning
+                  size={22}
+                  style={{ flexShrink: 0, color: "rgba(230, 165, 70, 0.95)" }}
+                  aria-hidden
+                />
+                <span>
+                  Путь в один конец.
+                </span>
+              </div>
+            ) : null}
           </div>
         ) : null}
         {mode === "select" ? (

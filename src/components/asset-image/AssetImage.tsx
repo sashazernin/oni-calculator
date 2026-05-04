@@ -6,7 +6,7 @@ const assetUrlByPath = import.meta.glob("../../game-data/assets/**/*", {
   import: "default",
 }) as Record<string, string>;
 
-function getAssetImageUrl(pathRelativeToAssets: string): string {
+export function getAssetImageUrl(pathRelativeToAssets: string): string {
   const trimmed = pathRelativeToAssets.replace(/^\.?\//, "");
   const key = `../../game-data/assets/${trimmed}`;
   const url = assetUrlByPath[key];

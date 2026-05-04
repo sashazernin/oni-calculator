@@ -61,7 +61,10 @@ export interface IRocketEngine {
   image: string;
   maxHeight: number;
   type: 'rocket-engine';
+  /** Встроенный бак топлива (кг), если есть. */
   tank?: number;
+  /** Топливо подаётся с внешних модулей (например 900 кг), а не только из встроенного бака. */
+  allowsExternalFuelTank: boolean;
   height: number;
   width: number;
 }

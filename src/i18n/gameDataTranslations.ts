@@ -65,6 +65,7 @@ export const gameDataTranslations = {
   gd_ethanol: { ru: "Этанол", en: "Ethanol" },
   gd_salt_water: { ru: "Солёная вода", en: "Salt Water" },
   gd_petroleum: { ru: "Нефть", en: "Petroleum" },
+  gd_liquid_oxygen: { ru: "Жидкий кислород", en: "Liquid Oxygen" },
 
   gd_dirt: { ru: "Земля", en: "Dirt" },
   gd_phosphorite: { ru: "Аппатит", en: "Phosphorite" },
@@ -73,6 +74,16 @@ export const gameDataTranslations = {
   gd_bleach_stone: { ru: "Твердый хлор", en: "Bleach Stone" },
   gd_sulfur: { ru: "Сера", en: "Sulfur" },
   gd_sucrose: { ru: "Сахароза", en: "Sucrose" },
+  gd_fertilizer: { ru: "Удобрение", en: "Fertilizer" },
+  gd_oxylite: { ru: "Кислолит", en: "Oxylite" },
+
+  gd_rocket_engine_carbon_dioxide: { ru: "Двигатель на углекислом газе", en: "Carbon Dioxide Engine" },
+  gd_rocket_engine_sugar: { ru: "Сахарный двигатель", en: "Sugar Engine" },
+  gd_rocket_engine_steam: { ru: "Паровой двигатель", en: "Steam Engine" },
+  gd_rocket_engine_small_petroleum: { ru: "Малый нефтяной двигатель", en: "Small Petroleum Engine" },
+  gd_rocket_engine_petroleum: { ru: "Нефтяной двигатель", en: "Petroleum Engine" },
+  gd_rocket_engine_radbolt: { ru: "Радлучевой двигатель", en: "Radbolt Engine" },
+  gd_rocket_engine_hydrogen: { ru: "Водородный двигатель", en: "Hydrogen Engine" },
 
   gd_microbe_musher: { ru: "Микробный пресс", en: "Microbe Musher" },
   gd_electric_grill: { ru: "Электрориль", en: "Electric Grill" },

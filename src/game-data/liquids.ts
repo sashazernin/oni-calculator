@@ -30,10 +30,17 @@ const Petroleum: ILiquid = {
   image: "liquids/Petroleum.webp",
 };
 
+const liquidOxygen: ILiquid = {
+  name: "gd_liquid_oxygen",
+  type: "liquid",
+  image: "liquids/Liquid_Oxygen.webp",
+};
+
 export const liquids = {
   water,
   pollutedWater,
   ethanol,
   saltWater,
-  Petroleum
+  Petroleum,
+  liquidOxygen,
 };
