@@ -1,46 +1,17 @@
 import {
   rocketEngines,
-  rocketModules,
-  ROCKET_CELL_PX,
-  ROCKET_GRID_COLUMNS,
+  rocketPlatform,
 } from "../../game-data/rocket";
 import type { IRocketEngine, IRocketModule } from "../../types/game-data-types";
 import { getAssetImageUrl } from "../asset-image/AssetImage";
+import { ROCKET_CELL_PX, ROCKET_GRID_COLUMNS } from "./RocketBuilder";
+import { getRocketModuleSpriteInset } from "./rocket-sprite-insets";
 
-/** Подстройка спрайта к сетке: увеличение «холста» картинки в px со сторон. */
-export type RocketModuleSpriteInset = {
-  top?: number;
-  right?: number;
-  bottom?: number;
-  left?: number;
-};
-
-/**
- * Смещения по полю `image` у объекта модуля/двигателя (как в `rocket.ts`).
- * Если пути здесь нет — инсеты {0}.
- */
-export const ROCKET_MODULE_SPRITE_INSETS: Record<
-  string,
-  RocketModuleSpriteInset
-> = {
-  "rocket/Rocket_Platform.png": { top: 20 },
-  "rocket/Small_Petroleum_Engine.webp": { bottom: 6 },
-  "rocket/Petroleum_Engine.webp": { bottom: 6 },
-  "rocket/Hydrogen_Engine.webp": { bottom: 26, left: 20, right: 20 },
-};
-
-/** Инсеты из `ROCKET_MODULE_SPRITE_INSETS` по `module.image` (нет ключа → нули). */
-export function getRocketModuleSpriteInset(
-  module: IRocketModule | IRocketEngine,
-): Required<RocketModuleSpriteInset> {
-  const s = ROCKET_MODULE_SPRITE_INSETS[module.image];
-  return {
-    top: s?.top ?? 0,
-    right: s?.right ?? 0,
-    bottom: s?.bottom ?? 0,
-    left: s?.left ?? 0,
-  };
-}
+export type { RocketModuleSpriteInset } from "./rocket-sprite-insets";
+export {
+  ROCKET_MODULE_SPRITE_INSETS,
+  getRocketModuleSpriteInset,
+} from "./rocket-sprite-insets";
 
 export type RocketModulePartProps = Readonly<{
   module: IRocketModule | IRocketEngine;
@@ -122,7 +93,7 @@ export function RocketModulePart(props: RocketModulePartProps) {
 
 export function RocketPlatformImage() {
   return (
-    <RocketModulePart module={rocketModules.rocketPlatform} layout="tableRow" />
+    <RocketModulePart module={rocketPlatform} layout="tableRow" />
   );
 }
 
@@ -141,7 +112,7 @@ export function PetroleumEngineImage() {
 export function RocketPlatformBlock() {
   return (
     <RocketModulePart
-      module={rocketModules.rocketPlatform}
+      module={rocketPlatform}
       layout="block"
       blockHeight="auto"
     />

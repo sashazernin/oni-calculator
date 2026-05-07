@@ -67,6 +67,8 @@ export interface IRocketEngine {
   allowsExternalFuelTank: boolean;
   height: number;
   width: number;
+  power: number;
+  load: number
 }
 
 export interface IGas {
@@ -83,8 +85,11 @@ export interface IOther {
 
 export interface IRocketModule {
   name: string;
-  type: 'rocket-module';
+  type: 'rocket-module' | 'rocket-engine' | 'rocket-tank' | 'rocket-cargo' | 'rocket-platform' | 'rocket-head';
   image: string;
   height: number;
   width: number;
+  weight: number;
+  commondModule?: boolean;
+  load?: number
 }

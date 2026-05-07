@@ -769,7 +769,7 @@ export default function HexMap({
                   aria-hidden
                 />
                 <span>
-                  Путь в один конец.
+                  Путь в один конец. (Путь заканчиватся не на центральной клетке)
                 </span>
               </div>
             ) : null}

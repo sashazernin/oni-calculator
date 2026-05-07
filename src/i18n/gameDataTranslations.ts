@@ -66,6 +66,8 @@ export const gameDataTranslations = {
   gd_salt_water: { ru: "Солёная вода", en: "Salt Water" },
   gd_petroleum: { ru: "Нефть", en: "Petroleum" },
   gd_liquid_oxygen: { ru: "Жидкий кислород", en: "Liquid Oxygen" },
+  gd_carbon_dioxide: { ru: "Углекислый газ", en: "Carbon Dioxide" },
+  gd_biodiesel: { ru: "Биодизель", en: "Biodiesel" },
 
   gd_dirt: { ru: "Земля", en: "Dirt" },
   gd_phosphorite: { ru: "Аппатит", en: "Phosphorite" },
@@ -84,6 +86,7 @@ export const gameDataTranslations = {
   gd_rocket_engine_petroleum: { ru: "Нефтяной двигатель", en: "Petroleum Engine" },
   gd_rocket_engine_radbolt: { ru: "Радлучевой двигатель", en: "Radbolt Engine" },
   gd_rocket_engine_hydrogen: { ru: "Водородный двигатель", en: "Hydrogen Engine" },
+  gd_rocket_engine_biodiesel: { ru: "Биодизельный двигатель", en: "Biodiesel Engine" },
 
   gd_microbe_musher: { ru: "Микробный пресс", en: "Microbe Musher" },
   gd_electric_grill: { ru: "Электрориль", en: "Electric Grill" },

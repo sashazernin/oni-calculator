@@ -4,17 +4,29 @@ import { liquids } from "./liquids"
 import { other } from "./other"
 import { resourses } from "./resourses"
 
+export const ROCKET_EXTERNAL_TANK_KG = 900
+
+export const ROCKET_OXIDIZER_TANK_KG = 450
+
+export const ROCKET_OXIDIZER_KG_PER_FUEL_KG = {
+  fertilizer: 1,
+  oxylite: 1 / 2,
+  liquidOxygen: 1 / 4,
+} as const
+
 const carbonDioxide: IRocketEngine = {
   name: "gd_rocket_engine_carbon_dioxide",
   type: 'rocket-engine',
   consumption: 16.666666666,
   fuel: gas.carbonDioxide,
-  image: "rocket/Carbon_Dioxide_Engine.webp",
+  image: "rocket/engines/Carbon_Dioxide_Engine.webp",
   maxHeight: 10,
   tank: 100,
   allowsExternalFuelTank: false,
   height: 2,
   width: 3,
+  power: 23,
+  load: 3
 }
 
 const sugar: IRocketEngine = {
@@ -22,12 +34,14 @@ const sugar: IRocketEngine = {
   type: 'rocket-engine',
   consumption: 75,
   fuel: resourses.sucrose,
-  image: "rocket/Sugar_Engine.webp",
+  image: "rocket/engines/Sugar_Engine.webp",
   maxHeight: 16,
   tank: 450,
   allowsExternalFuelTank: false,
   height: 3,
   width: 3,
+  power: 16,
+  load: 1
 }
 
 const steam: IRocketEngine = {
@@ -35,12 +49,14 @@ const steam: IRocketEngine = {
   type: 'rocket-engine',
   consumption: 15,
   fuel: gas.steam,
-  image: "rocket/Steam_Engine.webp",
+  image: "rocket/engines/Steam_Engine.webp",
   maxHeight: 25,
   tank: 150,
   allowsExternalFuelTank: false,
   height: 5,
   width: 7,
+  load: 15,
+  power: 27
 }
 
 const smallPetroleum: IRocketEngine = {
@@ -48,12 +64,14 @@ const smallPetroleum: IRocketEngine = {
   type: 'rocket-engine',
   consumption: 45,
   fuel: liquids.Petroleum,
-  image: "rocket/Small_Petroleum_Engine.webp",
+  image: "rocket/engines/Small_Petroleum_Engine.webp",
   maxHeight: 20,
   tank: 450,
   allowsExternalFuelTank: true,
   height: 4,
   width: 3,
+  load: 5,
+  power: 31
 }
 
 const petroleum: IRocketEngine = {
@@ -61,11 +79,27 @@ const petroleum: IRocketEngine = {
   type: 'rocket-engine',
   consumption: 90,
   fuel: liquids.Petroleum,
-  image: "rocket/Petroleum_Engine.webp",
+  image: "rocket/engines/Petroleum_Engine.webp",
   maxHeight: 35,
   allowsExternalFuelTank: true,
   height: 5,
   width: 7,
+  load: 6,
+  power: 48
+}
+
+const biodieselEngine: IRocketEngine = {
+  name: "gd_rocket_engine_biodiesel",
+  type: 'rocket-engine',
+  consumption: 69.3,
+  fuel: liquids.biodiesel,
+  image: "rocket/engines/Biodiesel_Engine.webp",
+  maxHeight: 35,
+  allowsExternalFuelTank: true,
+  height: 5,
+  width: 7,
+  power: 31,
+  load: 7
 }
 
 const radbolt: IRocketEngine = {
@@ -73,12 +107,14 @@ const radbolt: IRocketEngine = {
   type: 'rocket-engine',
   consumption: 200,
   fuel: other.redbolt,
-  image: "rocket/Radbolt_Engine.webp",
+  image: "rocket/engines/Radbolt_Engine.webp",
   maxHeight: 20,
   tank: 4000,
   allowsExternalFuelTank: false,
   height: 5,
   width: 5,
+  load: 5,
+  power: 34
 }
 
 const hydrogen: IRocketEngine = {
@@ -86,11 +122,13 @@ const hydrogen: IRocketEngine = {
   type: 'rocket-engine',
   consumption: 56.3,
   fuel: gas.hydrogen,
-  image: "rocket/Hydrogen_Engine.webp",
+  image: "rocket/engines/Hydrogen_Engine.webp",
   maxHeight: 35,
   allowsExternalFuelTank: true,
   height: 5,
   width: 7,
+  load: 7,
+  power: 55
 }
 
 export const rocketEngines = {
@@ -99,186 +137,285 @@ export const rocketEngines = {
   steam,
   smallPetroleum,
   petroleum,
+  biodieselEngine,
   radbolt,
   hydrogen,
 } as const;
 
 export type RocketEngineId = keyof typeof rocketEngines;
 
-/** Вместимость одного внешнего топливного модуля (кг), если у двигателя нет встроенного бака. */
-export const ROCKET_EXTERNAL_TANK_KG = 900
-
-/** Вместимость модуля окислителя (кг), любой тип. */
-export const ROCKET_OXIDIZER_TANK_KG = 450
-
-/**
- * Кг окислителя на 1 кг топлива.
- * Соотношения: удобрение 1:1, кислолит 1:2, жидкий кислород 1:4 (1 кг окислителя на X кг топлива).
- */
-export const ROCKET_OXIDIZER_KG_PER_FUEL_KG = {
-  fertilizer: 1,
-  oxylite: 1 / 2,
-  liquidOxygen: 1 / 4,
-} as const
-
-export type RocketOxidizerVariant = keyof typeof ROCKET_OXIDIZER_KG_PER_FUEL_KG
-
-export type RocketOxidizerPlanLine = {
-  variant: RocketOxidizerVariant
-  /** Ключ `gd_*` для перевода. */
-  translationKey: string
-  /** Путь к иконке в `game-data/assets`. */
-  image: string
-  totalOxidizerKg: number
-  oxidizerTanksNeeded: number
+const largeLiquidFuelTank: IRocketModule = {
+  name: "Large Liquid Fuel Tank",
+  type: 'rocket-tank',
+  image: "rocket/tanks/Large_Liquid_Fuel_Tank.webp",
+  height: 5,
+  width: 5,
+  weight: 100,
+  load: 5,
 }
 
-export type RocketFuelPlan = {
-  steps: number
-  totalFuelKg: number
-  /** Объём одного модуля в расчёте: внешний топливный = 900; только встроенный — вместимость бака. */
-  volumePerTankKg: number
-  /** Число внешних топливных модулей (после учёта встроенного бака). */
-  tanksNeeded: number
-  /** Есть встроенный бак в расчёте / подписи UI. */
-  usesIntegratedTank: boolean
-  /** Расчёт по видам окислителя — только если нужен внешний топливный бак и топливо нефть или водород. */
-  oxidizerLines?: RocketOxidizerPlanLine[]
+const largeSolidOxidizerTank: IRocketModule = {
+  name: "Large Solid Oxidizer Tank",
+  type: 'rocket-tank',
+  image: "rocket/tanks/Large_Solid_Oxidizer_Tank.webp",
+  height: 5,
+  width: 5,
+  weight: 100,
+  load: 5,
 }
 
-/** Число прыжков по маршруту (ребра между шестиугольниками). */
-export function rocketRouteSteps(way: number[] | null | undefined): number {
-  if (!way || way.length < 2) return 0
-  return way.length - 1
-}
-
-/** Двигатель с внешним топливным модулем, для которого нужны отдельные баки окислителя (нефть / водород). */
-export function rocketEngineNeedsOxidizerTanks(engine: IRocketEngine): boolean {
-  if (!engine.allowsExternalFuelTank) return false
-  return engine.fuel === liquids.Petroleum || engine.fuel === gas.hydrogen
-}
-
-function computeOxidizerLines(totalFuelKg: number): RocketOxidizerPlanLine[] {
-  if (totalFuelKg <= 0) return []
-  const keyByVariant: Record<RocketOxidizerVariant, string> = {
-    fertilizer: resourses.fertilizer.name,
-    oxylite: resourses.oxylite.name,
-    liquidOxygen: liquids.liquidOxygen.name,
-  }
-  const imageByVariant: Record<RocketOxidizerVariant, string> = {
-    fertilizer: resourses.fertilizer.image,
-    oxylite: resourses.oxylite.image,
-    liquidOxygen: liquids.liquidOxygen.image,
-  }
-  return (Object.keys(ROCKET_OXIDIZER_KG_PER_FUEL_KG) as RocketOxidizerVariant[]).map(
-    (variant) => {
-      const totalOxidizerKg = totalFuelKg * ROCKET_OXIDIZER_KG_PER_FUEL_KG[variant]
-      const oxidizerTanksNeeded =
-        totalOxidizerKg <= 0 ? 0 : Math.ceil(totalOxidizerKg / ROCKET_OXIDIZER_TANK_KG)
-      return {
-        variant,
-        translationKey: keyByVariant[variant],
-        image: imageByVariant[variant],
-        totalOxidizerKg,
-        oxidizerTanksNeeded,
-      }
-    },
-  )
-}
-
-/** Достаточно ли топлива для маршрута: встроенный бак ограничен; внешние модули считаем безлимитными. */
-export function isRocketEngineFeasibleForSteps(
-  engine: IRocketEngine,
-  steps: number,
-): boolean {
-  if (steps <= 0) return true
-  if (engine.allowsExternalFuelTank) return true
-  const needKg = steps * engine.consumption
-  if (engine.tank === undefined) return false
-  return needKg <= engine.tank
-}
-
-export function computeRocketFuelPlan(
-  engine: IRocketEngine,
-  steps: number,
-): RocketFuelPlan {
-  const totalFuelKg = Math.max(0, steps * engine.consumption)
-  const internalCap = engine.tank ?? 0
-  const hasInternal = internalCap > 0
-  const { allowsExternalFuelTank: allowsExt } = engine
-
-  let tanksNeeded = 0
-  let volumePerTankKg: number
-  let usesIntegratedTank: boolean
-
-  if (steps <= 0 || totalFuelKg === 0) {
-    tanksNeeded = 0
-    volumePerTankKg = allowsExt && !hasInternal ? ROCKET_EXTERNAL_TANK_KG : internalCap || ROCKET_EXTERNAL_TANK_KG
-    usesIntegratedTank = hasInternal
-  } else if (!allowsExt) {
-    tanksNeeded = 0
-    volumePerTankKg = internalCap
-    usesIntegratedTank = hasInternal
-  } else if (!hasInternal) {
-    tanksNeeded = Math.ceil(totalFuelKg / ROCKET_EXTERNAL_TANK_KG)
-    volumePerTankKg = ROCKET_EXTERNAL_TANK_KG
-    usesIntegratedTank = false
-  } else {
-    const fromExternalKg = Math.max(0, totalFuelKg - internalCap)
-    tanksNeeded =
-      fromExternalKg <= 0 ? 0 : Math.ceil(fromExternalKg / ROCKET_EXTERNAL_TANK_KG)
-    volumePerTankKg = ROCKET_EXTERNAL_TANK_KG
-    usesIntegratedTank = true
-  }
-
-  const oxidizerLines =
-    rocketEngineNeedsOxidizerTanks(engine) && steps > 0 && totalFuelKg > 0
-      ? computeOxidizerLines(totalFuelKg)
-      : undefined
-
-  return {
-    steps,
-    totalFuelKg,
-    volumePerTankKg,
-    tanksNeeded,
-    usesIntegratedTank,
-    oxidizerLines,
-  }
-}
-
-const rocketPlatform: IRocketModule = {
-  name: "Rocket Platform",
-  type: 'rocket-module',
-  image: "rocket/Rocket_Platform.png",
+const liquidOxidizerTank: IRocketModule = {
+  name: "Liquid Oxidizer Tank",
+  type: 'rocket-tank',
+  image: "rocket/tanks/Liquid_Oxidizer_Tank.webp",
   height: 2,
-  width: 7,
+  width: 5,
+  weight: 100,
+  load: 5,
+}
+
+const smallSolidOxidizerTank: IRocketModule = {
+  name: "Small Solid Oxidizer Tank",
+  type: 'rocket-tank',
+  image: "rocket/tanks/Small_Solid_Oxidizer_Tank.webp",
+  height: 2,
+  width: 5,
+  weight: 200,
+  load: 2,
+}
+
+export const rocketTanks = {
+  largeLiquidFuelTank,
+  largeSolidOxidizerTank,
+  liquidOxidizerTank,
+  smallSolidOxidizerTank
+}
+
+const biologicalCargoBay: IRocketModule = {
+  name: "Biological Cargo Bay",
+  type: 'rocket-cargo',
+  image: "rocket/cargos/Biological_Cargo_Bay.webp",
+  height: 1,
+  width: 3,
+  weight: 200,
+  load: 1
+}
+
+const cargoBay: IRocketModule = {
+  name: "Cargo Bay",
+  type: 'rocket-cargo',
+  image: "rocket/cargos/Cargo_Bay.webp",
+  height: 3,
+  width: 3,
+  weight: 200,
+  load: 4
+}
+
+const gasCargoCanister: IRocketModule = {
+  name: "Gas Cargo Canister",
+  type: 'rocket-cargo',
+  image: "rocket/cargos/Gas_Cargo_Canister.webp",
+  height: 3,
+  width: 3,
+  weight: 200,
+  load: 2
+}
+
+const largeCargoBay: IRocketModule = {
+  name: "Large Cargo Bay",
+  type: 'rocket-cargo',
+  image: "rocket/cargos/Large_Cargo_Bay.webp",
+  height: 5,
+  width: 5,
+  weight: 1000,
+  load: 6
+}
+
+const largeGasCargoCanister: IRocketModule = {
+  name: "Large Gas Cargo Canister",
+  type: 'rocket-cargo',
+  image: "rocket/cargos/Large_Gas_Cargo_Canister.webp",
+  height: 5,
+  width: 5,
+  weight: 1000,
+  load: 4
+}
+
+const largeLiquidCargoTank: IRocketModule = {
+  name: "Large Liquid Cargo Tank",
+  type: 'rocket-cargo',
+  image: "rocket/cargos/Large_Liquid_Cargo_Tank.webp",
+  height: 5,
+  width: 5,
+  weight: 1000,
+  load: 5
+}
+
+const liquidCargoTank: IRocketModule = {
+  name: "Liquid Cargo Tank",
+  type: 'rocket-cargo',
+  image: "rocket/cargos/Liquid_Cargo_Tank.webp",
+  height: 3,
+  width: 3,
+  weight: 200,
+  load: 3
+}
+
+export const rocketCargos = {
+  biologicalCargoBay,
+  cargoBay,
+  gasCargoCanister,
+  largeCargoBay,
+  largeGasCargoCanister,
+  largeLiquidCargoTank,
+  liquidCargoTank
+}
+
+const basicNosecone: IRocketModule = {
+  name: "Basic Nosecone",
+  type: 'rocket-head',
+  image: "rocket/heads/Basic_Nosecone.webp",
+  height: 2,
+  width: 5,
+  weight: 600,
+  load: 2
+}
+
+const Drillcone: IRocketModule = {
+  name: "Drillcone",
+  type: 'rocket-head',
+  image: "rocket/heads/Drillcone.webp",
+  height: 4,
+  width: 5,
+  weight: 600,
+  load: 2
+}
+
+const soloSpacefarerNosecone: IRocketModule = {
+  name: "Solo Spacefarer Nosecone",
+  type: 'rocket-head',
+  image: "rocket/heads/Solo_Spacefarer_Nosecone.webp",
+  height: 3,
+  width: 5,
+  weight: 200,
+  commondModule: true,
+  load: 3
+}
+
+export const rocketHeads = {
+  basicNosecone,
+  Drillcone,
+  soloSpacefarerNosecone
+}
+
+const artifactTransportModule: IRocketModule = {
+  name: "Artifact Transport Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Artifact_Transport_Module.webp",
+  height: 1,
+  width: 3,
+  weight: 200,
+  load: 3
+}
+
+const batteryModule: IRocketModule = {
+  name: "Battery Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Battery_Module.webp",
+  height: 2,
+  width: 3,
+  weight: 400,
+  load: 2
+}
+
+const cartographicModule: IRocketModule = {
+  name: "Cartographic Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Cartographic_Module.webp",
+  height: 5,
+  width: 5,
+  weight: 1350,
+  load: 3
+}
+
+const orbitalCargoModule: IRocketModule = {
+  name: "Orbital Cargo Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Orbital_Cargo_Module.webp",
+  height: 2,
+  width: 3,
+  weight: 400,
+  load: 4
+}
+
+const researchModule: IRocketModule = {
+  name: "Research Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Research_Module.webp",
+  height: 2,
+  width: 3,
+  weight: 1000,
+  load: 3
+}
+
+const roverModule: IRocketModule = {
+  name: "Rover Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Rover_Module.webp",
+  height: 3,
+  width: 3,
+  weight: 200,
+  load: 4
+}
+
+const solarPanelModule: IRocketModule = {
+  name: "Solar Panel Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Solar_Panel_Module.webp",
+  height: 1,
+  width: 3,
+  weight: 200,
+  load: 1
+}
+
+const spacefarerModule: IRocketModule = {
+  name: "Spacefarer Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Spacefarer_Module.webp",
+  height: 4,
+  width: 5,
+  weight: 500,
+  commondModule: true,
+  load: 6
+}
+
+const trailblazerModule: IRocketModule = {
+  name: "Trailblazer Module",
+  type: 'rocket-module',
+  image: "rocket/modules/Trailblazer_Module.webp",
+  height: 3,
+  width: 3,
+  weight: 200,
+  load: 4
 }
 
 export const rocketModules = {
-  rocketPlatform
+  artifactTransportModule,
+  batteryModule,
+  cartographicModule,
+  orbitalCargoModule,
+  researchModule,
+  roverModule,
+  solarPanelModule,
+  spacefarerModule,
+  trailblazerModule
 }
 
-/** Ширина сетки ракеты в ячейках (по платформе). */
-export const ROCKET_GRID_COLUMNS = rocketModules.rocketPlatform.width
-
-/** Размер ячейки сетки (px). */
-export const ROCKET_CELL_PX = 40
-
-/**
- * Каталог модулей для стопки над двигателем (не платформа).
- * Добавляйте сюда элементы — они появятся в диалоге «+».
- */
-export const rocketStackModules: Record<string, IRocketModule> = {}
-
-/** Размещённый над двигателем модуль (якорь — верхняя левая ячейка сетки). */
-export type PlacedRocketStackModule = {
-  uid: string;
-  moduleKey: string;
-  row: number;
-  col: number;
-}
-
-/** Сколько рядов ячеек сетки доступно под модули над двигателем (maxHeight минус высота двигателя, без платформы). */
-export function rocketModuleCellBudget(engine: IRocketEngine): number {
-  return Math.max(0, engine.maxHeight - engine.height)
+export const rocketPlatform: IRocketModule = {
+  name: "Rocket Platform",
+  type: 'rocket-platform',
+  image: "rocket/Rocket_Platform.webp",
+  height: 2,
+  width: 7,
+  weight: 800,
 }
