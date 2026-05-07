@@ -78,6 +78,7 @@ export const translations = {
   food_section_liquids: { ru: "Жидкости", en: "Liquids" },
   food_section_tools: { ru: "Инструменты", en: "Tools" },
   food_clear: { ru: "Сброс", en: "Clear" },
+  food_picker_drawer_title: { ru: "Выбор еды", en: "Food selection" },
   aria_decrease_count: { ru: "Уменьшить", en: "Decrease count" },
   aria_increase_count: { ru: "Увеличить", en: "Increase count" },
   unit_grams: { ru: "г", en: "g" },
@@ -86,6 +87,11 @@ export const translations = {
   settings_tab_app: { ru: "Приложение", en: "App" },
   settings_tab_game: { ru: "Колония", en: "Colony" },
   settings_tab_space_map: { ru: "Звездная карта", en: "Star map" },
+  rocket_name_label: { ru: "Название ракеты", en: "Rocket name" },
+  rocket_route_one_way_warning: {
+    ru: "Путь в один конец: маршрут заканчивается не на центральной клетке карты.",
+    en: "One-way route: the path does not end on the map center cell.",
+  },
 
   settings_theme: { ru: "Тема", en: "Theme" },
   settings_language: { ru: "Язык", en: "Language" },

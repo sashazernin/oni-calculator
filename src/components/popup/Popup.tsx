@@ -10,6 +10,8 @@ const Portal = ({ children }: { children: ReactNode }) => {
 
 export interface IPopupProps {
   open: boolean;
+  /** Фиксированный слой оверлея; по умолчанию 1300 (например карта — выше боковых панелей ~1592). */
+  zIndex?: number;
   title?: string;
   header?: ReactNode;
   /** Extra `className` for the header row (optional). */
@@ -21,8 +23,19 @@ export interface IPopupProps {
   disableCloseOnEscape?: boolean;
   disableCloseOnClickOutside?: boolean;
   closeButton?: boolean;
-  variant?: "standard" | "fit-content" | "fullscreen";
+  /**
+   * `drawer-right` — выезжающая панель справа на всю высоту (от края экрана), затемнённый фон;
+   * без отступов у панели, скролл у правого края.
+   */
+  variant?: "standard" | "fit-content" | "fullscreen" | "drawer-right";
+  width?: number;
 }
+
+/** Выше боковых панелей приложения (drawer ~1592): карта, выбор двигателя и т.п. */
+export const POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS = 1700;
+
+/** Портальные подсказки поверх таких модалок (см. `Tooltip`). */
+export const TOOLTIP_Z_INDEX_ABOVE_APP_POPUPS = POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS + 20;
 
 const TRANSITION_MS = 280;
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
@@ -37,6 +50,7 @@ export function Popup(props: Readonly<IPopupProps>) {
   const { colors } = useContext(ThemeContext);
   const {
     open,
+    zIndex = 1300,
     title,
     header,
     headerStyles,
@@ -48,9 +62,12 @@ export function Popup(props: Readonly<IPopupProps>) {
     disableCloseOnClickOutside,
     closeButton,
     variant = "standard",
+    width = 420
   } = props;
 
+  const isDrawerRight = variant === "drawer-right";
   const overlayBg = "rgba(0, 0, 0, 0.1)";
+  const overlayBgDrawer = "rgba(0, 0, 0, 0.45)";
 
   const dialogSurface: CSSProperties = {
     background: `linear-gradient(
@@ -59,6 +76,11 @@ export function Popup(props: Readonly<IPopupProps>) {
       color-mix(in srgb, ${colors.text.primary} 3%, ${colors.background.paper}) 48%,
       ${colors.layout.background} 100%
     )`,
+    boxShadow: colors.shadow.default,
+  };
+
+  const dialogSurfaceDrawer: CSSProperties = {
+    backgroundColor: colors.layout.background,
     boxShadow: colors.shadow.default,
   };
 
@@ -117,17 +139,27 @@ export function Popup(props: Readonly<IPopupProps>) {
           maxWidth: "none",
           maxHeight: "none",
         }
-        : {
-          width: "max-content",
-          height: "max-content",
-          maxWidth: "min(100vw - 2rem, 900px)",
-        };
+        : isDrawerRight
+          ? {
+            width: `min(${width}px, 100vw)`,
+            height: "100%",
+            maxWidth: "none",
+            maxHeight: "none",
+            flexShrink: 0,
+          }
+          : {
+            width: "max-content",
+            height: "max-content",
+            maxWidth: "min(100vw - 2rem, 900px)",
+          };
 
   const dialogFrameStyle: CSSProperties = {
-    margin: variant === "fullscreen" ? 0 : 32,
-    borderRadius: variant === "fullscreen" ? 0 : 8,
+    margin: variant === "fullscreen" || isDrawerRight ? 0 : 32,
+    borderRadius: variant === "fullscreen" || isDrawerRight ? 0 : 8,
     border:
-      variant === "fullscreen" ? "none" : `1px solid ${colors.border.main}`,
+      variant === "fullscreen" || isDrawerRight
+        ? "none"
+        : `1px solid ${colors.border.main}`,
   };
 
   const [mounted, setMounted] = useState(false);
@@ -191,6 +223,18 @@ export function Popup(props: Readonly<IPopupProps>) {
 
   const headerCombinedClass = mergeHeaderClass(headerStyles, headerClassName);
 
+  const dialogTransform: CSSProperties["transform"] = isDrawerRight
+    ? visible
+      ? "translate3d(0, 0, 0)"
+      : "translate3d(100%, 0, 0)"
+    : variant === "fullscreen"
+      ? visible
+        ? "translate3d(0, 0, 0) scale(1)"
+        : `translate3d(0, ${DIALOG_IDLE_Y * 0.5}px, 0) scale(${DIALOG_IDLE_SCALE})`
+      : visible
+        ? "translate3d(0, 0, 0) scale(1)"
+        : `translate3d(0, ${DIALOG_IDLE_Y}px, 0) scale(${DIALOG_IDLE_SCALE})`;
+
   return (
     <Portal>
       <div
@@ -198,15 +242,15 @@ export function Popup(props: Readonly<IPopupProps>) {
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: 1300,
+          zIndex,
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: isDrawerRight ? "flex-end" : "center",
+          alignItems: isDrawerRight ? "stretch" : "center",
           width: "100%",
           height: "100%",
-          background: overlayBg,
-          backdropFilter: "blur(4px)",
-          WebkitBackdropFilter: "blur(4px)",
+          background: isDrawerRight ? overlayBgDrawer : overlayBg,
+          backdropFilter: isDrawerRight ? "none" : "blur(4px)",
+          WebkitBackdropFilter: isDrawerRight ? "none" : "blur(4px)",
           opacity: visible ? 1 : 0,
           visibility: visible ? "visible" : "hidden",
           pointerEvents: visible ? "auto" : "none",
@@ -220,20 +264,20 @@ export function Popup(props: Readonly<IPopupProps>) {
             display: "flex",
             flexDirection: "column",
             minHeight: 0,
+
             color: colors.text.primary,
             opacity: visible ? 1 : 0,
-            transform:
-              variant === "fullscreen"
-                ? visible
-                  ? "translate3d(0, 0, 0) scale(1)"
-                  : `translate3d(0, ${DIALOG_IDLE_Y * 0.5}px, 0) scale(${DIALOG_IDLE_SCALE})`
-                : visible
-                  ? "translate3d(0, 0, 0) scale(1)"
-                  : `translate3d(0, ${DIALOG_IDLE_Y}px, 0) scale(${DIALOG_IDLE_SCALE})`,
+            transform: dialogTransform,
             transition: `opacity ${TRANSITION_MS}ms ${EASE}, transform ${TRANSITION_MS}ms ${EASE}`,
             ...dialogFrameStyle,
             ...dialogLayoutStyle,
-            ...dialogSurface,
+            ...(isDrawerRight ? dialogSurfaceDrawer : dialogSurface),
+            ...(isDrawerRight
+              ? {
+                direction: "ltr",
+                unicodeBidi: "isolate",
+              }
+              : {}),
           }}
         >
           {(title || header) ? (
@@ -270,14 +314,37 @@ export function Popup(props: Readonly<IPopupProps>) {
                 </>
               )}
             </div>
-          ) : <div style={{ position: 'absolute', top: 4, right: 4 }}>{CloseButtonComponent}</div>}
+          ) : closeButton ? (
+            <div
+              style={{
+                position: "absolute",
+                top: isDrawerRight ? 10 : 4,
+                right: isDrawerRight ? 10 : 4,
+                zIndex: 1,
+              }}
+            >
+              {CloseButtonComponent}
+            </div>
+          ) : null}
           <div
             style={{
               overflow: "auto",
+              overflowX: isDrawerRight ? "hidden" : undefined,
               minHeight: 0,
               display: "flex",
               flexDirection: "column",
-              flex: variant === "standard" || variant === "fullscreen" ? 1 : "0 1 auto",
+              flex:
+                variant === "standard" ||
+                  variant === "fullscreen" ||
+                  isDrawerRight
+                  ? 1
+                  : "0 1 auto",
+              ...(isDrawerRight
+                ? {
+                  direction: "ltr",
+                  unicodeBidi: "isolate",
+                }
+                : {}),
             }}
           >
             {children}

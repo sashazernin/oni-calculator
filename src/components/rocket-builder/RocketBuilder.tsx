@@ -541,6 +541,60 @@ export default function RocketBuilder(props: RocketBuilderProps) {
     [placements, inferredTankPlacements],
   );
 
+  /**
+   * Спрайты рисуются с отрицательными offset от сетки; ширина flex-ряда это не учитывает,
+   * из-за чего у скролл-родителя обрезается левый/правый край без возможности доскроллить.
+   */
+  const spriteHorizontalBleedPx = useMemo(() => {
+    const eng = engineId ? rocketEngines[engineId] : null;
+    if (!eng) return { left: 0, right: 0 };
+    const gridW = ROCKET_GRID_COLUMNS * ROCKET_CELL_PX;
+    const colOff = Math.floor((ROCKET_GRID_COLUMNS - eng.width) / 2);
+    const platformInset = getRocketModuleSpriteInset(platform);
+    const engineInset = getRocketModuleSpriteInset(eng);
+    const engineDrawW =
+      eng.width * ROCKET_CELL_PX + engineInset.left + engineInset.right;
+    const platformDrawW =
+      platform.width * ROCKET_CELL_PX +
+      platformInset.left +
+      platformInset.right;
+
+    let minFromGridLeft = Math.min(
+      -platformInset.left,
+      colOff * ROCKET_CELL_PX - engineInset.left,
+    );
+    for (const p of mergedPlacements) {
+      const mod = rocketStackModules[p.moduleKey];
+      if (!mod) continue;
+      const inset = getRocketModuleSpriteInset(mod);
+      minFromGridLeft = Math.min(
+        minFromGridLeft,
+        p.col * ROCKET_CELL_PX - inset.left,
+      );
+    }
+    const railAndGap = ROCKET_ROW_INDEX_RAIL_PX + 6;
+    const leftPad = Math.max(0, -(railAndGap + minFromGridLeft));
+
+    let maxFromGridRight = Math.max(
+      -platformInset.left + platformDrawW,
+      colOff * ROCKET_CELL_PX - engineInset.left + engineDrawW,
+    );
+    for (const p of mergedPlacements) {
+      const mod = rocketStackModules[p.moduleKey];
+      if (!mod) continue;
+      const inset = getRocketModuleSpriteInset(mod);
+      const wPx = mod.width * ROCKET_CELL_PX;
+      const drawW = wPx + inset.left + inset.right;
+      maxFromGridRight = Math.max(
+        maxFromGridRight,
+        p.col * ROCKET_CELL_PX - inset.left + drawW,
+      );
+    }
+    const rightPad = Math.max(0, maxFromGridRight - gridW);
+
+    return { left: leftPad, right: rightPad };
+  }, [engineId, mergedPlacements]);
+
   /** Суммарная высота колонны авто-баков (ряды сетки), прижатой к двигателю. */
   const tankStackRowCount = useMemo(() => {
     let s = 0;
@@ -791,7 +845,13 @@ export default function RocketBuilder(props: RocketBuilderProps) {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        paddingLeft: spriteHorizontalBleedPx.left,
+        paddingRight: spriteHorizontalBleedPx.right,
+        boxSizing: "content-box",
+      }}
+    >
       <div
         style={{
           display: "flex",

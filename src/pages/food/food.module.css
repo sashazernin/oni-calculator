@@ -1,0 +1,5 @@
+/** Правая колонка еды (десктоп): явный LTR — скроллбар у правого края при смешанном/RTL-тексте. */
+.food-sidebar-scroll {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

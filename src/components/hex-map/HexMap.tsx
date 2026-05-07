@@ -19,10 +19,12 @@ import {
   flatTopHexCorners,
   shortestHexPathAvoidPlanets,
 } from "../../helpers/hex-map-geometry";
-import { Popup, type IPopupProps } from "../popup/Popup";
+import { Popup, POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS, type IPopupProps } from "../popup/Popup";
 import { TextField } from "../text-field/TextField";
 import { IconButton } from "../icon-button/IconButton";
+import { Button } from "../button/Button";
 import Info from "../info/info";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 export type { HexMapObjectItem, HexMapObjectType } from "../../types/hex-map-types";
 
@@ -35,6 +37,9 @@ const ZOOM_RAF_DT_CAP_MS = 32;
 const SELECT_ROUTE_ARROW_LENGTH = 10;
 /** Половина ширины наконечника у основания (в тех же координатах). */
 const SELECT_ROUTE_ARROW_HALF_WIDTH = 5;
+
+/** Запас справа вверху под кнопку закрытия карты (HexMapPopup: 10 + 40 + зазор). */
+const HEX_MAP_RESERVE_TOP_RIGHT_FOR_CLOSE_PX = 56;
 
 const CREATE_TYPE_SEGMENTS: readonly { value: HexMapObjectType; label: string }[] = [
   { value: "planet", label: "Планета" },
@@ -120,7 +125,7 @@ export interface HexMapProps {
   minHeightPx?: number;
   /**
    * `edit` — создание/панель редактирования как обычно.
-   * `select` — без создания и без панели; ЛКМ — новый путь от центра (0,0), ПКМ по гексу — продолжить от конца текущего. Промежуточно через планеты нельзя, финиш на планете можно.
+   * `select` — без создания и без панели; ЛКМ или тап — продолжить маршрут от конца (если маршрута ещё нет — от центра карты); ПКМ — новый маршрут от центра до клетки. На сенсорных экранах — кнопка «Сбросить маршрут». Промежуточно через планеты нельзя, финиш на планете можно.
    */
   mode?: "edit" | "select";
   /** Маршрут в режиме `select`: индексы клеток по порядку; `null` — маршрута нет. */
@@ -147,6 +152,18 @@ export default function HexMap({
 }: HexMapProps) {
   const { colors } = useContext(ThemeContext);
   const objects = objectsProp ?? EMPTY_OBJECTS;
+  const pointerCoarse = useMediaQuery("(pointer: coarse)");
+  const [touchCapableDevice, setTouchCapableDevice] = useState(false);
+  useEffect(() => {
+    setTouchCapableDevice(
+      typeof navigator !== "undefined" && navigator.maxTouchPoints > 0,
+    );
+  }, []);
+  const showRouteResetForTouch =
+    mode === "select" &&
+    (pointerCoarse || touchCapableDevice) &&
+    rocketWay != null &&
+    rocketWay.length > 0;
 
   const objectByCell = useMemo(() => {
     const m = new Map<number, HexMapObjectItem>();
@@ -578,8 +595,11 @@ export default function HexMap({
       setDragging(false);
       panning.current = { ...p, active: false, pointerId: -1 };
       if (pick != null && !panMoved.current && e.button === pick.button) {
-        if (pick.button === 2) handleHexActivation(pick.q, pick.r, true);
-        else handleHexActivation(pick.q, pick.r, false);
+        if (pick.button === 2) {
+          handleHexActivation(pick.q, pick.r, false);
+        } else {
+          handleHexActivation(pick.q, pick.r, true);
+        }
       }
       panMoved.current = false;
     },
@@ -724,7 +744,8 @@ export default function HexMap({
               display: "flex",
               flexDirection: "column",
               gap: 8,
-              maxWidth: "min(360px, calc(100% - 20px))",
+              maxWidth: `min(300px, calc(100% - 10px - ${HEX_MAP_RESERVE_TOP_RIGHT_FOR_CLOSE_PX}px))`,
+              boxSizing: "border-box",
             }}
           >
             <div
@@ -739,9 +760,12 @@ export default function HexMap({
                 fontWeight: 600,
                 color: colors.text.primary,
                 lineHeight: 1.3,
+                pointerEvents: "auto",
+                maxWidth: "100%",
+                boxSizing: "border-box",
               }}
             >
-              Перемещений между клетками:{" "}
+              Перемещений:{" "}
               <span style={{ color: colors.primary.main }}>{selectMoveCount}</span>
             </div>
             {selectWayOneWayWarning ? (
@@ -761,6 +785,9 @@ export default function HexMap({
                   fontWeight: 600,
                   color: colors.text.primary,
                   lineHeight: 1.4,
+                  pointerEvents: "none",
+                  maxWidth: "100%",
+                  boxSizing: "border-box",
                 }}
               >
                 <IoMdWarning
@@ -768,14 +795,14 @@ export default function HexMap({
                   style={{ flexShrink: 0, color: "rgba(230, 165, 70, 0.95)" }}
                   aria-hidden
                 />
-                <span>
+                <span style={{ overflowWrap: "break-word", minWidth: 0 }}>
                   Путь в один конец. (Путь заканчиватся не на центральной клетке)
                 </span>
               </div>
             ) : null}
           </div>
         ) : null}
-        {mode === "select" ? (
+        {(mode === "select" && !pointerCoarse) ? (
           <div
             style={{
               position: "absolute",
@@ -795,8 +822,33 @@ export default function HexMap({
           >
             <Info
               placement="top"
-              message="Начальный маршрут — ЛКМ по клетке (от центра карты). Продолжение маршрута — ПКМ по следующей клетке от текущего конца пути."
+              message="ЛКМ — продолжить маршрут от текущего конца (если маршрута нет — от центра карты). ПКМ — новый маршрут от центра до выбранной клетки."
             />
+          </div>
+        ) : null}
+        {showRouteResetForTouch ? (
+          <div
+            style={{
+              position: "absolute",
+              right: 10,
+              bottom: 10,
+              zIndex: 6,
+              pointerEvents: "auto",
+            }}
+          >
+            <Button
+              type="button"
+              variant="translucent"
+              onClick={() => onWayChange?.(null)}
+              style={{
+                padding: "8px 14px",
+                fontSize: "0.8125rem",
+                fontWeight: 600,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+              }}
+            >
+              Сбросить маршрут
+            </Button>
           </div>
         ) : null}
         <div
@@ -1505,10 +1557,24 @@ export interface HexMapPopupProps extends Omit<IPopupProps, 'children'> {
   mapProps: HexMapProps;
 }
 
-export const HexMapPopup = ({ open, onClose, mapProps }: HexMapPopupProps) => {
+/** Выше боковых панелей страниц (~1592), чтобы карта не перекрывалась панелями с кнопками. */
+export const HexMapPopup = ({
+  open,
+  onClose,
+  mapProps,
+  zIndex = POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS,
+  ...popupRest
+}: HexMapPopupProps) => {
   return (
-    <Popup variant="fullscreen" closeButton open={open} onClose={onClose}>
-      <div style={{ position: 'absolute', top: 10, right: 10, height: '40px', width: '40px', zIndex: 1 }}>
+    <Popup
+      {...popupRest}
+      open={open}
+      onClose={onClose}
+      variant="fullscreen"
+      closeButton={false}
+      zIndex={zIndex}
+    >
+      <div style={{ position: 'absolute', top: 10, right: 10, height: '40px', width: '40px', zIndex: 8 }}>
         <IconButton color='action' style={{ height: '100%', width: '100%' }} onClick={onClose}>
           <RxCross1 size={18} />
         </IconButton>

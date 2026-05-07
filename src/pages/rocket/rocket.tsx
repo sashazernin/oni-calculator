@@ -12,15 +12,21 @@ import {
 import Box from "../../components/box/box";
 import { HexMapPopup, type HexMapObjectItem } from "../../components/hex-map/HexMap";
 import { Button } from "../../components/button/Button";
+import { TextField } from "../../components/text-field/TextField";
 import { getAssetImageUrl } from "../../components/asset-image/AssetImage";
-import { Popup } from "../../components/popup/Popup";
+import { Popup, POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS } from "../../components/popup/Popup";
 import Tabs from "../../components/tabs/Tabs";
 import { useTranslation } from "../../hooks/useTranslation";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { FiPlusCircle } from "react-icons/fi";
+import { IoMdWarning } from "react-icons/io";
+import { IoChevronBackOutline } from "react-icons/io5";
 import { FaTrashAlt } from "react-icons/fa";
+import styles from "./rocket.module.css";
 
 type TranslationFn = ReturnType<typeof useTranslation>["t"];
 type EntityNameFn = ReturnType<typeof useTranslation>["entityName"];
+import { HEX_MAP_CENTER_CELL_INDEX } from "../../helpers/hex-map-geometry";
 import { readStoredStarMapObjects } from "../../helpers/readStoredStarMapObjects";
 import {
   createStoredRocket,
@@ -43,6 +49,8 @@ import RocketBuilder, {
 import { rocketEngines, type RocketEngineId } from "../../game-data/rocket";
 import { IconButton } from "../../components/icon-button/IconButton";
 import Confirmation from "../../components/confirmation/confirmation";
+import { Tooltip } from "../../components/tooltip/Tooltip";
+import Info from "../../components/info/info";
 
 type ThemeColors = ContextType<typeof ThemeContext>["colors"];
 
@@ -237,6 +245,13 @@ function RocketTabPanel(props: RocketTabPanelProps) {
 
   const [mapOpen, setMapOpen] = useState(false);
 
+  const narrowRocketLayout = useMediaQuery("(max-width: 1200px)");
+  const [rocketSidebarOpen, setRocketSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (!narrowRocketLayout) setRocketSidebarOpen(false);
+  }, [narrowRocketLayout]);
+
   const way = rocket.way;
   const engineId = rocket.engineId;
   const selectedOxidizerVariant = rocket.selectedOxidizerVariant;
@@ -310,137 +325,276 @@ function RocketTabPanel(props: RocketTabPanelProps) {
     };
   }, [engineId, stackModules, inferredTankPlacements, steps]);
 
+  const rocketRouteOneWayWarning = useMemo(
+    () =>
+      way != null &&
+      way.length >= 2 &&
+      way[way.length - 1] !== HEX_MAP_CENTER_CELL_INDEX,
+    [way],
+  );
+
+  const rocketSidebarInner = (
+    <>
+      <TextField
+        label={t("rocket_name_label")}
+        fullWidth
+        value={rocket.title}
+        onChange={(e) => patchRocket(rocketIndex, { title: e.target.value })}
+        onBlur={() => {
+          const trimmed = rocket.title.trim();
+          if (trimmed.length === 0) {
+            patchRocket(rocketIndex, { title: `Ракета ${rocketIndex + 1}` });
+          }
+        }}
+        maxLength={120}
+      />
+      <Button onClick={() => setMapOpen(true)}>{t("settings_tab_space_map")}</Button>
+      <div style={{ display: "flex", gap: 8, minWidth: 0 }}>
+        <div style={{ fontSize: "0.95rem", color: colors.text.primary }}>
+          Перемещений: {way ? way.length - 1 : 0}
+        </div>
+        {rocketRouteOneWayWarning ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 10,
+              padding: "0px 2px",
+              borderRadius: 8,
+              backgroundColor:
+                "color-mix(in srgb, rgba(255, 180, 72, 0.12) 100%, transparent)",
+              border:
+                "1px solid color-mix(in srgb, rgba(255, 180, 72, 0.55) 100%, transparent)",
+              fontSize: "0.8125rem",
+              fontWeight: 600,
+              color: colors.text.primary,
+              lineHeight: 1.4
+            }}
+          >
+            <Tooltip placement="bottom" arrow title={t("rocket_route_one_way_warning")}>
+              <div>
+                <IoMdWarning
+                  size={20}
+                  style={{ flexShrink: 0, color: "rgba(230, 165, 70, 0.95)" }}
+                  aria-hidden
+                />
+              </div>
+
+            </Tooltip>
+          </div>
+        ) : null}
+      </div>
+      <HexMapPopup
+        open={mapOpen}
+        onClose={() => setMapOpen(false)}
+        mapProps={{
+          objects,
+          rocketWay: way,
+          onWayChange: setWay,
+          minHeightPx: 280,
+          mode: "select",
+        }}
+      />
+      <Button
+        disabled={!way}
+        onClick={() => onOpenEnginePicker(rocketIndex)}
+        style={{ width: "100%" }}
+      >
+        {engineId !== null
+          ? entityName(rocketEngines[engineId].name)
+          : "Выберите двигатель"}
+      </Button>
+      {engineId && fuelPlan ? (
+        <div
+          style={{
+            fontSize: "0.95rem",
+            lineHeight: 1.45,
+            color: colors.text.primary,
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
+        >
+          <FuelAndOxidizerRows
+            engineId={engineId}
+            fuelPlan={fuelPlan}
+            steps={steps}
+            selectedEngineFeasible={selectedEngineFeasible}
+            colors={colors}
+            textMuted={textMuted}
+            entityName={entityName}
+            selectedOxidizerVariant={selectedOxidizerVariant}
+            onSelectOxidizer={setSelectedOxidizerVariant}
+          />
+        </div>
+      ) : null}
+      {engineId !== null && rocketSpeedStats ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div
+            style={{
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+              color: textMuted,
+            }}
+          >
+            Скорость
+          </div>
+          <div
+            style={{
+              padding: "10px 12px",
+              borderRadius: 8,
+              border: `1px solid ${colors.border.main}`,
+              background: colors.background.default,
+              fontSize: "0.95rem",
+              lineHeight: 1.45,
+              color: colors.text.primary,
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>Циклов полёта</div>
+              {rocketSpeedStats.flightCycles !== null ? (
+                <div style={{ fontVariantNumeric: "tabular-nums" }}>
+                  {rocketSpeedStats.flightCycles.toFixed(1)}
+                </div>
+              ) : (
+                <div style={{ fontSize: "0.85rem", color: textMuted }}>
+                  Задайте маршрут из двух и более клеток
+                </div>
+              )}
+              {rocketSpeedStats.flightCycles !== null ? (
+                <div style={{ fontSize: "0.8rem", color: textMuted, marginTop: 6 }}>
+                  {steps} клеток / {rocketSpeedStats.speed.toFixed(2)} за цикл
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        flex: 1,
-        minHeight: 0,
-        boxSizing: "border-box",
-        height: "100%",
-        padding: 16,
-      }}
-    >
+    <>
       <div
-        style={{ width: "70%", minWidth: 0, display: "flex", flexDirection: "column", gap: 12 }}
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          flex: 1,
+          minHeight: 0,
+          boxSizing: "border-box",
+          height: "100%",
+          ...(narrowRocketLayout
+            ? { padding: 16 }
+            : {
+              paddingTop: 16,
+              paddingBottom: 16,
+              paddingLeft: 16,
+              paddingRight: 0,
+            }),
+        }}
       >
         <div
           style={{
-            width: "100%",
-            height: "100%",
+            width: narrowRocketLayout ? "100%" : "70%",
+            minWidth: 0,
             display: "flex",
-            justifyContent: "center",
+            flexDirection: "column",
+            gap: 16,
             position: "relative",
-            overflow: "auto",
           }}
         >
-          <div style={{ position: "absolute" }}>
-            <RocketBuilder
-              engineId={engineId}
-              placements={stackModules}
-              onPlacementsChange={setStackModules}
-              inferredTankPlacements={inferredTankPlacements}
-            />
-          </div>
-        </div>
-      </div>
-      <div style={{ width: "1px", height: "100%", background: colors.border.main }} />
-      <div style={{ width: "30%", marginLeft: 16, position: "relative", overflow: "auto" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, position: "absolute", top: 0, left: 0, right: 0 }}>
-          <Button onClick={() => setMapOpen(true)}>{t("settings_tab_space_map")}</Button>
-          Перемещений: {way ? way.length - 1 : 0}
-          <HexMapPopup
-            open={mapOpen}
-            onClose={() => setMapOpen(false)}
-            mapProps={{
-              objects,
-              rocketWay: way,
-              onWayChange: setWay,
-              minHeightPx: 280,
-              mode: "select",
-            }}
-          />
-          <Button
-            disabled={!way}
-            onClick={() => onOpenEnginePicker(rocketIndex)}
-            style={{ width: "100%" }}
+          <div
+            className={styles['rocket-builder-container']}
           >
-            {engineId !== null
-              ? entityName(rocketEngines[engineId].name)
-              : "Выберите двигатель"}
-          </Button>
-          {engineId && fuelPlan ? (
-            <div
-              style={{
-                fontSize: "0.95rem",
-                lineHeight: 1.45,
-                color: colors.text.primary,
-                display: "flex",
-                flexDirection: "column",
-                gap: 12,
-              }}
-            >
-              <FuelAndOxidizerRows
+            <div style={{ position: "absolute" }}>
+              <RocketBuilder
                 engineId={engineId}
-                fuelPlan={fuelPlan}
-                steps={steps}
-                selectedEngineFeasible={selectedEngineFeasible}
-                colors={colors}
-                textMuted={textMuted}
-                entityName={entityName}
-                selectedOxidizerVariant={selectedOxidizerVariant}
-                onSelectOxidizer={setSelectedOxidizerVariant}
+                placements={stackModules}
+                onPlacementsChange={setStackModules}
+                inferredTankPlacements={inferredTankPlacements}
               />
             </div>
-          ) : null}
-          {engineId !== null && rocketSpeedStats ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          </div>
+          <div style={{ position: "absolute", top: -4, left: -2 }}>
+            <Info message={'Устанавливаемые модули не влияют на дальность полёта ракеты, только на скорость.'} />
+          </div>
+        </div>
+        {!narrowRocketLayout ? (
+          <>
+            <div style={{ width: "1px", height: "100%", background: colors.border.main }} />
+            <div
+              className={styles["rocket-sidebar-scroll"]}
+              style={{
+                width: "30%",
+                marginLeft: 16,
+                minHeight: 0,
+                alignSelf: "stretch",
+                overflow: "auto",
+                overflowX: "hidden",
+              }}
+            >
               <div
+                className={styles["rocket-sidebar-inner"]}
                 style={{
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.04em",
-                  color: textMuted,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 16,
+                  minWidth: 0,
                 }}
               >
-                Скорость
-              </div>
-              <div
-                style={{
-                  padding: "10px 12px",
-                  borderRadius: 8,
-                  border: `1px solid ${colors.border.main}`,
-                  background: colors.background.default,
-                  fontSize: "0.95rem",
-                  lineHeight: 1.45,
-                  color: colors.text.primary,
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Циклов полёта</div>
-                  {rocketSpeedStats.flightCycles !== null ? (
-                    <div style={{ fontVariantNumeric: "tabular-nums" }}>
-                      {rocketSpeedStats.flightCycles.toFixed(1)}
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: "0.85rem", color: textMuted }}>
-                      Задайте маршрут из двух и более клеток
-                    </div>
-                  )}
-                  {rocketSpeedStats.flightCycles !== null ? (
-                    <div style={{ fontSize: "0.8rem", color: textMuted, marginTop: 6 }}>
-                      {steps} клеток / {rocketSpeedStats.speed.toFixed(2)} за цикл
-                    </div>
-                  ) : null}
-                </div>
+                {rocketSidebarInner}
               </div>
             </div>
-          ) : null}
-        </div>
+          </>
+        ) : null}
       </div>
-    </div>
+      {narrowRocketLayout ? (
+        <>
+          {!rocketSidebarOpen ? (
+            <Button
+              type="button"
+              variant="translucent"
+              aria-label="Открыть панель ракеты"
+              onClick={() => setRocketSidebarOpen(true)}
+              style={{
+                position: "fixed",
+                right: 0,
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1592,
+                padding: "14px 10px 14px 12px",
+                borderRadius: "12px 0 0 12px",
+                boxShadow: colors.shadow.default,
+              }}
+            >
+              <IoChevronBackOutline size={22} aria-hidden />
+            </Button>
+          ) : null}
+          <Popup
+            title="Настройка ракеты"
+            variant="drawer-right"
+            open={rocketSidebarOpen}
+            onClose={() => setRocketSidebarOpen(false)}
+            closeButton
+            zIndex={1592}
+          >
+            <div
+              style={{
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                padding: `16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) 16px`,
+              }}
+            >
+              {rocketSidebarInner}
+            </div>
+          </Popup>
+        </>
+      ) : null}
+    </>
   );
 }
 
@@ -567,7 +721,7 @@ export default function Rocket() {
             }}
           >
             <IconButton style={{ height: 32, width: 32 }} type="button" variant="translucent" onClick={addRocket}>
-              <FiPlusCircle size={20} />
+              <FiPlusCircle size={18} />
             </IconButton>
             <Confirmation title={`Удаление ${rockets[activeIndex]?.title}`}>
               <IconButton
@@ -578,7 +732,7 @@ export default function Rocket() {
                 disabled={rockets.length <= 1}
                 onClick={removeRocket}
               >
-                <FaTrashAlt size={20} />
+                <FaTrashAlt size={16} />
               </IconButton>
             </Confirmation>
           </div>
@@ -605,6 +759,7 @@ export default function Rocket() {
         open={enginePickerFor !== null}
         title="Двигатель"
         variant="fit-content"
+        zIndex={POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS}
         onClose={() => setEnginePickerFor(null)}
         closeButton
       >
