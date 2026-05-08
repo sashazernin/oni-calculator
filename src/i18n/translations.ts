@@ -36,6 +36,18 @@ export const translations = {
     ru: ". С его помощью можно посчитать необходимое количество растений для посадки, чтобы обеспечить колонию пропитанием.",
     en: ". Use it to work out how many plants you need to grow to feed your colony.",
   },
+  page_home_rocket_before: {
+    ru: "Также есть ",
+    en: "There is also a ",
+  },
+  page_home_rocket_link: {
+    ru: "страница ракеты",
+    en: "rocket page",
+  },
+  page_home_rocket_after: {
+    ru: " — расчёт маршрута и модулей. В настройках на вкладке «Звездная карта» можно выставить объекты на карте.",
+    en: " — for route and module planning. In Settings under the Star map tab you can place objects on the map.",
+  },
   page_home_contact_prefix: {
     ru: "При возникновении вопросов или пожеланий напишите мне на почту:",
     en: "If you have questions or suggestions, email me at:",

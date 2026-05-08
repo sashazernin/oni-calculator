@@ -59,6 +59,13 @@ export default function Home() {
           {t("page_home_food_after")}
         </p>
         <p>
+          {t("page_home_rocket_before")}
+          <Link to="/rocket" style={accentLinkStyle}>
+            {t("page_home_rocket_link")}
+          </Link>
+          {t("page_home_rocket_after")}
+        </p>
+        <p>
           {t("page_home_contact_prefix")}{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} style={accentLinkStyle}>
             {CONTACT_EMAIL}
