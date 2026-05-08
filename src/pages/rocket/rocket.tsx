@@ -734,8 +734,8 @@ export default function Rocket() {
               alignItems: "center",
               gap: 8,
               marginLeft: "auto",
-              paddingLeft: 12,
-              paddingRight: 8,
+              paddingLeft: 4,
+              paddingRight: 4,
               flexShrink: 0,
             }}
           >

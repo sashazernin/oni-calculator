@@ -371,15 +371,24 @@ export default function HexMap({
     };
 
     const onWheelNative = (e: WheelEvent) => {
-      e.preventDefault();
       const vp = viewportRef.current;
       if (!vp) return;
+      e.preventDefault();
+
       const rect = vp.getBoundingClientRect();
       const cwR = Math.max(1, rect.width);
       const chR = Math.max(1, rect.height);
+
       const layW = mapMeetLayout(cwR, chR, boundsSvg.vbW, boundsSvg.vbH);
       const minFw = computeMinFitScale(layW, boundsSvg.vbW, boundsSvg.vbH);
-      const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+
+      // Touchpad pinch is reported as Ctrl+Wheel in browsers; make it smoother than mouse wheel steps.
+      const factor = e.ctrlKey
+        ? Math.exp(-(e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * 0.002) // 1 == lines
+        : e.deltaY < 0
+          ? 1.12
+          : 1 / 1.12;
+
       const mx = clamp(e.clientX - rect.left, 0, cwR);
       const my = clamp(e.clientY - rect.top, 0, chR);
 
