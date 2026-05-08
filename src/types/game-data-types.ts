@@ -53,3 +53,43 @@ export interface IDuplicate {
   name: string;
   gluttonous: boolean;
 }
+
+export interface IRocketEngine {
+  name: string;
+  consumption: number;
+  fuel: IGas | IResourse | ILiquid | IOther;
+  image: string;
+  maxHeight: number;
+  type: 'rocket-engine';
+  /** Встроенный бак топлива (кг), если есть. */
+  tank?: number;
+  /** Топливо подаётся с внешних модулей (например 900 кг), а не только из встроенного бака. */
+  allowsExternalFuelTank: boolean;
+  height: number;
+  width: number;
+  power: number;
+  load: number
+}
+
+export interface IGas {
+  name: string;
+  type: 'gas';
+  image: string;
+}
+
+export interface IOther {
+  name: string;
+  type: 'other';
+  image: string;
+}
+
+export interface IRocketModule {
+  name: string;
+  type: 'rocket-module' | 'rocket-engine' | 'rocket-tank' | 'rocket-cargo' | 'rocket-platform' | 'rocket-head';
+  image: string;
+  height: number;
+  width: number;
+  weight: number;
+  commondModule?: boolean;
+  load?: number
+}

@@ -1,0 +1,25 @@
+.rocket-builder-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  overflow: auto;
+}
+
+@media (max-width: 440px) {
+  .rocket-builder-container {
+    justify-content: flex-start;
+  }
+}
+
+/** Контент правой колонки (десктоп): отступ от вертикального скроллбара. */
+.rocket-sidebar-inner {
+  padding-right: 14px;
+}
+
+/** Правая колонка ракеты (десктоп): явный LTR — скроллбар у правого края при смешанном/RTL-тексте. */
+.rocket-sidebar-scroll {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

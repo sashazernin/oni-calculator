@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import { AssetImage } from "../../components/asset-image/AssetImage";
 import { Button } from "../../components/button/Button";
 import {
@@ -23,7 +22,8 @@ import { AiOutlineMinusCircle } from "react-icons/ai";
 import { useTranslation } from "../../hooks/useTranslation";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { TextField } from "../../components/text-field/TextField";
-import { RxCross1 } from "react-icons/rx";
+import { Popup } from "../../components/popup/Popup";
+import styles from "./food.module.css";
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
@@ -261,6 +261,10 @@ export default function Food() {
   const narrowFoodLayout = useMediaQuery("(max-width: 1200px)");
   const [foodPickerOpen, setFoodPickerOpen] = useState(false);
 
+  useEffect(() => {
+    if (!narrowFoodLayout) setFoodPickerOpen(false);
+  }, [narrowFoodLayout]);
+
   const foodPickerHint =
     narrowFoodLayout && !foodPickerOpen ? t("food_select_open_panel_hint") : t("food_select_prompt");
 
@@ -345,18 +349,25 @@ export default function Food() {
     [colors, t]
   );
 
-  const foodSidebarDrawerMs = "0.28s";
-  const foodSidebarEase = "cubic-bezier(0.32, 0.72, 0, 1)";
-
   const foodSidebarBlocks = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, overflow: "auto", height: '100%' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        minWidth: 0,
+        ...(narrowFoodLayout
+          ? { flex: "1 1 auto", minHeight: 0, overflow: "hidden" }
+          : { flex: 1, minHeight: 0, height: "100%" }),
+      }}
+    >
       <Box
         style={{
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
           gap: 10,
-          padding: "12px 14px",
+          padding: narrowFoodLayout ? 0 : "12px 14px",
         }}
       >
         {dupeCounter("#0EAD78", greenDupe, setGreenDupe)}
@@ -383,10 +394,11 @@ export default function Food() {
           height: narrowFoodLayout ? undefined : "100%",
           width: "100%",
           overflow: "hidden",
-          flex: narrowFoodLayout ? "1 1 0%" : undefined,
-          minHeight: '300px',
-          display: narrowFoodLayout ? "flex" : undefined,
-          flexDirection: narrowFoodLayout ? "column" : undefined,
+          flex: narrowFoodLayout ? "1 1 0%" : "1 1 auto",
+          minHeight: "300px",
+          display: "flex",
+          flexDirection: "column",
+          padding: narrowFoodLayout ? 0 : 16,
         }}
       >
         <TextField
@@ -395,7 +407,7 @@ export default function Food() {
             setFoodSearch(e.target.value);
           }}
         />
-        <div style={{ position: 'relative', height: narrowFoodLayout ? '100%' : 'calc(100% - 40px)', width: '100%', minHeight: 0, flex: narrowFoodLayout ? 1 : undefined }}>
+        <div style={{ position: 'relative', height: narrowFoodLayout ? '100%' : 'calc(100% - 40px)', width: '100%', minHeight: 0, flex: 1 }}>
           <div
             style={{
               position: "absolute",
@@ -515,17 +527,18 @@ export default function Food() {
     <div
       style={{
         display: "flex",
-        gap: 16,
-        alignItems: "stretch",
-        height: "100%",
+        flexDirection: "row",
+        flex: 1,
         minHeight: 0,
+        boxSizing: "border-box",
+        height: "100%"
       }}
     >
       <Box
         style={{
           display: "flex",
           flexDirection: "column",
-          width: narrowFoodLayout ? "100%" : "60%",
+          width: narrowFoodLayout ? "100%" : "70%",
           minWidth: 0,
           gap: 14,
           height: "100%",
@@ -677,108 +690,71 @@ export default function Food() {
           </div>
         </Tabs>
       </Box>
-      {narrowFoodLayout
-        ? createPortal(
-          <>
-            <button
+      {narrowFoodLayout ? (
+        <>
+          {!foodPickerOpen ? (
+            <Button
               type="button"
-              aria-label={t("aria_food_close_picker_panel")}
-              onClick={() => setFoodPickerOpen(false)}
+              variant="translucent"
+              aria-label={t("aria_food_open_picker_panel")}
+              onClick={() => setFoodPickerOpen(true)}
               style={{
                 position: "fixed",
-                inset: 0,
-                zIndex: 1590,
-                border: "none",
-                padding: 0,
-                margin: 0,
-                cursor: "pointer",
-                backgroundColor: "rgba(0, 0, 0, 0.45)",
-                opacity: foodPickerOpen ? 1 : 0,
-                pointerEvents: foodPickerOpen ? "auto" : "none",
-                transition: `opacity ${foodSidebarDrawerMs} ease`,
-              }}
-            />
-            {!foodPickerOpen ? (
-              <Button
-                type="button"
-                variant="translucent"
-                aria-label={t("aria_food_open_picker_panel")}
-                onClick={() => setFoodPickerOpen(true)}
-                style={{
-                  position: "fixed",
-                  right: 0,
-                  top: '50%',
-                  transform: "translateY(-50%)",
-                  zIndex: 1592,
-                  padding: "14px 10px 14px 12px",
-                  borderRadius: "12px 0 0 12px",
-                  boxShadow: colors.shadow.default,
-                }}
-              >
-                <IoChevronBackOutline size={22} aria-hidden />
-              </Button>
-            ) : null}
-            <aside
-              role="dialog"
-              aria-modal={foodPickerOpen}
-              aria-hidden={!foodPickerOpen}
-              style={{
-                position: "fixed",
-                top: 0,
                 right: 0,
-                height: "100%",
-                width: "min(470px, 100vw)",
+                top: "50%",
+                transform: "translateY(-50%)",
                 zIndex: 1592,
+                padding: "14px 10px 14px 12px",
+                borderRadius: "12px 0 0 12px",
+                boxShadow: colors.shadow.default,
+              }}
+            >
+              <IoChevronBackOutline size={22} aria-hidden />
+            </Button>
+          ) : null}
+          <Popup
+            title={t("food_picker_drawer_title")}
+            variant="drawer-right"
+            open={foodPickerOpen}
+            onClose={() => setFoodPickerOpen(false)}
+            closeButton
+            zIndex={1592}
+            width={450}
+          >
+            <div style={{ padding: 16, height: '100%', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {foodSidebarBlocks}
+            </div>
+
+          </Popup>
+        </>
+      ) : (
+        <>
+          <div
+            className={styles["food-sidebar-scroll"]}
+            style={{
+              width: "40%",
+              marginLeft: 16,
+              minHeight: 0,
+              alignSelf: "stretch",
+              overflow: "auto",
+              overflowX: "hidden",
+            }}
+          >
+            <div
+              style={{
                 display: "flex",
                 flexDirection: "column",
                 gap: 16,
-                padding: "14px 14px calc(14px + env(safe-area-inset-bottom, 0px))",
-                paddingTop: 48,
+                minWidth: 0,
+                minHeight: "100%",
                 boxSizing: "border-box",
-                backgroundColor: colors.layout.background,
-                boxShadow: foodPickerOpen ? colors.shadow.default : "none",
-                transform: foodPickerOpen ? "translateX(0)" : "translateX(100%)",
-                transition: `transform ${foodSidebarDrawerMs} ${foodSidebarEase}`,
-                pointerEvents: foodPickerOpen ? "auto" : "none",
-                willChange: "transform",
-                minHeight: 0,
               }}
             >
-              <IconButton
-                color="action"
-                aria-label={t("aria_food_close_picker_panel")}
-                onClick={() => setFoodPickerOpen(false)}
-                style={{
-                  position: "absolute",
-                  top: 10,
-                  right: 10,
-                  zIndex: 1,
-                }}
-              >
-                <RxCross1 size={18} />
-              </IconButton>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1, minHeight: 0 }}>
-                {foodSidebarBlocks}
-              </div>
-            </aside>
-          </>,
-          document.body
-        )
-        : null}
-      {!narrowFoodLayout ? (
-        <div
-          style={{
-            height: "100%",
-            width: "40%",
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            minHeight: 0,
-          }}
-        >
-          {foodSidebarBlocks}
-        </div>
-      ) : null}
+              {foodSidebarBlocks}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

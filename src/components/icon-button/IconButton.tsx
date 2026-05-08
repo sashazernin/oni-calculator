@@ -38,7 +38,10 @@ export type IconButtonProps = Omit<ButtonProps, "color"> & {
  * Своё оформление — через `colorOverrides`.
  */
 export const IconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, IconButtonProps>(
-  function IconButton({ className, children, colorOverrides, style, color = "primary", ...rest }, ref) {
+  function IconButton(
+    { className, children, colorOverrides, style, color = "primary", variant = "primary", ...rest },
+    ref,
+  ) {
     const { colors } = useContext(ThemeContext);
     const isDark = colors.mode === "dark";
     const base =
@@ -52,6 +55,7 @@ export const IconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Icon
             ? "rgba(255, 255, 255, 0.48)"
             : "rgba(0, 0, 0, 0.32)"
           : colors.translucent.iconFocus,
+      ...(variant === "translucent" ? { "--btn-disabled-bg": "transparent" } : {}),
       ...style,
     } as CSSProperties;
 
@@ -61,6 +65,7 @@ export const IconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Icon
         className={["icon-button", className].filter(Boolean).join(" ")}
         colorOverrides={{ ...base, ...colorOverrides }}
         style={focusStyle}
+        variant={variant}
         {...(rest as ButtonProps)}
       >
         {children}

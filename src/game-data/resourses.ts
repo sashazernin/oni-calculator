@@ -1,45 +1,57 @@
 import type { IResourse } from "../types/game-data-types";
 
-export const dirt: IResourse = {
+const dirt: IResourse = {
   name: "gd_dirt",
   type: "resourse",
   image: "resourses/Dirt.webp",
 };
 
-export const phosphorite: IResourse = {
+const phosphorite: IResourse = {
   name: "gd_phosphorite",
   type: "resourse",
   image: "resourses/Phosphorite.webp",
 };
 
-export const tonicRoot: IResourse = {
+const tonicRoot: IResourse = {
   name: "gd_tonic_root",
   type: "resourse",
   image: "resourses/Tonic_Root.webp",
 };
 
-export const slime: IResourse = {
+const slime: IResourse = {
   name: "gd_slime",
   type: "resourse",
   image: "resourses/Slime.webp",
 };
 
-export const bleachStone: IResourse = {
+const bleachStone: IResourse = {
   name: "gd_bleach_stone",
   type: "resourse",
   image: "resourses/Bleach_Stone.webp",
 };
 
-export const sulfur: IResourse = {
+const sulfur: IResourse = {
   name: "gd_sulfur",
   type: "resourse",
   image: "resourses/Sulfur.webp",
 };
 
-export const sucrose: IResourse = {
+const sucrose: IResourse = {
   name: "gd_sucrose",
   type: "resourse",
   image: "resourses/Sucrose.webp",
+};
+
+const fertilizer: IResourse = {
+  name: "gd_fertilizer",
+  type: "resourse",
+  image: "resourses/Fertilizer.webp",
+};
+
+const oxylite: IResourse = {
+  name: "gd_oxylite",
+  type: "resourse",
+  image: "resourses/Oxylite.webp",
 };
 
 export const resourses = {
@@ -50,4 +62,6 @@ export const resourses = {
   bleachStone,
   sulfur,
   sucrose,
+  fertilizer,
+  oxylite
 };

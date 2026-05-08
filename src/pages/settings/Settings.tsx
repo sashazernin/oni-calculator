@@ -2,17 +2,20 @@ import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import AppSettings from "./app/AppSettings";
 import Tabs from "../../components/tabs/Tabs";
-import GameSettings from "./game/GameSettings";
+import ColonySettings from "./colony/ColonySettings";
 import { useTranslation } from "../../hooks/useTranslation";
 import { MdHome } from "react-icons/md";
 import { GoGear } from "react-icons/go";
 import Box from "../../components/box/box";
+import StarMap from "./star-map/StarMap";
+import { IoRocketSharp } from "react-icons/io5";
 
 const TAB_PARAM = "tab";
-const TAB_SLUGS = ["app", "game"] as const;
+const TAB_SLUGS = ["app", "colony", "star-map"] as const;
 
 function tabIndexFromParam(raw: string | null): number {
   if (raw === TAB_SLUGS[1] || raw === "1") return 1;
+  if (raw === TAB_SLUGS[2] || raw === "2") return 2;
   if (raw === TAB_SLUGS[0] || raw === "0") return 0;
   return 0;
 }
@@ -63,10 +66,15 @@ export default function Settings() {
             label: t("settings_tab_game"),
             icon: <MdHome />,
           },
+          {
+            label: t("settings_tab_space_map"),
+            icon: <IoRocketSharp />,
+          }
         ]}
       >
         <AppSettings />
-        <GameSettings />
+        <ColonySettings />
+        <StarMap />
       </Tabs>
     </Box >
   )

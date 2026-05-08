@@ -165,6 +165,7 @@ export default function Tabs({
                   }}
                   style={{
                     gap: 8,
+                    textWrap: "nowrap",
                   }}
                 >
                   {tab.icon != null ? (

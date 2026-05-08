@@ -18,7 +18,7 @@ type DupeDialog =
   | { kind: "add" }
   | { kind: "edit"; index: number };
 
-export default function GameSettings() {
+export default function ColonySettings() {
   const { t } = useTranslation();
   const { colors } = useContext(ThemeContext);
   const { duplicants, setDuplicants } = useContext(DuplicantContext);

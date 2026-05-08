@@ -13,11 +13,12 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { ThemeContext } from "../../providers/app-theme-provider";
+import { TOOLTIP_Z_INDEX_ABOVE_APP_POPUPS } from "../popup/Popup";
 import "./tooltip.css";
 
 const GAP = 8;
 const MARGIN = 8;
-const Z = 1500;
+const Z = TOOLTIP_Z_INDEX_ABOVE_APP_POPUPS;
 const ARROW_EDGE_INSET = 4;
 
 export type TooltipPlacement = "top" | "bottom" | "left" | "right";
