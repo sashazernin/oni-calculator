@@ -87,6 +87,7 @@ function FuelAndOxidizerRows(props: {
   colors: ThemeColors;
   textMuted: string;
   entityName: EntityNameFn;
+  t: TranslationFn;
   selectedOxidizerVariant: RocketOxidizerVariant;
   onSelectOxidizer: (variant: RocketOxidizerVariant) => void;
 }) {
@@ -98,6 +99,7 @@ function FuelAndOxidizerRows(props: {
     colors,
     textMuted,
     entityName,
+    t,
     selectedOxidizerVariant,
     onSelectOxidizer,
   } = props;
@@ -115,7 +117,7 @@ function FuelAndOxidizerRows(props: {
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
-        {hasOxidizer ? <div style={sectionTitleStyle}>Топливо</div> : null}
+        {hasOxidizer ? <div style={sectionTitleStyle}>{t("rocket_section_fuel")}</div> : null}
         <div
           style={{
             padding: "10px 12px",
@@ -138,18 +140,17 @@ function FuelAndOxidizerRows(props: {
             </span>
           </div>
           {steps > 0 && !selectedEngineFeasible ? (
-            <div style={{ color: textMuted }}>
-              На текущий маршрут встроенного бака этого двигателя не хватает — выберите другой
-              двигатель или укоротите путь.
-            </div>
+            <div style={{ color: textMuted }}>{t("rocket_fuel_tank_insufficient")}</div>
           ) : null}
           {fuelPlan.steps <= 0 ? (
-            <div>Укажите маршрут из минимум двух клеток — тогда появится расчёт баков.</div>
+            <div>{t("rocket_fuel_route_hint")}</div>
           ) : (
             <div>
-              Расход за полёт: {Math.ceil(fuelPlan.totalFuelKg)} кг
-              {fuelPlan.usesIntegratedTank ? <> · встроенный бак</> : null}
-              {fuelPlan.tanksNeeded > 0 ? <> · баков: {fuelPlan.tanksNeeded}</> : null}
+              {t("rocket_fuel_consumption", { kg: Math.ceil(fuelPlan.totalFuelKg) })}
+              {fuelPlan.usesIntegratedTank ? t("rocket_fuel_integrated_tank_suffix") : null}
+              {fuelPlan.tanksNeeded > 0
+                ? t("rocket_fuel_tanks_count", { count: fuelPlan.tanksNeeded })
+                : null}
             </div>
           )}
         </div>
@@ -157,10 +158,10 @@ function FuelAndOxidizerRows(props: {
 
       {hasOxidizer && oxidizerLines ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
-          <div style={sectionTitleStyle}>Окислитель</div>
+          <div style={sectionTitleStyle}>{t("rocket_section_oxidizer")}</div>
           <div
             role="group"
-            aria-label="Тип окислителя"
+            aria-label={t("aria_rocket_oxidizer_type")}
             style={{ display: "flex", flexDirection: "column", gap: 8 }}
           >
             {oxidizerLines.map((line) => {
@@ -200,7 +201,10 @@ function FuelAndOxidizerRows(props: {
                   <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
                     <span style={{ fontWeight: 600 }}>{entityName(line.translationKey)}</span>
                     <span>
-                      {line.totalOxidizerKg.toFixed(1)} кг · баков: {line.oxidizerTanksNeeded}
+                      {t("rocket_oxidizer_row_line", {
+                        kg: line.totalOxidizerKg.toFixed(1),
+                        tanks: line.oxidizerTanksNeeded,
+                      })}
                     </span>
                   </div>
                 </button>
@@ -343,7 +347,9 @@ function RocketTabPanel(props: RocketTabPanelProps) {
         onBlur={() => {
           const trimmed = rocket.title.trim();
           if (trimmed.length === 0) {
-            patchRocket(rocketIndex, { title: `Ракета ${rocketIndex + 1}` });
+            patchRocket(rocketIndex, {
+              title: t("rocket_default_name", { n: rocketIndex + 1 }),
+            });
           }
         }}
         maxLength={120}
@@ -351,7 +357,7 @@ function RocketTabPanel(props: RocketTabPanelProps) {
       <Button onClick={() => setMapOpen(true)}>{t("settings_tab_space_map")}</Button>
       <div style={{ display: "flex", gap: 8, minWidth: 0 }}>
         <div style={{ fontSize: "0.95rem", color: colors.text.primary }}>
-          Перемещений: {way ? way.length - 1 : 0}
+          {t("rocket_moves_label", { count: way ? way.length - 1 : 0 })}
         </div>
         {rocketRouteOneWayWarning ? (
           <div
@@ -402,7 +408,7 @@ function RocketTabPanel(props: RocketTabPanelProps) {
       >
         {engineId !== null
           ? entityName(rocketEngines[engineId].name)
-          : "Выберите двигатель"}
+          : t("rocket_select_engine")}
       </Button>
       {engineId && fuelPlan ? (
         <div
@@ -423,6 +429,7 @@ function RocketTabPanel(props: RocketTabPanelProps) {
             colors={colors}
             textMuted={textMuted}
             entityName={entityName}
+            t={t}
             selectedOxidizerVariant={selectedOxidizerVariant}
             onSelectOxidizer={setSelectedOxidizerVariant}
           />
@@ -439,7 +446,7 @@ function RocketTabPanel(props: RocketTabPanelProps) {
               color: textMuted,
             }}
           >
-            Скорость
+            {t("rocket_section_speed")}
           </div>
           <div
             style={{
@@ -453,19 +460,24 @@ function RocketTabPanel(props: RocketTabPanelProps) {
             }}
           >
             <div>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>Циклов полёта</div>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                {t("rocket_flight_cycles")}
+              </div>
               {rocketSpeedStats.flightCycles !== null ? (
                 <div style={{ fontVariantNumeric: "tabular-nums" }}>
                   {rocketSpeedStats.flightCycles.toFixed(1)}
                 </div>
               ) : (
                 <div style={{ fontSize: "0.85rem", color: textMuted }}>
-                  Задайте маршрут из двух и более клеток
+                  {t("rocket_speed_route_hint")}
                 </div>
               )}
               {rocketSpeedStats.flightCycles !== null ? (
                 <div style={{ fontSize: "0.8rem", color: textMuted, marginTop: 6 }}>
-                  {steps} клеток / {rocketSpeedStats.speed.toFixed(2)} за цикл
+                  {t("rocket_speed_cells_per_cycle", {
+                    steps,
+                    speed: rocketSpeedStats.speed.toFixed(2),
+                  })}
                 </div>
               ) : null}
             </div>
@@ -518,7 +530,7 @@ function RocketTabPanel(props: RocketTabPanelProps) {
             </div>
           </div>
           <div style={{ position: "absolute", top: -4, left: -2 }}>
-            <Info message={'Устанавливаемые модули не влияют на дальность полёта ракеты, только на скорость.'} />
+            <Info message={t("rocket_modules_speed_hint")} />
           </div>
         </div>
         {!narrowRocketLayout ? (
@@ -556,7 +568,7 @@ function RocketTabPanel(props: RocketTabPanelProps) {
             <Button
               type="button"
               variant="translucent"
-              aria-label="Открыть панель ракеты"
+              aria-label={t("aria_rocket_open_sidebar")}
               onClick={() => setRocketSidebarOpen(true)}
               style={{
                 position: "fixed",
@@ -573,7 +585,7 @@ function RocketTabPanel(props: RocketTabPanelProps) {
             </Button>
           ) : null}
           <Popup
-            title="Настройка ракеты"
+            title={t("rocket_sidebar_title")}
             variant="drawer-right"
             open={rocketSidebarOpen}
             onClose={() => setRocketSidebarOpen(false)}
@@ -660,10 +672,17 @@ export default function Rocket() {
 
   const addRocket = useCallback(() => {
     setPage((s) => {
-      const nextRockets = [...s.rockets, createStoredRocket(s.rockets.length)];
+      const created = createStoredRocket(s.rockets.length);
+      const nextRockets = [
+        ...s.rockets,
+        {
+          ...created,
+          title: t("rocket_default_name", { n: s.rockets.length + 1 }),
+        },
+      ];
       return { rockets: nextRockets, activeIndex: nextRockets.length - 1 };
     });
-  }, []);
+  }, [t]);
 
   const removeRocket = useCallback(() => {
     setPage((s) => {
@@ -723,7 +742,11 @@ export default function Rocket() {
             <IconButton style={{ height: 32, width: 32 }} type="button" variant="translucent" onClick={addRocket}>
               <FiPlusCircle size={18} />
             </IconButton>
-            <Confirmation title={`Удаление ${rockets[activeIndex]?.title}`}>
+            <Confirmation
+              title={t("rocket_delete_dialog_title", {
+                name: rockets[activeIndex]?.title ?? "",
+              })}
+            >
               <IconButton
                 style={{ ...deleteRocketIconStyle, height: 32, width: 32 }}
                 type="button"
@@ -757,7 +780,7 @@ export default function Rocket() {
 
       <Popup
         open={enginePickerFor !== null}
-        title="Двигатель"
+        title={t("rocket_engine_picker_title")}
         variant="fit-content"
         zIndex={POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS}
         onClose={() => setEnginePickerFor(null)}

@@ -25,6 +25,8 @@ import { IconButton } from "../icon-button/IconButton";
 import { Button } from "../button/Button";
 import Info from "../info/info";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useTranslation } from "../../hooks/useTranslation";
+import type { TranslationKey } from "../../i18n/translations";
 
 export type { HexMapObjectItem, HexMapObjectType } from "../../types/hex-map-types";
 
@@ -41,11 +43,13 @@ const SELECT_ROUTE_ARROW_HALF_WIDTH = 5;
 /** Запас справа вверху под кнопку закрытия карты (HexMapPopup: 10 + 40 + зазор). */
 const HEX_MAP_RESERVE_TOP_RIGHT_FOR_CLOSE_PX = 56;
 
-const CREATE_TYPE_SEGMENTS: readonly { value: HexMapObjectType; label: string }[] = [
-  { value: "planet", label: "Планета" },
-  { value: "nebula", label: "Туманность" },
-  { value: "wreck", label: "Обломок" },
-];
+const HEX_MAP_CREATE_TYPES: readonly HexMapObjectType[] = ["planet", "nebula", "wreck"];
+
+const HEX_MAP_TYPE_LABEL_KEY: Record<HexMapObjectType, TranslationKey> = {
+  planet: "star_map_type_planet",
+  nebula: "star_map_type_nebula",
+  wreck: "star_map_type_wreck",
+};
 
 interface MapBoundsPx {
   cw: number;
@@ -151,6 +155,7 @@ export default function HexMap({
   onWayChange,
 }: HexMapProps) {
   const { colors } = useContext(ThemeContext);
+  const { t } = useTranslation();
   const objects = objectsProp ?? EMPTY_OBJECTS;
   const pointerCoarse = useMediaQuery("(pointer: coarse)");
   const [touchCapableDevice, setTouchCapableDevice] = useState(false);
@@ -765,8 +770,7 @@ export default function HexMap({
                 boxSizing: "border-box",
               }}
             >
-              Перемещений:{" "}
-              <span style={{ color: colors.primary.main }}>{selectMoveCount}</span>
+              {t("rocket_moves_label", { count: selectMoveCount })}
             </div>
             {selectWayOneWayWarning ? (
               <div
@@ -796,7 +800,7 @@ export default function HexMap({
                   aria-hidden
                 />
                 <span style={{ overflowWrap: "break-word", minWidth: 0 }}>
-                  Путь в один конец. (Путь заканчиватся не на центральной клетке)
+                  {t("rocket_route_one_way_warning")}
                 </span>
               </div>
             ) : null}
@@ -822,7 +826,7 @@ export default function HexMap({
           >
             <Info
               placement="top"
-              message="ЛКМ — продолжить маршрут от текущего конца (если маршрута нет — от центра карты). ПКМ — новый маршрут от центра до выбранной клетки."
+              message={t("hex_map_select_route_hint")}
             />
           </div>
         ) : null}
@@ -847,7 +851,7 @@ export default function HexMap({
                 boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
               }}
             >
-              Сбросить маршрут
+              {t("hex_map_reset_route")}
             </Button>
           </div>
         ) : null}
@@ -867,7 +871,7 @@ export default function HexMap({
             preserveAspectRatio="xMidYMid meet"
             style={{ display: "block", pointerEvents: "auto" }}
           >
-            <title>Hex map</title>
+            <title>{t("hex_map_svg_title")}</title>
             <defs>
               <filter id="hexMapPlanetGlow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur stdDeviation="2.2" result="b" />
@@ -984,7 +988,11 @@ export default function HexMap({
                   data-r={r}
                   tabIndex={kind === "empty" ? 0 : undefined}
                   role={kind === "empty" ? "button" : undefined}
-                  aria-label={kind === "empty" ? `Ячейка ${idx}` : obj?.name ?? `Объект ${idx}`}
+                  aria-label={
+                    kind === "empty"
+                      ? t("hex_map_aria_cell", { idx })
+                      : obj?.name ?? t("hex_map_aria_object_index", { idx })
+                  }
                   d={d}
                   fill={
                     kind === "empty"
@@ -1220,7 +1228,7 @@ export default function HexMap({
       {createDraft != null && (
         <div
           role="dialog"
-          aria-label="Новый объект"
+          aria-label={t("hex_map_aria_new_object_dialog")}
           style={{
             position: "absolute",
             right: 12,
@@ -1242,13 +1250,14 @@ export default function HexMap({
           onPointerDown={(e) => e.stopPropagation()}
         >
           <div style={{ fontSize: 13, fontWeight: 600, color: colors.text.primary }}>
-            Клетка {createDraft.cellNumber}{" "}
-            <span style={{ fontWeight: 400, opacity: 0.75 }}>
-              (q {createDraft.q}, r {createDraft.r})
-            </span>
+            {t("star_map_cell_coords", {
+              cell: createDraft.cellNumber,
+              q: createDraft.q,
+              r: createDraft.r,
+            })}
           </div>
           <TextField
-            label="Название"
+            label={t("dupe_name_label")}
             value={draftName}
             onChange={(e) => setDraftName(e.target.value)}
             autoFocus
@@ -1256,11 +1265,11 @@ export default function HexMap({
           />
           <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%", minWidth: 0 }}>
             <span style={{ fontSize: "0.875rem", fontWeight: 500, color: formLabelColor, userSelect: "none" }}>
-              Тип
+              {t("label_type")}
             </span>
             <div
               role="group"
-              aria-label="Тип объекта"
+              aria-label={t("label_type")}
               style={{
                 display: "flex",
                 padding: 3,
@@ -1271,8 +1280,9 @@ export default function HexMap({
                 boxSizing: "border-box",
               }}
             >
-              {CREATE_TYPE_SEGMENTS.map(({ value, label }) => {
+              {HEX_MAP_CREATE_TYPES.map((value) => {
                 const active = draftType === value;
+                const label = t(HEX_MAP_TYPE_LABEL_KEY[value]);
                 return (
                   <button
                     key={value}
@@ -1302,7 +1312,7 @@ export default function HexMap({
             </div>
           </div>
           {!onCreateObject && (
-            <div style={{ fontSize: 12, color: formLabelColor }}>Передайте onCreateObject, чтобы сохранять.</div>
+            <div style={{ fontSize: 12, color: formLabelColor }}>{t("hex_map_pass_on_create")}</div>
           )}
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
             <button
@@ -1318,7 +1328,7 @@ export default function HexMap({
                 fontSize: 13,
               }}
             >
-              Отмена
+              {t("button_cancel")}
             </button>
             <button
               type="button"
@@ -1336,7 +1346,7 @@ export default function HexMap({
                 fontWeight: 600,
               }}
             >
-              Добавить
+              {t("button_add")}
             </button>
           </div>
         </div>
@@ -1345,7 +1355,7 @@ export default function HexMap({
       {inspectorObject != null && inspectorCell !== null && (
         <div
           role="dialog"
-          aria-label="Объект на карте"
+          aria-label={t("star_map_edit_object")}
           style={{
             position: "absolute",
             right: 12,
@@ -1398,16 +1408,17 @@ export default function HexMap({
                 letterSpacing: "0.01em",
               }}
             >
-              Клетка {inspectorCell}
-              {cells[inspectorCell] ? (
-                <span style={{ fontWeight: 500, opacity: 0.72 }}>
-                  {` · q ${cells[inspectorCell].q}, r ${cells[inspectorCell].r}`}
-                </span>
-              ) : null}
+              {cells[inspectorCell]
+                ? t("star_map_cell_coords", {
+                    cell: inspectorCell,
+                    q: cells[inspectorCell].q,
+                    r: cells[inspectorCell].r,
+                  })
+                : t("hex_map_cell_only", { cell: inspectorCell })}
             </div>
             <button
               type="button"
-              aria-label="Закрыть"
+              aria-label={t("aria_close")}
               onClick={() => setInspectorCell(null)}
               style={{
                 flexShrink: 0,
@@ -1430,7 +1441,7 @@ export default function HexMap({
           </div>
 
           <TextField
-            label="Название"
+            label={t("dupe_name_label")}
             value={inspectorEditName}
             onChange={(e) => setInspectorEditName(e.target.value)}
             fullWidth
@@ -1438,11 +1449,11 @@ export default function HexMap({
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", minWidth: 0 }}>
             <span style={{ fontSize: "0.875rem", fontWeight: 500, color: formLabelColor, userSelect: "none" }}>
-              Тип
+              {t("label_type")}
             </span>
             <div
               role="group"
-              aria-label="Тип объекта"
+              aria-label={t("label_type")}
               aria-disabled={inspectorIsMain}
               style={{
                 display: "flex",
@@ -1455,8 +1466,9 @@ export default function HexMap({
                 opacity: inspectorIsMain ? 0.62 : 1,
               }}
             >
-              {CREATE_TYPE_SEGMENTS.map(({ value, label }) => {
+              {HEX_MAP_CREATE_TYPES.map((value) => {
                 const active = inspectorEditType === value;
+                const label = t(HEX_MAP_TYPE_LABEL_KEY[value]);
                 return (
                   <button
                     key={value}
@@ -1490,7 +1502,7 @@ export default function HexMap({
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {!onUpdateObject && (
               <div style={{ fontSize: 12, color: formLabelColor, lineHeight: 1.45 }}>
-                Передайте onUpdateObject, чтобы сохранять правки.
+                {t("hex_map_pass_on_update")}
               </div>
             )}
 
@@ -1512,7 +1524,7 @@ export default function HexMap({
                   opacity: inspectorCanSave ? 1 : 0.45,
                 }}
               >
-                Сохранить
+                {t("button_save")}
               </button>
             ) : null}
 
@@ -1520,7 +1532,9 @@ export default function HexMap({
               <button
                 type="button"
                 disabled={inspectorIsMain}
-                title={inspectorIsMain ? "Основной объект нельзя удалить" : undefined}
+                title={
+                  inspectorIsMain ? t("hex_map_main_delete_forbidden_title") : undefined
+                }
                 onClick={() => {
                   if (inspectorIsMain) return;
                   onDeleteObject(inspectorCell);
@@ -1539,11 +1553,11 @@ export default function HexMap({
                   opacity: inspectorIsMain ? 0.45 : 1,
                 }}
               >
-                Удалить
+                {t("button_delete")}
               </button>
             ) : (
               <div style={{ fontSize: 10, opacity: 0.58, lineHeight: 1.35 }}>
-                Чтобы удалять объекты, передайте onDeleteObject.
+                {t("hex_map_pass_on_delete")}
               </div>
             )}
           </div>
@@ -1565,6 +1579,7 @@ export const HexMapPopup = ({
   zIndex = POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS,
   ...popupRest
 }: HexMapPopupProps) => {
+  const { t } = useTranslation();
   return (
     <Popup
       {...popupRest}
@@ -1575,7 +1590,13 @@ export const HexMapPopup = ({
       zIndex={zIndex}
     >
       <div style={{ position: 'absolute', top: 10, right: 10, height: '40px', width: '40px', zIndex: 8 }}>
-        <IconButton color='action' style={{ height: '100%', width: '100%' }} onClick={onClose}>
+        <IconButton
+          type="button"
+          aria-label={t("aria_close")}
+          color='action'
+          style={{ height: '100%', width: '100%' }}
+          onClick={onClose}
+        >
           <RxCross1 size={18} />
         </IconButton>
       </div>

@@ -88,6 +88,85 @@ export const gameDataTranslations = {
   gd_rocket_engine_hydrogen: { ru: "Водородный двигатель", en: "Hydrogen Engine" },
   gd_rocket_engine_biodiesel: { ru: "Биодизельный двигатель", en: "Biodiesel Engine" },
 
+  gd_rocket_tank_large_liquid_fuel: {
+    ru: "Большой бак жидкого топлива",
+    en: "Large Liquid Fuel Tank",
+  },
+  gd_rocket_tank_large_solid_oxidizer: {
+    ru: "Большой бак твёрдого окислителя",
+    en: "Large Solid Oxidizer Tank",
+  },
+  gd_rocket_tank_liquid_oxidizer: {
+    ru: "Бак жидкого окислителя",
+    en: "Liquid Oxidizer Tank",
+  },
+  gd_rocket_tank_small_solid_oxidizer: {
+    ru: "Малый бак твёрдого окислителя",
+    en: "Small Solid Oxidizer Tank",
+  },
+  gd_rocket_cargo_biological: {
+    ru: "Грузовой отсек для существ",
+    en: "Biological Cargo Bay",
+  },
+  gd_rocket_cargo_bay: { ru: "Грузовой отсек", en: "Cargo Bay" },
+  gd_rocket_cargo_gas_canister: {
+    ru: "Грузовой контейнер для газа",
+    en: "Gas Cargo Canister",
+  },
+  gd_rocket_cargo_large_bay: {
+    ru: "Большой грузовой отсек",
+    en: "Large Cargo Bay",
+  },
+  gd_rocket_cargo_large_gas_canister: {
+    ru: "Большой грузовой контейнер для газа",
+    en: "Large Gas Cargo Canister",
+  },
+  gd_rocket_cargo_large_liquid: {
+    ru: "Большой грузовой контейнер для жидкости",
+    en: "Large Liquid Cargo Tank",
+  },
+  gd_rocket_cargo_liquid_tank: {
+    ru: "Грузовой контейнер для жидкости",
+    en: "Liquid Cargo Tank",
+  },
+  gd_rocket_head_basic_nosecone: {
+    ru: "Простой обтекатель",
+    en: "Basic Nosecone",
+  },
+  gd_rocket_head_drillcone: { ru: "Носовой бур", en: "Drillcone" },
+  gd_rocket_head_solo_spacefarer: {
+    ru: "Одноместный головной обтекатель",
+    en: "Solo Spacefarer Nosecone",
+  },
+  gd_rocket_mod_artifact_transport: {
+    ru: "Модуль перевозки артефактов",
+    en: "Artifact Transport Module",
+  },
+  gd_rocket_mod_battery: { ru: "Аккумуляторный модуль", en: "Battery Module" },
+  gd_rocket_mod_cartographic: {
+    ru: "Картографический модуль",
+    en: "Cartographic Module",
+  },
+  gd_rocket_mod_orbital_cargo: {
+    ru: "Орбитальный грузовой модуль",
+    en: "Orbital Cargo Module",
+  },
+  gd_rocket_mod_research: { ru: "Исследовательский модуль", en: "Research Module" },
+  gd_rocket_mod_rover: { ru: "Модуль ровера", en: "Rover Module" },
+  gd_rocket_mod_solar_panel: {
+    ru: "Модуль солнечной панели",
+    en: "Solar Panel Module",
+  },
+  gd_rocket_mod_spacefarer: {
+    ru: "Модуль для космонавтов",
+    en: "Spacefarer Module",
+  },
+  gd_rocket_mod_trailblazer: {
+    ru: "Модуль первопроходца",
+    en: "Trailblazer Module",
+  },
+  gd_rocket_platform: { ru: "Ракетная платформа", en: "Rocket Platform" },
+
   gd_microbe_musher: { ru: "Микробный пресс", en: "Microbe Musher" },
   gd_electric_grill: { ru: "Электрориль", en: "Electric Grill" },
   gd_gas_range: { ru: "Газовая плита", en: "Gas Range" },

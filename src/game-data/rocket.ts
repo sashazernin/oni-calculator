@@ -145,7 +145,7 @@ export const rocketEngines = {
 export type RocketEngineId = keyof typeof rocketEngines;
 
 const largeLiquidFuelTank: IRocketModule = {
-  name: "Large Liquid Fuel Tank",
+  name: "gd_rocket_tank_large_liquid_fuel",
   type: 'rocket-tank',
   image: "rocket/tanks/Large_Liquid_Fuel_Tank.webp",
   height: 5,
@@ -155,7 +155,7 @@ const largeLiquidFuelTank: IRocketModule = {
 }
 
 const largeSolidOxidizerTank: IRocketModule = {
-  name: "Large Solid Oxidizer Tank",
+  name: "gd_rocket_tank_large_solid_oxidizer",
   type: 'rocket-tank',
   image: "rocket/tanks/Large_Solid_Oxidizer_Tank.webp",
   height: 5,
@@ -165,7 +165,7 @@ const largeSolidOxidizerTank: IRocketModule = {
 }
 
 const liquidOxidizerTank: IRocketModule = {
-  name: "Liquid Oxidizer Tank",
+  name: "gd_rocket_tank_liquid_oxidizer",
   type: 'rocket-tank',
   image: "rocket/tanks/Liquid_Oxidizer_Tank.webp",
   height: 2,
@@ -175,7 +175,7 @@ const liquidOxidizerTank: IRocketModule = {
 }
 
 const smallSolidOxidizerTank: IRocketModule = {
-  name: "Small Solid Oxidizer Tank",
+  name: "gd_rocket_tank_small_solid_oxidizer",
   type: 'rocket-tank',
   image: "rocket/tanks/Small_Solid_Oxidizer_Tank.webp",
   height: 2,
@@ -192,7 +192,7 @@ export const rocketTanks = {
 }
 
 const biologicalCargoBay: IRocketModule = {
-  name: "Biological Cargo Bay",
+  name: "gd_rocket_cargo_biological",
   type: 'rocket-cargo',
   image: "rocket/cargos/Biological_Cargo_Bay.webp",
   height: 1,
@@ -202,7 +202,7 @@ const biologicalCargoBay: IRocketModule = {
 }
 
 const cargoBay: IRocketModule = {
-  name: "Cargo Bay",
+  name: "gd_rocket_cargo_bay",
   type: 'rocket-cargo',
   image: "rocket/cargos/Cargo_Bay.webp",
   height: 3,
@@ -212,7 +212,7 @@ const cargoBay: IRocketModule = {
 }
 
 const gasCargoCanister: IRocketModule = {
-  name: "Gas Cargo Canister",
+  name: "gd_rocket_cargo_gas_canister",
   type: 'rocket-cargo',
   image: "rocket/cargos/Gas_Cargo_Canister.webp",
   height: 3,
@@ -222,7 +222,7 @@ const gasCargoCanister: IRocketModule = {
 }
 
 const largeCargoBay: IRocketModule = {
-  name: "Large Cargo Bay",
+  name: "gd_rocket_cargo_large_bay",
   type: 'rocket-cargo',
   image: "rocket/cargos/Large_Cargo_Bay.webp",
   height: 5,
@@ -232,7 +232,7 @@ const largeCargoBay: IRocketModule = {
 }
 
 const largeGasCargoCanister: IRocketModule = {
-  name: "Large Gas Cargo Canister",
+  name: "gd_rocket_cargo_large_gas_canister",
   type: 'rocket-cargo',
   image: "rocket/cargos/Large_Gas_Cargo_Canister.webp",
   height: 5,
@@ -242,7 +242,7 @@ const largeGasCargoCanister: IRocketModule = {
 }
 
 const largeLiquidCargoTank: IRocketModule = {
-  name: "Large Liquid Cargo Tank",
+  name: "gd_rocket_cargo_large_liquid",
   type: 'rocket-cargo',
   image: "rocket/cargos/Large_Liquid_Cargo_Tank.webp",
   height: 5,
@@ -252,7 +252,7 @@ const largeLiquidCargoTank: IRocketModule = {
 }
 
 const liquidCargoTank: IRocketModule = {
-  name: "Liquid Cargo Tank",
+  name: "gd_rocket_cargo_liquid_tank",
   type: 'rocket-cargo',
   image: "rocket/cargos/Liquid_Cargo_Tank.webp",
   height: 3,
@@ -272,7 +272,7 @@ export const rocketCargos = {
 }
 
 const basicNosecone: IRocketModule = {
-  name: "Basic Nosecone",
+  name: "gd_rocket_head_basic_nosecone",
   type: 'rocket-head',
   image: "rocket/heads/Basic_Nosecone.webp",
   height: 2,
@@ -282,7 +282,7 @@ const basicNosecone: IRocketModule = {
 }
 
 const Drillcone: IRocketModule = {
-  name: "Drillcone",
+  name: "gd_rocket_head_drillcone",
   type: 'rocket-head',
   image: "rocket/heads/Drillcone.webp",
   height: 4,
@@ -292,7 +292,7 @@ const Drillcone: IRocketModule = {
 }
 
 const soloSpacefarerNosecone: IRocketModule = {
-  name: "Solo Spacefarer Nosecone",
+  name: "gd_rocket_head_solo_spacefarer",
   type: 'rocket-head',
   image: "rocket/heads/Solo_Spacefarer_Nosecone.webp",
   height: 3,
@@ -309,7 +309,7 @@ export const rocketHeads = {
 }
 
 const artifactTransportModule: IRocketModule = {
-  name: "Artifact Transport Module",
+  name: "gd_rocket_mod_artifact_transport",
   type: 'rocket-module',
   image: "rocket/modules/Artifact_Transport_Module.webp",
   height: 1,
@@ -319,7 +319,7 @@ const artifactTransportModule: IRocketModule = {
 }
 
 const batteryModule: IRocketModule = {
-  name: "Battery Module",
+  name: "gd_rocket_mod_battery",
   type: 'rocket-module',
   image: "rocket/modules/Battery_Module.webp",
   height: 2,
@@ -329,7 +329,7 @@ const batteryModule: IRocketModule = {
 }
 
 const cartographicModule: IRocketModule = {
-  name: "Cartographic Module",
+  name: "gd_rocket_mod_cartographic",
   type: 'rocket-module',
   image: "rocket/modules/Cartographic_Module.webp",
   height: 5,
@@ -339,7 +339,7 @@ const cartographicModule: IRocketModule = {
 }
 
 const orbitalCargoModule: IRocketModule = {
-  name: "Orbital Cargo Module",
+  name: "gd_rocket_mod_orbital_cargo",
   type: 'rocket-module',
   image: "rocket/modules/Orbital_Cargo_Module.webp",
   height: 2,
@@ -349,7 +349,7 @@ const orbitalCargoModule: IRocketModule = {
 }
 
 const researchModule: IRocketModule = {
-  name: "Research Module",
+  name: "gd_rocket_mod_research",
   type: 'rocket-module',
   image: "rocket/modules/Research_Module.webp",
   height: 2,
@@ -359,7 +359,7 @@ const researchModule: IRocketModule = {
 }
 
 const roverModule: IRocketModule = {
-  name: "Rover Module",
+  name: "gd_rocket_mod_rover",
   type: 'rocket-module',
   image: "rocket/modules/Rover_Module.webp",
   height: 3,
@@ -369,7 +369,7 @@ const roverModule: IRocketModule = {
 }
 
 const solarPanelModule: IRocketModule = {
-  name: "Solar Panel Module",
+  name: "gd_rocket_mod_solar_panel",
   type: 'rocket-module',
   image: "rocket/modules/Solar_Panel_Module.webp",
   height: 1,
@@ -379,7 +379,7 @@ const solarPanelModule: IRocketModule = {
 }
 
 const spacefarerModule: IRocketModule = {
-  name: "Spacefarer Module",
+  name: "gd_rocket_mod_spacefarer",
   type: 'rocket-module',
   image: "rocket/modules/Spacefarer_Module.webp",
   height: 4,
@@ -390,7 +390,7 @@ const spacefarerModule: IRocketModule = {
 }
 
 const trailblazerModule: IRocketModule = {
-  name: "Trailblazer Module",
+  name: "gd_rocket_mod_trailblazer",
   type: 'rocket-module',
   image: "rocket/modules/Trailblazer_Module.webp",
   height: 3,
@@ -412,7 +412,7 @@ export const rocketModules = {
 }
 
 export const rocketPlatform: IRocketModule = {
-  name: "Rocket Platform",
+  name: "gd_rocket_platform",
   type: 'rocket-platform',
   image: "rocket/Rocket_Platform.webp",
   height: 2,

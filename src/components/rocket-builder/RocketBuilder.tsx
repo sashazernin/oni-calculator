@@ -14,6 +14,8 @@ import {
   type RocketEngineId,
 } from "../../game-data/rocket";
 import { ThemeContext } from "../../providers/app-theme-provider";
+import { useTranslation } from "../../hooks/useTranslation";
+import type { TranslationKey } from "../../i18n/translations";
 import { getAssetImageUrl } from "../asset-image/AssetImage";
 import { Popup } from "../popup/Popup";
 import { getRocketModuleSpriteInset } from "./rocket-sprite-insets";
@@ -50,13 +52,15 @@ export const rocketStackModules: Record<string, IRocketModule> = {
 }
 
 /** Порядок секций в каталоге «Добавить модуль». */
-const MODULE_CATALOG_SECTIONS: { type: IRocketModule["type"]; title: string }[] =
-  [
-    { type: "rocket-module", title: "Модули" },
-    { type: "rocket-cargo", title: "Грузовые отсеки" },
-    { type: "rocket-head", title: "Носы" },
-    { type: "rocket-tank", title: "Баки" },
-  ]
+const MODULE_CATALOG_SECTIONS: {
+  type: IRocketModule["type"];
+  titleKey: TranslationKey;
+}[] = [
+  { type: "rocket-module", titleKey: "rocket_builder_section_modules" },
+  { type: "rocket-cargo", titleKey: "rocket_builder_section_cargo" },
+  { type: "rocket-head", titleKey: "rocket_builder_section_noses" },
+  { type: "rocket-tank", titleKey: "rocket_builder_section_tanks" },
+];
 
 function isRocketHeadModule(mod: IRocketModule | undefined): boolean {
   return mod?.type === "rocket-head";
@@ -510,6 +514,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
     inferredTankPlacements = [],
   } = props;
   const { colors } = useContext(ThemeContext);
+  const { t, entityName } = useTranslation();
   const gridWrapRef = useRef<HTMLDivElement>(null);
   /** Курсор над любой свободной ячейкой зоны модулей — показываем общую подсветку области. */
   const [highlightFreeStack, setHighlightFreeStack] = useState(false);
@@ -540,60 +545,6 @@ export default function RocketBuilder(props: RocketBuilderProps) {
     () => [...placements, ...inferredTankPlacements],
     [placements, inferredTankPlacements],
   );
-
-  /**
-   * Спрайты рисуются с отрицательными offset от сетки; ширина flex-ряда это не учитывает,
-   * из-за чего у скролл-родителя обрезается левый/правый край без возможности доскроллить.
-   */
-  const spriteHorizontalBleedPx = useMemo(() => {
-    const eng = engineId ? rocketEngines[engineId] : null;
-    if (!eng) return { left: 0, right: 0 };
-    const gridW = ROCKET_GRID_COLUMNS * ROCKET_CELL_PX;
-    const colOff = Math.floor((ROCKET_GRID_COLUMNS - eng.width) / 2);
-    const platformInset = getRocketModuleSpriteInset(platform);
-    const engineInset = getRocketModuleSpriteInset(eng);
-    const engineDrawW =
-      eng.width * ROCKET_CELL_PX + engineInset.left + engineInset.right;
-    const platformDrawW =
-      platform.width * ROCKET_CELL_PX +
-      platformInset.left +
-      platformInset.right;
-
-    let minFromGridLeft = Math.min(
-      -platformInset.left,
-      colOff * ROCKET_CELL_PX - engineInset.left,
-    );
-    for (const p of mergedPlacements) {
-      const mod = rocketStackModules[p.moduleKey];
-      if (!mod) continue;
-      const inset = getRocketModuleSpriteInset(mod);
-      minFromGridLeft = Math.min(
-        minFromGridLeft,
-        p.col * ROCKET_CELL_PX - inset.left,
-      );
-    }
-    const railAndGap = ROCKET_ROW_INDEX_RAIL_PX + 6;
-    const leftPad = Math.max(0, -(railAndGap + minFromGridLeft));
-
-    let maxFromGridRight = Math.max(
-      -platformInset.left + platformDrawW,
-      colOff * ROCKET_CELL_PX - engineInset.left + engineDrawW,
-    );
-    for (const p of mergedPlacements) {
-      const mod = rocketStackModules[p.moduleKey];
-      if (!mod) continue;
-      const inset = getRocketModuleSpriteInset(mod);
-      const wPx = mod.width * ROCKET_CELL_PX;
-      const drawW = wPx + inset.left + inset.right;
-      maxFromGridRight = Math.max(
-        maxFromGridRight,
-        p.col * ROCKET_CELL_PX - inset.left + drawW,
-      );
-    }
-    const rightPad = Math.max(0, maxFromGridRight - gridW);
-
-    return { left: leftPad, right: rightPad };
-  }, [engineId, mergedPlacements]);
 
   /** Суммарная высота колонны авто-баков (ряды сетки), прижатой к двигателю. */
   const tankStackRowCount = useMemo(() => {
@@ -631,14 +582,16 @@ export default function RocketBuilder(props: RocketBuilderProps) {
       if (arr) arr.push([k, m]);
     }
     for (const arr of byType.values()) {
-      arr.sort((a, b) => a[1].name.localeCompare(b[1].name));
+      arr.sort((a, b) =>
+        entityName(a[1].name).localeCompare(entityName(b[1].name)),
+      );
     }
     return MODULE_CATALOG_SECTIONS.map((sec) => ({
-      title: sec.title,
+      title: t(sec.titleKey),
       type: sec.type,
       items: byType.get(sec.type) ?? [],
     })).filter((s) => s.items.length > 0);
-  }, [stackCatalog]);
+  }, [stackCatalog, t, entityName]);
 
   const hasHead = useMemo(
     () =>
@@ -794,7 +747,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
           maxWidth: ROCKET_GRID_COLUMNS * ROCKET_CELL_PX,
         }}
       >
-        Выберите путь полета и двигатель
+        {t("rocket_builder_select_route_engine")}
       </div>
     );
   }
@@ -845,13 +798,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
   };
 
   return (
-    <div
-      style={{
-        paddingLeft: spriteHorizontalBleedPx.left,
-        paddingRight: spriteHorizontalBleedPx.right,
-        boxSizing: "content-box",
-      }}
-    >
+    <div>
       <div
         style={{
           display: "flex",
@@ -914,7 +861,9 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                   role={cellInteract ? "button" : undefined}
                   tabIndex={cellInteract ? 0 : undefined}
                   aria-label={
-                    cellInteract ? "Добавить модуль поверх ракеты" : undefined
+                    cellInteract
+                      ? t("rocket_builder_aria_add_module_on_stack")
+                      : undefined
                   }
                   onClick={() => cellInteract && setAddModuleOpen(true)}
                   onKeyDown={(e) => {
@@ -1043,7 +992,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                 title={
                   inferredTank
                     ? undefined
-                    : "Нажмите, чтобы удалить модуль"
+                    : t("rocket_builder_module_remove_hint")
                 }
                 onMouseEnter={() => {
                   if (!inferredTank) setHoveredStackModuleUid(p.uid);
@@ -1169,14 +1118,14 @@ export default function RocketBuilder(props: RocketBuilderProps) {
 
       <Popup
         open={addModuleOpen}
-        title="Добавить модуль"
+        title={t("rocket_builder_add_module_popup_title")}
         variant="fit-content"
         closeButton
         onClose={() => setAddModuleOpen(false)}
       >
         {stackCatalog.length === 0 ? (
           <p style={{ margin: 0, color: colors.text.primary }}>
-            Элементов пока нет — добавьте их в{" "}
+            {t("rocket_builder_catalog_empty_before")}
             <code style={{ fontSize: "0.9em" }}>rocketStackModules</code>.
           </p>
         ) : !addModuleOpen ? null : (
@@ -1301,7 +1250,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                         >
                           <img
                             src={getAssetImageUrl(mod.image)}
-                            alt=""
+                            alt={entityName(mod.name)}
                             draggable={false}
                             style={{
                               maxWidth: "100%",
@@ -1324,7 +1273,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                             wordBreak: "break-word",
                           }}
                         >
-                          {mod.name}
+                          {entityName(mod.name)}
                         </span>
                       </button>
                     );
