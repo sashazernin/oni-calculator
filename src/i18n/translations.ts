@@ -57,8 +57,74 @@ export const translations = {
     en: "In Settings under the Colony tab you can add your colony's duplicants — their count is applied automatically in the food calculator.",
   },
   page_home_browser_storage: {
-    ru: "Вводимые вами данные сохраняются локально и привязаны к этому браузеру — они не передаются на сервер.",
-    en: "The data you enter is saved locally and stays tied to this browser — it is not sent to any server.",
+    ru: "Вводимые вами данные по умолчанию сохраняются только в этом браузере (localStorage); у проекта нет сервера, и я их никуда не отправляю. Подробнее — в",
+    en: "By default, your data is stored only in this browser (localStorage); this project has no server, and I do not send your data anywhere. See the",
+  },
+  page_home_privacy_link: {
+    ru: "политике конфиденциальности",
+    en: "Privacy Policy",
+  },
+
+  privacy_title: { ru: "Политика конфиденциальности", en: "Privacy Policy" },
+  privacy_updated: {
+    ru: "Последнее обновление: 24 марта 2026 г.",
+    en: "Last updated: March 24, 2026",
+  },
+  privacy_intro: {
+    ru: "Simple ONI Calculator — бесплатный вспомогательный калькулятор для игры Oxygen Not Included. Это личный проект одного разработчика: у сайта нет своего сервера и бэкенда, я не веду учёт пользователей и не собираю данные калькулятора на своей стороне.",
+    en: "Simple ONI Calculator is a free companion tool for Oxygen Not Included. It is a solo personal project: there is no server or backend, I do not track users, and I do not collect your calculator data on my side.",
+  },
+  privacy_section_overview_title: {
+    ru: "Кратко",
+    en: "Summary",
+  },
+  privacy_section_overview_body: {
+    ru: "Приложение работает в вашем браузере. Расчёты выполняются на устройстве. Я не продаю персональные данные и не использую их для рекламы.",
+    en: "The app runs in your browser. Calculations happen on your device. I do not sell personal data or use it for advertising.",
+  },
+  privacy_section_local_title: {
+    ru: "Данные в браузере",
+    en: "Data in your browser",
+  },
+  privacy_section_local_body: {
+    ru: "В localStorage могут сохраняться: тема и язык интерфейса, список дупликантов колонии, конфигурации ракет и объекты звёздной карты. Эти данные остаются на вашем устройстве, пока вы их не удалите (очистка данных сайта в браузере или сброс в настройках приложения).",
+    en: "localStorage may hold: UI theme and language, your colony duplicants, rocket builds, and star map objects. This stays on your device until you clear it (browser site data or in-app reset).",
+  },
+  privacy_section_hosting_title: {
+    ru: "Хостинг и технические данные",
+    en: "Hosting and technical data",
+  },
+  privacy_section_hosting_body: {
+    ru: "Сайт — это статические файлы на GitHub Pages. При открытии страницы браузер обращается к инфраструктуре GitHub — как у любого хостинга. Я не подключаю к коду стороннюю аналитику (счётчики посещений и т.п.).",
+    en: "The site is static files on GitHub Pages. Opening it uses GitHub’s infrastructure, like any hosted site. I do not add third-party analytics (visit counters, etc.) to the code.",
+  },
+  privacy_section_rights_title: {
+    ru: "Ваши действия",
+    en: "Your choices",
+  },
+  privacy_section_rights_body: {
+    ru: "Вы можете удалить данные сайта в настройках браузера или изменить их в приложении. Oxygen Not Included и Klei Entertainment не связаны с этим сайтом; игровые названия используются в информационных целях.",
+    en: "You can clear site data in your browser settings or change it in the app. Oxygen Not Included and Klei Entertainment are not affiliated with this site; game names are used for informational purposes.",
+  },
+  privacy_section_changes_title: {
+    ru: "Изменения политики",
+    en: "Changes to this policy",
+  },
+  privacy_section_changes_body: {
+    ru: "Текст политики может обновляться при изменении функций сайта. Актуальная версия всегда доступна на этой странице; дата обновления указана вверху.",
+    en: "This policy may be updated when site features change. The current version is always on this page; the date is shown at the top.",
+  },
+  privacy_section_contact_title: {
+    ru: "Контакты",
+    en: "Contact",
+  },
+  privacy_section_contact_body: {
+    ru: "По вопросам конфиденциальности и работы приложения:",
+    en: "For privacy or app questions:",
+  },
+  privacy_contact_line_prefix: {
+    ru: "E-mail:",
+    en: "Email:",
   },
 
   food_tab_food: { ru: "Еда", en: "Food" },

@@ -25,7 +25,8 @@ function LayoutShell() {
     <div
       style={{
         display: "flex",
-        height: "100%",
+        flex: 1,
+        minHeight: 0,
         width: "100%",
         flexDirection: "column",
       }}
@@ -35,9 +36,11 @@ function LayoutShell() {
         style={{
           display: "flex",
           flex: 1,
+          minHeight: 0,
           width: "100%",
           flexDirection: "row",
           position: "relative",
+          overflow: "hidden",
         }}
       >
         {!isMobile ? <Navbar layout="sidebar" /> : null}
@@ -95,10 +98,13 @@ function LayoutShell() {
             backgroundColor: colors.background.default,
             flex: 1,
             minHeight: 0,
+            minWidth: 0,
             padding: "16px",
             display: "flex",
             flexDirection: "column",
             position: "relative",
+            overflow: "hidden",
+            boxSizing: "border-box",
           }}
         >
           <Outlet />

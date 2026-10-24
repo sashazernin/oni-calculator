@@ -23,7 +23,9 @@ export default function Home() {
         display: "flex",
         flexDirection: "column",
         alignSelf: "stretch",
+        width: "100%",
         minHeight: 0,
+        minWidth: 0,
       }}
     >
       <Box
@@ -32,7 +34,11 @@ export default function Home() {
           display: "flex",
           flexDirection: "column",
           gap: 16,
+          minHeight: 0,
+          width: "100%",
           boxSizing: "border-box",
+          overflowY: "auto",
+          overflowX: "hidden",
         }}
       >
         <h2
@@ -50,7 +56,13 @@ export default function Home() {
         </h2>
         <p>{t("page_home_intro")}</p>
         <p>{t("page_home_duplicants_hint")}</p>
-        <p>{t("page_home_browser_storage")}</p>
+        <p>
+          {t("page_home_browser_storage")}{" "}
+          <Link to="/privacy" style={accentLinkStyle}>
+            {t("page_home_privacy_link")}
+          </Link>
+          .
+        </p>
         <p>
           {t("page_home_food_before")}
           <Link to="/food" style={accentLinkStyle}>
@@ -70,6 +82,18 @@ export default function Home() {
           <a href={`mailto:${CONTACT_EMAIL}`} style={accentLinkStyle}>
             {CONTACT_EMAIL}
           </a>
+        </p>
+        <p
+          style={{
+            marginTop: "auto",
+            paddingTop: 8,
+            fontSize: "0.875rem",
+            borderTop: `1px solid ${colors.border.main}`,
+          }}
+        >
+          <Link to="/privacy" style={accentLinkStyle}>
+            {t("privacy_title")}
+          </Link>
         </p>
       </Box>
     </div>
