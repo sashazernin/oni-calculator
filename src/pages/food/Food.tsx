@@ -6,7 +6,7 @@ import {
   type DependencyTreeNode,
 } from "../../components/dependency-tree/DependencyTree";
 import { food } from "../../game-data/food";
-import type { GameNode, IFood } from "../../types/game-data-types";
+import type { GameNode, IFood, IPlant } from "../../types/game-data-types";
 import { ThemeContext } from "../../providers/app-theme-provider";
 import Box from "../../components/box/box";
 import { DuplicantContext } from "../../providers/duplicant-provider";
@@ -77,27 +77,36 @@ export default function Food() {
     const uniqueResourses: Record<string, GameNode & { total: number }> = {};
     const uniqueTools: Record<string, GameNode & { total: number }> = {};
 
+    /** Сколько «единиц спроса» даёт одно растение (обратно к формуле ceil в этапе 1). */
+    const plantDemandFactor = (plant: IPlant, union: boolean) =>
+      union ? 1 / plant.harvest : plant.cycles === 0 ? 1 : plant.cycles;
+
+    const requirementNodes = (node: DependencyTreeNode): DependencyTreeNode[] => {
+      if (!node.children?.length) return [];
+      if (node.children.length === 1 && node.children[0].type === "kitchen-tool") {
+        return node.children[0].children ?? [];
+      }
+      return node.children;
+    };
+
+    /** Этап 1: сверху вниз — спрос по калориям/рецепту, растения вверх до целого. */
     const mapToTree = (item: GameNode & { total: number }, parent?: GameNode): DependencyTreeNode => {
       const total = (() => {
         const value = "calory" in item ? item.calory : 1;
         if (item.type === "plant") {
           const union = Boolean(parent && "union" in parent && parent.union);
-          return Math.ceil(
-            item.total * (union ? 1 / item.harvest : item.cycles === 0 ? 1 : item.cycles)
-          );
-        } else {
-          return item.total / value;
+          return Math.ceil(item.total * plantDemandFactor(item, union));
         }
+        return item.total / value;
       })();
 
-      if (!uniqueResourses[item.name]) {
-        uniqueResourses[item.name] = { ...item, total: Number(total.toFixed(2)) };
-      } else {
-        uniqueResourses[item.name].total += Number(total.toFixed(2));
-      }
-
       if ("tool" in item && item.tool) {
-        uniqueTools[item.tool.name] = { name: item.tool.name, type: item.tool.type, image: item.tool.image, total: 1 };
+        uniqueTools[item.tool.name] = {
+          name: item.tool.name,
+          type: item.tool.type,
+          image: item.tool.image,
+          total: 1,
+        };
       }
 
       const result: DependencyTreeNode = {
@@ -120,12 +129,12 @@ export default function Food() {
           return item.requirements.map((requirement) =>
             mapToTree({
               ...requirement.item,
-              total: total * requirement.count
+              total: total * requirement.count,
             }, item)
           );
         }
         return undefined;
-      })()
+      })();
 
       if ("tool" in item && item.tool) {
         const tool = item.tool;
@@ -135,18 +144,73 @@ export default function Food() {
             item: tool,
             ...tool,
             total: 1,
-            children: children
+            children,
           }],
+        };
+      }
+      return { ...result, children };
+    };
+
+    /**
+     * Этап 2: снизу вверх — от целого числа растений считаем фактический урожай
+     * и производимую еду; жидкости/ресурсы рецепта масштабируем под выпуск.
+     */
+    const applyPlantProduction = (node: DependencyTreeNode): void => {
+      node.children?.forEach(applyPlantProduction);
+
+      if (node.type !== "food" && node.type !== "ingredient") return;
+      if (!("requirements" in node.item) || !node.item.requirements?.length) return;
+
+      const reqNodes = requirementNodes(node);
+      const byName = new Map(reqNodes.map((child) => [child.name, child]));
+
+      let producedUnits: number | null = null;
+
+      for (const requirement of node.item.requirements) {
+        const child = byName.get(requirement.item.name);
+        if (!child) continue;
+
+        if (requirement.item.type === "plant") {
+          const union = Boolean("union" in node.item && node.item.union);
+          const factor = plantDemandFactor(requirement.item, union);
+          const units = child.total / (requirement.count * factor);
+          producedUnits = producedUnits === null ? units : Math.min(producedUnits, units);
+        } else if (requirement.item.type === "food" || requirement.item.type === "ingredient") {
+          const units = (child.total * requirement.item.calory) / requirement.count;
+          producedUnits = producedUnits === null ? units : Math.min(producedUnits, units);
         }
-      } else {
-        return {
-          ...result,
-          children: children,
-        }
+      }
+
+      if (producedUnits === null || Math.abs(producedUnits - node.total) < 1e-9) return;
+
+      node.total = producedUnits;
+      if ("calory" in node.item && !node.item.union) {
+        node.calory = producedUnits * node.item.calory;
+      }
+
+      for (const requirement of node.item.requirements) {
+        if (requirement.item.type !== "liquid" && requirement.item.type !== "resourse") continue;
+        const child = byName.get(requirement.item.name);
+        if (child) child.total = producedUnits * requirement.count;
       }
     };
 
-    return { tree: mapToTree({ ...selectedItem, total: totalPerCycle }), uniqueResourses, uniqueTools };
+    const collectTotals = (node: DependencyTreeNode): void => {
+      if (node.type !== "kitchen-tool") {
+        if (!uniqueResourses[node.name]) {
+          uniqueResourses[node.name] = { ...node.item, total: node.total };
+        } else {
+          uniqueResourses[node.name].total += node.total;
+        }
+      }
+      node.children?.forEach(collectTotals);
+    };
+
+    const tree = mapToTree({ ...selectedItem, total: totalPerCycle });
+    applyPlantProduction(tree);
+    collectTotals(tree);
+
+    return { tree, uniqueResourses, uniqueTools };
   }, [selectedItem, totalPerCycle]);
 
   const accent = colors.primary.main;
@@ -186,10 +250,13 @@ export default function Food() {
         if ("union" in item && item.union) {
           return Number.isInteger(item.total) ? item.total : item.total.toFixed(2);
         }
-        return `${((totalCalory ? 1 : item.total) * (item.calory ?? 0)).toFixed()} ${t("unit_grams")}`;
+        const grams = (totalCalory ? 1 : item.total) * (item.calory ?? 0);
+        return `${Math.round(grams)} ${t("unit_grams")}`;
       }
-      if ("calory" in item && item.calory)
-        return `${((totalCalory ? 1 : item.total) * item.calory).toFixed()} ${t("unit_kcal")}`;
+      if ("calory" in item && item.calory) {
+        const kcal = (totalCalory ? 1 : item.total) * item.calory;
+        return `${Math.round(kcal)} ${t("unit_kcal")}`;
+      }
       if (Number.isInteger(item.total)) return item.total;
       return item.total.toFixed(2);
     },
@@ -403,6 +470,8 @@ export default function Food() {
       >
         <TextField
           label={t("search_label")}
+          clearable
+          value={foodSearch}
           onChange={(e) => {
             setFoodSearch(e.target.value);
           }}
@@ -444,6 +513,8 @@ export default function Food() {
               ) : null}
               {foodItemsFiltered.map((item) => {
                 const isSelected = selectedItem?.name === item.name;
+                const qualityColor =
+                  typeof item.quality === "number" ? getQualityColor(item.quality) : null;
                 return (
                   <div
                     key={item.name}
@@ -462,12 +533,14 @@ export default function Food() {
                           : undefined
                       }
                       style={{
+                        position: "relative",
                         width: "100%",
                         aspectRatio: "1",
                         minHeight: 0,
                         padding: "clamp(8px, 2vw, 12px)",
                         boxSizing: "border-box",
                         borderRadius: 10,
+                        overflow: "visible",
                       }}
                       onClick={() => {
                         setSelectedItem(item);
@@ -484,13 +557,42 @@ export default function Food() {
                           color: "inherit",
                         }}
                       >
+                        {qualityColor !== null ? (
+                          <span
+                            aria-hidden
+                            style={{
+                              position: "absolute",
+                              top: 6,
+                              right: 6,
+                              zIndex: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: 22,
+                              height: 22,
+                              borderRadius: "50%",
+                              background: qualityColor,
+                              color: "#fff",
+                              fontSize: "0.6875rem",
+                              fontWeight: 800,
+                              fontVariantNumeric: "tabular-nums",
+                              lineHeight: 1,
+                              boxShadow:
+                                "0 1px 3px color-mix(in srgb, #000 35%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 25%, transparent)",
+                              pointerEvents: "none",
+                            }}
+                          >
+                            {item.quality}
+                          </span>
+                        ) : null}
                         <div
                           style={{
                             fontSize: "0.75rem",
                             lineHeight: 1.2,
                             color: "inherit",
                             overflow: "hidden",
-                            textOverflow: "ellipsis"
+                            textOverflow: "ellipsis",
+                            paddingRight: qualityColor !== null ? 18 : 0,
                           }}
                         >
                           {entityName(item.name)}

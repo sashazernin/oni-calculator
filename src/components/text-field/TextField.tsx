@@ -3,11 +3,14 @@ import {
   useContext,
   useId,
   useState,
+  type ChangeEvent,
   type ChangeEventHandler,
   type InputHTMLAttributes,
   type ReactNode,
 } from "react";
+import { IoClose } from "react-icons/io5";
 import { ThemeContext } from "../../providers/app-theme-provider";
+import { useTranslation } from "../../hooks/useTranslation";
 
 const FLOAT_MS = 0.2;
 /** Высота видимой строки ввода (нативный input). */
@@ -15,11 +18,14 @@ const INPUT_H = 28;
 /** Высота всей рамки (бордер + внутренняя область). */
 const FIELD_H = 40;
 const FIELD_PAD_X = 8;
+const CLEAR_BTN_SIZE = 26;
 
 export type TextFieldProps = {
   label?: string;
   error?: string;
   fullWidth?: boolean;
+  /** Кнопка очистки справа внутри поля (для поиска и т.п.). */
+  clearable?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, "size">;
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
@@ -28,6 +34,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
       label,
       error,
       fullWidth,
+      clearable,
       disabled,
       className,
       style: inputStyle,
@@ -43,6 +50,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
     ref
   ) {
     const { colors } = useContext(ThemeContext);
+    const { t } = useTranslation();
     const generatedId = useId();
     const id = idProp ?? generatedId;
     const [focused, setFocused] = useState(false);
@@ -89,6 +97,19 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         setInnerValue(e.target.value);
       }
       onChange?.(e);
+    };
+
+    const showClear = Boolean(clearable && hasValue && !disabled);
+
+    const clearInput = () => {
+      if (!isControlled) {
+        setInnerValue("");
+      }
+      const emptyEvent = {
+        target: { value: "" },
+        currentTarget: { value: "" },
+      } as ChangeEvent<HTMLInputElement>;
+      onChange?.(emptyEvent);
     };
 
     const sharedInputStyle = {
@@ -157,21 +178,79 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
           setFocused(false);
           onBlur?.(e);
         }}
-        style={
-          hasLabel
+        style={{
+          ...sharedInputStyle,
+          flex: 1,
+          minWidth: 0,
+          width: "100%",
+          paddingRight: showClear ? CLEAR_BTN_SIZE : 0,
+          ...(hasLabel
             ? {
-              ...sharedInputStyle,
               position: "relative",
               zIndex: 2,
             }
             : {
-              ...sharedInputStyle,
               backgroundColor: "transparent",
               boxShadow: "none",
-            }
-        }
+            }),
+        }}
         {...inputRest}
       />
+    );
+
+    const clearMuted = `color-mix(in srgb, ${colors.text.primary} 55%, ${paper})`;
+
+    const inputRow = (
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          flex: 1,
+          minWidth: 0,
+          width: "100%",
+        }}
+      >
+        {inputEl}
+        {showClear ? (
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label={t("aria_clear_search")}
+            onClick={clearInput}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: "50%",
+              transform: "translateY(-50%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: CLEAR_BTN_SIZE,
+              height: CLEAR_BTN_SIZE,
+              margin: 0,
+              padding: 0,
+              border: "none",
+              borderRadius: 8,
+              background: "transparent",
+              color: clearMuted,
+              cursor: "pointer",
+              flexShrink: 0,
+              zIndex: 3,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = colors.text.primary;
+              e.currentTarget.style.background = `color-mix(in srgb, ${colors.text.primary} 10%, transparent)`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = clearMuted;
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            <IoClose size={18} aria-hidden />
+          </button>
+        ) : null}
+      </div>
     );
 
     return (
@@ -226,11 +305,11 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
               >
                 {label}
               </label>
-              {inputEl}
+              {clearable ? inputRow : inputEl}
             </>,
             { marginTop: 6 }
           )
-          : fieldShell(inputEl)}
+          : fieldShell(clearable ? inputRow : inputEl)}
         {showError ? (
           <span
             id={`${id}-error`}

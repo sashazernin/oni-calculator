@@ -64,8 +64,8 @@ export const translations = {
   food_tab_food: { ru: "Еда", en: "Food" },
   food_tab_info: { ru: "Инфо", en: "Info" },
   food_resource_info_tooltip: {
-    ru: "Значения ресурсов даны за цикл; растения рассчитаны так, чтобы хватило еды на время их цикла роста.",
-    en: "Resource values are given per cycle; plants are calculated so that there is enough food for the duration of their growth cycle.",
+    ru: "Значения ресурсов даны за цикл. Сначала считается спрос по калориям, растения округляются вверх до целых, затем по фактическому числу растений пересчитывается производимая еда.",
+    en: "Resource values are per cycle. Demand is calculated from calories first, plants are rounded up to whole numbers, then produced food is recalculated from the actual plant count.",
   },
   food_select_prompt: {
     ru: "Выберите еду справа",
@@ -326,6 +326,7 @@ export const translations = {
   select_close_list: { ru: "Закрыть список", en: "Close list" },
   select_open_list: { ru: "Открыть список", en: "Open list" },
   search_label: { ru: "Поиск", en: "Search" },
+  aria_clear_search: { ru: "Очистить поиск", en: "Clear search" },
   food_search_no_results: {
     ru: "Ничего не найдено",
     en: "No matches",
