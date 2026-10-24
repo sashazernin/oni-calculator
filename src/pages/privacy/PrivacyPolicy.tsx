@@ -7,11 +7,9 @@ import type { TranslationKey } from "../../i18n/translations";
 const CONTACT_EMAIL = "sashazernin1@gmail.com";
 
 const SECTIONS: { titleKey: TranslationKey; bodyKey: TranslationKey }[] = [
-  { titleKey: "privacy_section_overview_title", bodyKey: "privacy_section_overview_body" },
+  { titleKey: "privacy_section_google_title", bodyKey: "privacy_section_google_body" },
   { titleKey: "privacy_section_local_title", bodyKey: "privacy_section_local_body" },
-  { titleKey: "privacy_section_hosting_title", bodyKey: "privacy_section_hosting_body" },
-  { titleKey: "privacy_section_rights_title", bodyKey: "privacy_section_rights_body" },
-  { titleKey: "privacy_section_changes_title", bodyKey: "privacy_section_changes_body" },
+  { titleKey: "privacy_section_analytics_title", bodyKey: "privacy_section_analytics_body" },
   { titleKey: "privacy_section_contact_title", bodyKey: "privacy_section_contact_body" },
 ];
 
@@ -84,7 +82,7 @@ export default function PrivacyPolicy() {
         {SECTIONS.map(({ titleKey, bodyKey }) => (
           <section key={titleKey}>
             <h2 style={headingStyle}>{t(titleKey)}</h2>
-            <p style={paragraphStyle}>{t(bodyKey)}</p>
+            <p style={{ ...paragraphStyle, whiteSpace: "pre-line" }}>{t(bodyKey)}</p>
           </section>
         ))}
 

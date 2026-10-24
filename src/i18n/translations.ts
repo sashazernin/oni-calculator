@@ -65,62 +65,49 @@ export const translations = {
     en: "Privacy Policy",
   },
 
-  privacy_title: { ru: "Политика конфиденциальности", en: "Privacy Policy" },
+  privacy_title: {
+    ru: "Политика конфиденциальности — Simple ONI Calculator",
+    en: "Privacy Policy — Simple ONI Calculator",
+  },
   privacy_updated: {
-    ru: "Последнее обновление: 24 марта 2026 г.",
-    en: "Last updated: March 24, 2026",
+    ru: "Последнее обновление: 24 октября 2026 г.",
+    en: "Last updated: October 24, 2026",
   },
   privacy_intro: {
-    ru: "Simple ONI Calculator — бесплатный вспомогательный калькулятор для игры Oxygen Not Included. Это личный проект одного разработчика: у сайта нет своего сервера и бэкенда, я не веду учёт пользователей и не собираю данные калькулятора на своей стороне.",
-    en: "Simple ONI Calculator is a free companion tool for Oxygen Not Included. It is a solo personal project: there is no server or backend, I do not track users, and I do not collect your calculator data on my side.",
+    ru: "Simple ONI Calculator — это бесплатный вспомогательный калькулятор для игры Oxygen Not Included. Это личный проект одного разработчика, у сайта нет своего бэкенда и баз данных для сбора информации пользователей.",
+    en: "Simple ONI Calculator is a free companion tool for Oxygen Not Included. It is a solo personal project; this site has no backend or databases to collect user information.",
   },
-  privacy_section_overview_title: {
-    ru: "Кратко",
-    en: "Summary",
+  privacy_section_google_title: {
+    ru: "1. Использование данных Google (Google User Data)",
+    en: "1. Google user data",
   },
-  privacy_section_overview_body: {
-    ru: "Приложение работает в вашем браузере. Расчёты выполняются на устройстве. Я не продаю персональные данные и не использую их для рекламы.",
-    en: "The app runs in your browser. Calculations happen on your device. I do not sell personal data or use it for advertising.",
+  privacy_section_google_body: {
+    ru: "Приложение запрашивает доступ к вашему Google Диску через OAuth 2.0 и API Google (https://www.googleapis.com).\n\nДоступ нужен только чтобы вы могли сохранять, обновлять и скачивать файлы конфигурации калькулятора (JSON с параметрами ракет, дупликантов и настроек) напрямую в своё облачное хранилище.\n\nРазработчик сайта не собирает, не просматривает и не передаёт третьим лицам файлы с вашего Google Диска. Запросы выполняются в вашем браузере напрямую к серверам Google API.",
+    en: "The app may request access to your Google Drive via OAuth 2.0 and the Google API (https://www.googleapis.com).\n\nAccess is only used so you can save, update, and download calculator configuration files (JSON with rockets, duplicants, and settings) to your own cloud storage.\n\nThe site developer does not collect, view, or share your Google Drive files with third parties. Requests run in your browser directly to Google’s API servers.",
   },
   privacy_section_local_title: {
-    ru: "Данные в браузере",
-    en: "Data in your browser",
+    ru: "2. Данные в браузере (Local Storage)",
+    en: "2. Data in your browser (local storage)",
   },
   privacy_section_local_body: {
-    ru: "В localStorage могут сохраняться: тема и язык интерфейса, список дупликантов колонии, конфигурации ракет и объекты звёздной карты. Эти данные остаются на вашем устройстве, пока вы их не удалите (очистка данных сайта в браузере или сброс в настройках приложения).",
-    en: "localStorage may hold: UI theme and language, your colony duplicants, rocket builds, and star map objects. This stays on your device until you clear it (browser site data or in-app reset).",
+    ru: "В локальном хранилище браузера (localStorage) могут сохраняться настройки интерфейса (тема, язык), данные колонии (дупликанты, ракеты, звёздная карта) и текущие расчёты. Данные остаются только на вашем устройстве, пока вы не очистите данные сайта в браузере.",
+    en: "Your browser’s localStorage may hold UI settings (theme, language), colony data (duplicants, rockets, star map), and current calculations. Data stays on your device until you clear site data in the browser.",
   },
-  privacy_section_hosting_title: {
-    ru: "Хостинг и технические данные",
-    en: "Hosting and technical data",
+  privacy_section_analytics_title: {
+    ru: "3. Сторонняя аналитика",
+    en: "3. Third-party analytics",
   },
-  privacy_section_hosting_body: {
-    ru: "Сайт — это статические файлы на GitHub Pages. При открытии страницы браузер обращается к инфраструктуре GitHub — как у любого хостинга. Я не подключаю к коду стороннюю аналитику (счётчики посещений и т.п.).",
-    en: "The site is static files on GitHub Pages. Opening it uses GitHub’s infrastructure, like any hosted site. I do not add third-party analytics (visit counters, etc.) to the code.",
-  },
-  privacy_section_rights_title: {
-    ru: "Ваши действия",
-    en: "Your choices",
-  },
-  privacy_section_rights_body: {
-    ru: "Вы можете удалить данные сайта в настройках браузера или изменить их в приложении. Oxygen Not Included и Klei Entertainment не связаны с этим сайтом; игровые названия используются в информационных целях.",
-    en: "You can clear site data in your browser settings or change it in the app. Oxygen Not Included and Klei Entertainment are not affiliated with this site; game names are used for informational purposes.",
-  },
-  privacy_section_changes_title: {
-    ru: "Изменения политики",
-    en: "Changes to this policy",
-  },
-  privacy_section_changes_body: {
-    ru: "Текст политики может обновляться при изменении функций сайта. Актуальная версия всегда доступна на этой странице; дата обновления указана вверху.",
-    en: "This policy may be updated when site features change. The current version is always on this page; the date is shown at the top.",
+  privacy_section_analytics_body: {
+    ru: "На сайте подключены Google Analytics и Яндекс.Метрика. Они собирают обезличенные технические данные (тип устройства, браузер, время на сайте) для улучшения интерфейса приложения. Подробности — в политиках Google и Яндекса.",
+    en: "Google Analytics and Yandex Metrica are used on this site. They collect anonymized technical data (device type, browser, time on site) to improve the app. See Google’s and Yandex’s privacy policies for details.",
   },
   privacy_section_contact_title: {
     ru: "Контакты",
     en: "Contact",
   },
   privacy_section_contact_body: {
-    ru: "По вопросам конфиденциальности и работы приложения:",
-    en: "For privacy or app questions:",
+    ru: "По вопросам работы приложения и конфиденциальности:",
+    en: "For questions about the app and privacy:",
   },
   privacy_contact_line_prefix: {
     ru: "E-mail:",
