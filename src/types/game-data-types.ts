@@ -33,6 +33,8 @@ export interface IFood {
   calory: number;
   image: string;
   union?: boolean;
+  /** Только DLC Spaced Out; скрывается в списке при классическом планетоиде. */
+  spaceOutOnly?: boolean;
   requirements?: {
     count: number;
     item: IFood | ILiquid | IPlant | IResourse;

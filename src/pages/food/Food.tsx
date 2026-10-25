@@ -22,6 +22,9 @@ import { AiOutlineMinusCircle } from "react-icons/ai";
 import { GiStomach } from "react-icons/gi";
 import { useTranslation } from "../../hooks/useTranslation";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useAppSettings } from "../../providers/app-settings-provider";
+import { visiblePlanetoids } from "../../helpers/planetoidStorage";
+import { isFoodShownForPlanetoid } from "../../helpers/foodPlanetoidFilter";
 import { TextField } from "../../components/text-field/TextField";
 import { Popup } from "../../components/popup/Popup";
 import styles from "./food.module.css";
@@ -174,6 +177,8 @@ function DuplicantCountCounter({
 export default function Food() {
   const { colors } = useContext(ThemeContext);
   const { t, entityName, language } = useTranslation();
+  const { activePlanetoid, data } = useAppSettings();
+  const hasVisiblePlanetoids = visiblePlanetoids(data.planetoids).length > 0;
 
   const [selectedItem, setSelectedItem] = useState<IFood | null>(null);
 
@@ -224,6 +229,20 @@ export default function Food() {
       ),
     [language, entityName]
   );
+
+  const foodItemsForPlanetoid = useMemo(
+    () =>
+      foodItemsSorted.filter((item) =>
+        isFoodShownForPlanetoid(item, activePlanetoid, hasVisiblePlanetoids)
+      ),
+    [foodItemsSorted, activePlanetoid, hasVisiblePlanetoids]
+  );
+
+  useEffect(() => {
+    if (!selectedItem) return;
+    if (isFoodShownForPlanetoid(selectedItem, activePlanetoid, hasVisiblePlanetoids)) return;
+    setSelectedItem(null);
+  }, [selectedItem, activePlanetoid, hasVisiblePlanetoids]);
 
   const { tree, uniqueResourses, uniqueTools } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }>, uniqueTools: Record<string, GameNode & { total: number }> } => {
     if (!selectedItem) return { tree: null, uniqueResourses: {}, uniqueTools: {} };
@@ -471,13 +490,13 @@ export default function Food() {
 
   const foodItemsFiltered = useMemo(() => {
     const q = foodSearch.trim().toLowerCase();
-    if (!q) return foodItemsSorted;
-    return foodItemsSorted.filter((item) => {
+    if (!q) return foodItemsForPlanetoid;
+    return foodItemsForPlanetoid.filter((item) => {
       const label = entityName(item.name).toLowerCase();
       const keyId = item.name.toLowerCase();
       return label.includes(q) || keyId.includes(q);
     });
-  }, [foodSearch, foodItemsSorted, entityName]);
+  }, [foodSearch, foodItemsForPlanetoid, entityName]);
 
   const narrowFoodLayout = useMediaQuery("(max-width: 1200px)");
   const [foodPickerOpen, setFoodPickerOpen] = useState(false);

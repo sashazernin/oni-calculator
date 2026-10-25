@@ -76,6 +76,7 @@ export const bogJelly: IFood = {
   quality: 0,
   type: 'food',
   calory: 1840,
+  spaceOutOnly: true,
   image: 'food/Bog_Jelly.webp',
   requirements: [
     {
@@ -91,6 +92,7 @@ export const swampyDelights: IFood = {
   quality: 1,
   type: 'food',
   calory: 2240,
+  spaceOutOnly: true,
   image: 'food/Swampy_Delights.webp',
   requirements: [
     {
@@ -273,6 +275,7 @@ export const noshBean: IFood = {
   type: 'ingredient',
   calory: 1,
   union: true,
+  spaceOutOnly: true,
   image: 'food/Nosh_Bean.webp',
   requirements: [
     {
@@ -387,6 +390,7 @@ export const grubfruit: IFood = {
   quality: 1,
   type: 'food',
   calory: 1000,
+  spaceOutOnly: true,
   image: 'food/Grubfruit.webp',
   requirements: [
     {
@@ -401,6 +405,7 @@ export const grubfruitPreserve: IFood = {
   quality: 3,
   type: 'food',
   calory: 2400,
+  spaceOutOnly: true,
   image: 'food/Grubfruit_Preserve.webp',
   requirements: [
     {
@@ -434,6 +439,7 @@ export const mixedBerryPie: IFood = {
   quality: 5,
   type: 'food',
   calory: 1000,
+  spaceOutOnly: true,
   image: 'food/Mixed_Berry_Pie.webp',
   requirements: [
     {
@@ -572,6 +578,7 @@ export const plantMeat: IFood = {
   quality: 1,
   type: 'food',
   calory: 1200,
+  spaceOutOnly: true,
   image: 'food/Plant_Meat.webp'
 }
 
@@ -580,6 +587,7 @@ export const spindlyGrubfruit: IFood = {
   quality: 0,
   type: 'food',
   calory: 800,
+  spaceOutOnly: true,
   image: 'food/Spindly_Grubfruit.webp',
   requirements: [
     {
@@ -594,6 +602,7 @@ export const roastGrubfruitNut: IFood = {
   quality: 1,
   type: 'food',
   calory: 1200,
+  spaceOutOnly: true,
   image: 'food/Roast_Grubfruit_Nut.webp',
   requirements: [
     {
@@ -666,6 +675,7 @@ export const swampChardHeart: IFood = {
   quality: 1,
   type: 'food',
   calory: 2400,
+  spaceOutOnly: true,
   image: 'food/Swamp_Chard_Heart.webp',
   requirements: [
     {
