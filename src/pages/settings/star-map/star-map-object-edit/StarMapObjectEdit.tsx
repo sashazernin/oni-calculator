@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { Popup } from "../../../../components/popup/Popup";
-import { Button } from "../../../../components/button/Button";
+import FormDialog from "../../../../components/form-dialog/FormDialog";
 import { TextField } from "../../../../components/text-field/TextField";
 import type { HexMapObjectItem, HexMapObjectType } from "../../../../components/hex-map/HexMap";
 import { HEX_MAP_CELLS } from "../../../../helpers/hex-map-geometry";
@@ -78,92 +77,75 @@ export default function StarMapObjectEdit({ open, onClose, item, onSave }: StarM
         : "";
 
   return (
-    <Popup
-      open={open}
+    <FormDialog
+      open={open && item != null}
       onClose={handleClose}
       title={t("star_map_edit_object")}
-      variant="fit-content"
-      bottom={
-        <>
-          <Button onClick={handleClose} style={{ textTransform: "none" }}>
-            {t("button_cancel")}
-          </Button>
-          <Button onClick={handleSave} style={{ textTransform: "none" }}>
-            {t("button_save")}
-          </Button>
-        </>
-      }
+      onSave={handleSave}
     >
-      <div
-        style={{
-          padding: 16,
-          minWidth: 360,
-          display: "flex",
-          flexDirection: "column",
-          gap: 16,
+      <div style={{ fontSize: 13, opacity: 0.75, lineHeight: 1.4 }}>{cellLine}</div>
+      <TextField
+        label={t("dupe_name_label")}
+        value={draft.name}
+        error={nameError}
+        onChange={(e) => {
+          setNameError(undefined);
+          setDraft((d) => ({ ...d, name: e.target.value }));
         }}
-      >
-        <div style={{ fontSize: 13, opacity: 0.75, lineHeight: 1.4 }}>{cellLine}</div>
-        <TextField
-          label={t("dupe_name_label")}
-          value={draft.name}
-          error={nameError}
-          onChange={(e) => {
-            setNameError(undefined);
-            setDraft((d) => ({ ...d, name: e.target.value }));
+        fullWidth
+      />
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%", minWidth: 0 }}>
+        <span style={{ fontSize: "0.875rem", fontWeight: 500, color: formLabelColor, userSelect: "none" }}>
+          {t("label_type")}
+        </span>
+        <div
+          role="group"
+          aria-label={t("label_type")}
+          style={{
+            display: "flex",
+            padding: 3,
+            gap: 4,
+            borderRadius: 10,
+            border: `1px solid ${colors.border.main}`,
+            backgroundColor: colors.background.default,
+            boxSizing: "border-box",
+            width: "100%",
+            minWidth: 0,
+            opacity: isMain ? 0.55 : 1,
           }}
-          fullWidth
-        />
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%", minWidth: 0 }}>
-          <span style={{ fontSize: "0.875rem", fontWeight: 500, color: formLabelColor, userSelect: "none" }}>
-            {t("label_type")}
-          </span>
-          <div
-            role="group"
-            aria-label={t("label_type")}
-            style={{
-              display: "flex",
-              padding: 3,
-              gap: 4,
-              borderRadius: 10,
-              border: `1px solid ${colors.border.main}`,
-              backgroundColor: colors.background.default,
-              boxSizing: "border-box",
-              opacity: isMain ? 0.55 : 1,
-            }}
-          >
-            {TYPE_VALUES.map((value) => {
-              const active = draft.type === value;
-              const label = t(TYPE_LABEL_KEYS[value]);
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={active}
-                  disabled={isMain}
-                  onClick={() => setDraft((d) => ({ ...d, type: value }))}
-                  style={{
-                    flex: 1,
-                    padding: "8px 10px",
-                    margin: 0,
-                    border: "none",
-                    borderRadius: 8,
-                    cursor: isMain ? "not-allowed" : "pointer",
-                    font: "inherit",
-                    fontSize: "0.8125rem",
-                    fontWeight: active ? 600 : 500,
-                    background: active ? colors.primary.main : "transparent",
-                    color: active ? colors.primary.contrastText : colors.text.primary,
-                    transition: "background-color 0.15s ease, color 0.15s ease, font-weight 0.15s ease",
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
+        >
+          {TYPE_VALUES.map((value) => {
+            const active = draft.type === value;
+            const label = t(TYPE_LABEL_KEYS[value]);
+            return (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={active}
+                disabled={isMain}
+                onClick={() => setDraft((d) => ({ ...d, type: value }))}
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  padding: "8px 10px",
+                  margin: 0,
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: isMain ? "not-allowed" : "pointer",
+                  font: "inherit",
+                  fontSize: "0.8125rem",
+                  fontWeight: active ? 600 : 500,
+                  background: active ? colors.primary.main : "transparent",
+                  color: active ? colors.primary.contrastText : colors.text.primary,
+                  transition: "background-color 0.15s ease, color 0.15s ease, font-weight 0.15s ease",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
-    </Popup>
+    </FormDialog>
   );
 }

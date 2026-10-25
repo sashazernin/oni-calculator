@@ -55,14 +55,14 @@ export default function Home() {
           {t("app_title")}
         </h2>
         <p>{t("page_home_intro")}</p>
-        <p>{t("page_home_duplicants_hint")}</p>
         <p>
-          {t("page_home_browser_storage")}{" "}
-          <Link to="/privacy" style={accentLinkStyle}>
-            {t("page_home_privacy_link")}
+          {t("page_home_planetoids_before")}
+          <Link to="/planetoids" style={accentLinkStyle}>
+            {t("page_home_planetoids_link")}
           </Link>
-          .
+          {t("page_home_planetoids_after")}
         </p>
+        <p>{t("page_home_duplicants_hint")}</p>
         <p>
           {t("page_home_food_before")}
           <Link to="/food" style={accentLinkStyle}>
@@ -76,6 +76,13 @@ export default function Home() {
             {t("page_home_rocket_link")}
           </Link>
           {t("page_home_rocket_after")}
+        </p>
+        <p>
+          {t("page_home_browser_storage")}{" "}
+          <Link to="/privacy" style={accentLinkStyle}>
+            {t("page_home_privacy_link")}
+          </Link>
+          .
         </p>
         <p>
           {t("page_home_contact_prefix")}{" "}

@@ -43,7 +43,11 @@ function LayoutShell() {
           overflow: "hidden",
         }}
       >
-        {!isMobile ? <Navbar layout="sidebar" /> : null}
+        {!isMobile ? (
+          <div style={{ display: "flex", flexDirection: "column", minHeight: 0, alignSelf: "stretch" }}>
+            <Navbar layout="sidebar" />
+          </div>
+        ) : null}
 
         {isMobile ? (
           <>

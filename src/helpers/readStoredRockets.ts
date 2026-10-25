@@ -102,30 +102,33 @@ export function defaultRocketsPayload(): RocketsStoragePayload {
   return { rockets: [createStoredRocket(0)], activeIndex: 0 };
 }
 
+export function parseRocketsStoragePayload(data: unknown): RocketsStoragePayload {
+  if (!data || typeof data !== "object") return defaultRocketsPayload();
+  const root = data as Record<string, unknown>;
+  const rocketsRaw = root.rockets;
+  const activeRaw = root.activeIndex;
+  if (!Array.isArray(rocketsRaw) || rocketsRaw.length === 0) {
+    return defaultRocketsPayload();
+  }
+  const rockets: StoredRocketSnapshot[] = [];
+  for (let i = 0; i < rocketsRaw.length; i++) {
+    const r = parseRocket(rocketsRaw[i], i);
+    if (r) rockets.push(r);
+  }
+  if (rockets.length === 0) return defaultRocketsPayload();
+  let activeIndex = 0;
+  if (typeof activeRaw === "number" && Number.isFinite(activeRaw)) {
+    activeIndex = Math.max(0, Math.min(Math.floor(activeRaw), rockets.length - 1));
+  }
+  return { rockets, activeIndex };
+}
+
 export function readStoredRockets(): RocketsStoragePayload {
   if (typeof window === "undefined") return defaultRocketsPayload();
   try {
     const raw = window.localStorage.getItem(ROCKETS_STORAGE_KEY);
     if (!raw) return defaultRocketsPayload();
-    const data: unknown = JSON.parse(raw);
-    if (!data || typeof data !== "object") return defaultRocketsPayload();
-    const root = data as Record<string, unknown>;
-    const rocketsRaw = root.rockets;
-    const activeRaw = root.activeIndex;
-    if (!Array.isArray(rocketsRaw) || rocketsRaw.length === 0) {
-      return defaultRocketsPayload();
-    }
-    const rockets: StoredRocketSnapshot[] = [];
-    for (let i = 0; i < rocketsRaw.length; i++) {
-      const r = parseRocket(rocketsRaw[i], i);
-      if (r) rockets.push(r);
-    }
-    if (rockets.length === 0) return defaultRocketsPayload();
-    let activeIndex = 0;
-    if (typeof activeRaw === "number" && Number.isFinite(activeRaw)) {
-      activeIndex = Math.max(0, Math.min(Math.floor(activeRaw), rockets.length - 1));
-    }
-    return { rockets, activeIndex };
+    return parseRocketsStoragePayload(JSON.parse(raw) as unknown);
   } catch {
     return defaultRocketsPayload();
   }

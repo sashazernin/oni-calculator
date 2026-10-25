@@ -1,7 +1,7 @@
 import type { IconType } from "react-icons";
 import Home from "../pages/home/home";
 import Settings from "../pages/settings/Settings";
-import { IoHomeOutline, IoRocketOutline, IoRocketSharp } from "react-icons/io5";
+import { IoGlobeOutline, IoGlobe, IoHomeOutline, IoRocketOutline, IoRocketSharp } from "react-icons/io5";
 import { IoHomeSharp } from "react-icons/io5";
 import { GoGear } from "react-icons/go";
 import { FaGear } from "react-icons/fa6";
@@ -9,7 +9,11 @@ import Food from "../pages/food/Food";
 import { IoFastFoodSharp } from "react-icons/io5";
 import { IoFastFoodOutline } from "react-icons/io5";
 import type { TranslationKey } from "../i18n/translations";
-import Rocket from "../pages/rocket/rocket";
+import RocketPage from "../pages/rocket/RocketPage";
+import PlanetoidsPage from "../pages/planetoids/PlanetoidsPage";
+import ColonyPage from "../pages/colony/ColonyPage";
+import StarMapPage from "../pages/star-map/StarMapPage";
+import { dupeNavIcon, planetoidNavIcon } from "../icons";
 
 export type MenuItem = {
   labelKey: TranslationKey;
@@ -18,6 +22,8 @@ export type MenuItem = {
   children?: MenuItem[];
   icon?: IconType;
   activeIcon?: IconType;
+  /** Скрыть для классического планетойда (звёздная карта только Spaced Out). */
+  spacedOutOnly?: boolean;
 }
 
 export const menuItems: MenuItem[] = [
@@ -38,9 +44,31 @@ export const menuItems: MenuItem[] = [
   {
     labelKey: "nav_rocket_engines",
     href: "rocket",
-    component: <Rocket />,
+    component: <RocketPage />,
     icon: IoRocketOutline,
     activeIcon: IoRocketSharp
+  },
+  {
+    labelKey: "nav_planetoids",
+    href: "planetoids",
+    component: <PlanetoidsPage />,
+    icon: planetoidNavIcon,
+    activeIcon: planetoidNavIcon,
+  },
+  {
+    labelKey: "nav_colony",
+    href: "colony",
+    component: <ColonyPage />,
+    icon: dupeNavIcon,
+    activeIcon: dupeNavIcon,
+  },
+  {
+    labelKey: "nav_star_map",
+    href: "star-map",
+    component: <StarMapPage />,
+    icon: IoGlobeOutline,
+    activeIcon: IoGlobe,
+    spacedOutOnly: true,
   },
   {
     labelKey: "nav_settings",

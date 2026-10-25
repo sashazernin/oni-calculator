@@ -14,7 +14,14 @@ export const translations = {
 
   nav_home: { ru: "Главная", en: "Home" },
   nav_food: { ru: "Еда", en: "Food" },
-  nav_rocket_engines: { ru: "Ракета", en: "Rocket" },
+  nav_planetoids: { ru: "Планетойд", en: "Planetoid" },
+  nav_colony: { ru: "Колония", en: "Colony" },
+  nav_star_map: { ru: "Звёздная карта", en: "Star map" },
+  nav_rocket_engines: { ru: "Ракеты", en: "Rockets" },
+  star_map_classic_unavailable: {
+    ru: "Звёздная карта доступна только для планетойда типа Spaced Out.",
+    en: "The star map is only available for Spaced Out planetoids.",
+  },
   nav_settings: { ru: "Настройки", en: "Settings" },
   nav_open_menu: { ru: "Открыть меню", en: "Open menu" },
   nav_close_menu: { ru: "Закрыть меню", en: "Close menu" },
@@ -45,20 +52,32 @@ export const translations = {
     en: "rocket page",
   },
   page_home_rocket_after: {
-    ru: " — расчёт маршрута и модулей. В настройках на вкладке «Звездная карта» можно выставить объекты на карте.",
-    en: " — for route and module planning. In Settings under the Star map tab you can place objects on the map.",
+    ru: " - расчёт маршрута и модулей. В настройках на вкладке «Звездная карта» можно выставить объекты на карте.",
+    en: " - for route and module planning. In Settings under the Star map tab you can place objects on the map.",
   },
   page_home_contact_prefix: {
     ru: "При возникновении вопросов или пожеланий напишите мне на почту:",
     en: "If you have questions or suggestions, email me at:",
   },
+  page_home_planetoids_before: {
+    ru: "В приложении есть раздел ",
+    en: "The app has a ",
+  },
+  page_home_planetoids_link: {
+    ru: "Планетойд",
+    en: "Planetoid",
+  },
+  page_home_planetoids_after: {
+    ru: " - несколько колоний в одном сохранении. У каждой свои дупликанты, ракеты и (для Spaced Out) звёздная карта; для планетойда можно выбрать классическую игру или дополнение Spaced Out.",
+    en: " section for several colonies in one save. Each has its own duplicants, rockets, and (for Spaced Out) star map; you can mark Classic or the Spaced Out expansion per planetoid.",
+  },
   page_home_duplicants_hint: {
-    ru: "В настройках на вкладке «Колония» можно указать дупликантов колонии — их количество автоматически подставляется в калькулятор еды.",
-    en: "In Settings under the Colony tab you can add your colony's duplicants — their count is applied automatically in the food calculator.",
+    ru: "В разделе «Колония» можно указать дупликантов - их количество автоматически подставляется в калькулятор еды.",
+    en: "In Colony you can add duplicants - their count is applied automatically in the food calculator.",
   },
   page_home_browser_storage: {
-    ru: "Вводимые вами данные по умолчанию сохраняются только в этом браузере (localStorage); у проекта нет сервера, и я их никуда не отправляю. Подробнее — в",
-    en: "By default, your data is stored only in this browser (localStorage); this project has no server, and I do not send your data anywhere. See the",
+    ru: "По умолчанию настройки и данные колонии сохраняются в памяти браузера; у проекта нет своего сервера. При желании можно подключить облачное хранение через Google Диск - они синхронизируются с вашим аккаунтом Google. Подробнее - в",
+    en: "By default, settings and colony data are saved in this browser’s storage; this project has no server of its own. You can optionally connect Google Drive cloud storage - they sync to your Google account. See the",
   },
   page_home_privacy_link: {
     ru: "политике конфиденциальности",
@@ -66,15 +85,15 @@ export const translations = {
   },
 
   privacy_title: {
-    ru: "Политика конфиденциальности — Simple ONI Calculator",
-    en: "Privacy Policy — Simple ONI Calculator",
+    ru: "Политика конфиденциальности - Simple ONI Calculator",
+    en: "Privacy Policy - Simple ONI Calculator",
   },
   privacy_updated: {
     ru: "Последнее обновление: 24 октября 2026 г.",
     en: "Last updated: October 24, 2026",
   },
   privacy_intro: {
-    ru: "Simple ONI Calculator — это бесплатный вспомогательный калькулятор для игры Oxygen Not Included. Это личный проект одного разработчика, у сайта нет своего бэкенда и баз данных для сбора информации пользователей.",
+    ru: "Simple ONI Calculator - это бесплатный вспомогательный калькулятор для игры Oxygen Not Included. Это личный проект одного разработчика, у сайта нет своего бэкенда и баз данных для сбора информации пользователей.",
     en: "Simple ONI Calculator is a free companion tool for Oxygen Not Included. It is a solo personal project; this site has no backend or databases to collect user information.",
   },
   privacy_section_google_title: {
@@ -98,7 +117,7 @@ export const translations = {
     en: "3. Third-party analytics",
   },
   privacy_section_analytics_body: {
-    ru: "На сайте подключены Google Analytics и Яндекс.Метрика. Они собирают обезличенные технические данные (тип устройства, браузер, время на сайте) для улучшения интерфейса приложения. Подробности — в политиках Google и Яндекса.",
+    ru: "На сайте подключены Google Analytics и Яндекс.Метрика. Они собирают обезличенные технические данные (тип устройства, браузер, время на сайте) для улучшения интерфейса приложения. Подробности - в политиках Google и Яндекса.",
     en: "Google Analytics and Yandex Metrica are used on this site. They collect anonymized technical data (device type, browser, time on site) to improve the app. See Google’s and Yandex’s privacy policies for details.",
   },
   privacy_section_contact_title: {
@@ -112,6 +131,74 @@ export const translations = {
   privacy_contact_line_prefix: {
     ru: "E-mail:",
     en: "Email:",
+  },
+
+  drive_title: {
+    ru: "Синхронизация с Google Диск",
+    en: "Sync with Google Drive",
+  },
+  drive_nav_title: {
+    ru: "Синхр. Google Диск",
+    en: "Google Drive sync",
+  },
+  drive_description: {
+    ru: "Сохранение и загрузка настроек в файле oni_calculator_settings.json на вашем Google Диске.",
+    en: "Save and load settings in oni_calculator_settings.json on your Google Drive.",
+  },
+  drive_connect: { ru: "Подключить Google Диск", en: "Connect Google Drive" },
+  drive_save_now: { ru: "Сохранить сейчас", en: "Save now" },
+  drive_load: { ru: "Загрузить с Диска", en: "Load from Drive" },
+  drive_sign_out: { ru: "Выйти", en: "Sign out" },
+  drive_status_not_connected: { ru: "Не подключено", en: "Not connected" },
+  drive_status_connected: { ru: "Google Диск подключён", en: "Google Drive connected" },
+  drive_status_saving: { ru: "Сохранение на Диск…", en: "Saving to Drive…" },
+  drive_status_saved: { ru: "Сохранено на Диск", en: "Saved to Drive" },
+  drive_status_loading: { ru: "Загрузка с Диска…", en: "Loading from Drive…" },
+  drive_status_loaded: { ru: "Загружено с Диска", en: "Loaded from Drive" },
+  drive_status_synced: { ru: "Синхронизировано с Диском", en: "Synced with Drive" },
+  drive_status_file_not_found: {
+    ru: "Файл на Диске не найден",
+    en: "File not found on Drive",
+  },
+  drive_status_signed_out: { ru: "Вы вышли", en: "Signed out" },
+  drive_status_waiting_sign_in: { ru: "Ожидание входа…", en: "Waiting to sign in…" },
+  drive_error_label: { ru: "Ошибка", en: "Error" },
+  drive_error_modal_title: {
+    ru: "Ошибка синхронизации с Google Диск",
+    en: "Google Drive sync error",
+  },
+  drive_error_show_detail: {
+    ru: "Показать текст ошибки Google Диска",
+    en: "Show Google Drive error details",
+  },
+  drive_error_service_response: { ru: "Ответ сервиса", en: "Service response" },
+  drive_error_ok: { ru: "Понятно", en: "OK" },
+  drive_error_auth: {
+    ru: "Ошибка авторизации: {{detail}}",
+    en: "Authorization error: {{detail}}",
+  },
+  drive_error_api_load_failed: {
+    ru: "Не удалось загрузить Google API",
+    en: "Failed to load Google API",
+  },
+  drive_error_api_not_ready: {
+    ru: "Google API ещё не загружен",
+    en: "Google API is not ready yet",
+  },
+  drive_error_token_missing: {
+    ru: "Токен не получен",
+    en: "No access token received",
+  },
+  drive_error_unknown: { ru: "Неизвестная ошибка", en: "Unknown error" },
+  aria_drive_settings: {
+    ru: "Настройки Google Диска",
+    en: "Google Drive settings",
+  },
+  boot_loading: { ru: "Загрузка…", en: "Loading…" },
+  boot_connecting_google: { ru: "Подключение к Google…", en: "Connecting to Google…" },
+  boot_loading_from_drive: {
+    ru: "Загрузка с Google Диск…",
+    en: "Loading from Google Drive…",
   },
 
   food_tab_food: { ru: "Еда", en: "Food" },
@@ -152,6 +239,110 @@ export const translations = {
   settings_tab_app: { ru: "Приложение", en: "App" },
   settings_tab_game: { ru: "Колония", en: "Colony" },
   settings_tab_space_map: { ru: "Звездная карта", en: "Star map" },
+  settings_tab_planetoids: { ru: "Планетойд", en: "Planetoid" },
+  planetoids_intro: {
+    ru: "Планетойд - отдельная колония: дупликанты и (для Spaced Out) звёздная карта хранятся для выбранного планетойда.",
+    en: "A planetoid is a separate colony: duplicants and (for Spaced Out) the star map are stored per selected planetoid.",
+  },
+  planetoid_type_spaced_out: { ru: "Spaced Out", en: "Spaced Out" },
+  planetoid_pick_type_intro: {
+    ru: "Создайте планетойд или выберите классическую игру или Spaced Out:",
+    en: "Create a planetoid or choose Classic or Spaced Out:",
+  },
+  planetoid_pick_type_intro_before_link: {
+    ru: "Создайте ",
+    en: "Create a ",
+  },
+  planetoid_pick_type_intro_planetoid_word: {
+    ru: "планетойд",
+    en: "planetoid",
+  },
+  planetoid_pick_type_intro_after_link: {
+    ru: " или выберите классическую игру или Spaced Out:",
+    en: " or choose Classic or Spaced Out:",
+  },
+  planetoids_pick_type_intro: {
+    ru: "Выберите классическую игру или Spaced Out:",
+    en: "Choose Classic or Spaced Out:",
+  },
+  planetoid_finish_setup_intro: {
+    ru: "Тип игры выбран. Укажите название планетойда, чтобы сохранить колонию, ракеты и настройки в браузере.",
+    en: "Game type selected. Name your planetoid to save colony data, rockets, and settings in the browser.",
+  },
+  planetoid_finish_setup_button: {
+    ru: "Настроить планетойд",
+    en: "Set up planetoid",
+  },
+  planetoid_type_classic: { ru: "Классический", en: "Classic" },
+  planetoid_expansions_label: { ru: "Дополнения", en: "Expansions" },
+  planetoid_expansions_short: { ru: "Дополнения", en: "DLC" },
+  planetoid_current: { ru: "Текущий", en: "Current" },
+  planetoid_current_short: { ru: "текущий", en: "active" },
+  planetoid_select: { ru: "Выбрать", en: "Select" },
+  planetoid_duplicants_on_card: {
+    ru: "Дупликантов: {{count}}",
+    en: "Duplicants: {{count}}",
+  },
+  planetoid_duplicants_summary: {
+    ru: "Дупликантов: {{count}}",
+    en: "Duplicants: {{count}}",
+  },
+  planetoid_rockets_summary: {
+    ru: "Ракет: {{count}}",
+    en: "Rockets: {{count}}",
+  },
+  planetoid_total_label: { ru: "планетойдов", en: "planetoids" },
+  aria_add_planetoid: { ru: "Добавить планетойд", en: "Add planetoid" },
+  planetoid_add_title: { ru: "Новый планетойд", en: "New planetoid" },
+  planetoid_name_label: { ru: "Название", en: "Name" },
+  planetoid_name_placeholder: { ru: "Например, Rime", en: "e.g. Rime" },
+  planetoid_default_name: {
+    ru: "Планетойд {{n}}",
+    en: "Planetoid {{n}}",
+  },
+  planetoid_type_label: { ru: "Тип", en: "Type" },
+  planetoid_add_button: { ru: "Добавить планетойд", en: "Add planetoid" },
+  onboarding_welcome_title: {
+    ru: "Добро пожаловать в Simple ONI Calculator",
+    en: "Welcome to Simple ONI Calculator",
+  },
+  onboarding_welcome_intro: {
+    ru: "Simple ONI Calculator поможет планировать колонию. Создайте первый планетойд - для него сохранятся дупликанты, ракеты и звёздная карта.",
+    en: "Simple ONI Calculator helps you plan your colony. Create your first planetoid - duplicants, rockets, and the star map will be stored for it.",
+  },
+  onboarding_start_button: { ru: "Начать", en: "Get started" },
+  planetoid_edit_title: { ru: "Изменить планетоид", en: "Edit planetoid" },
+  planetoid_delete_confirm: {
+    ru: "Удалить планетоид «{{name}}»? Данные колонии будут потеряны.",
+    en: 'Delete planetoid "{{name}}"? Colony data will be lost.',
+  },
+  aria_edit_planetoid: { ru: "Изменить планетоид", en: "Edit planetoid" },
+  aria_delete_planetoid: { ru: "Удалить планетоид", en: "Delete planetoid" },
+  planetoid_active_hint: {
+    ru: "Сейчас активен: {{name}}. Дупликанты и карта относятся к этому планетойду.",
+    en: "Active: {{name}}. Duplicants and map belong to this planetoid.",
+  },
+  planetoid_unnamed: { ru: "Планетойд", en: "Planetoid" },
+  aria_current_planetoid: {
+    ru: "Текущий планетойд: {{name}}",
+    en: "Current planetoid: {{name}}",
+  },
+  rocket_page_coming_soon: {
+    ru: "Раздел ракет будет реализован в скором будущем.",
+    en: "The rockets section will be available soon.",
+  },
+  rocket_need_planetoid_before: {
+    ru: "Чтобы пользоваться калькулятором ракеты, сначала создайте планетойд в разделе ",
+    en: "To use the rocket calculator, create a planetoid first in ",
+  },
+  rocket_need_planetoid_link: {
+    ru: "Планетойд",
+    en: "Planetoid",
+  },
+  rocket_need_planetoid_after: {
+    ru: ".",
+    en: ".",
+  },
   rocket_name_label: { ru: "Название ракеты", en: "Rocket name" },
   rocket_route_one_way_warning: {
     ru: "Путь в один конец: маршрут заканчивается не на центральной клетке карты.",
@@ -159,12 +350,12 @@ export const translations = {
   },
   rocket_section_fuel: { ru: "Топливо", en: "Fuel" },
   rocket_fuel_tank_insufficient: {
-    ru: "На текущий маршрут встроенного бака этого двигателя не хватает — выберите другой двигатель или укоротите путь.",
-    en: "This engine's integrated tank is too small for the current route — pick another engine or shorten the path.",
+    ru: "На текущий маршрут встроенного бака этого двигателя не хватает - выберите другой двигатель или укоротите путь.",
+    en: "This engine's integrated tank is too small for the current route - pick another engine or shorten the path.",
   },
   rocket_fuel_route_hint: {
-    ru: "Укажите маршрут из минимум двух клеток — тогда появится расчёт баков.",
-    en: "Draw a route of at least two cells — then tank calculations will appear.",
+    ru: "Укажите маршрут из минимум двух клеток - тогда появится расчёт баков.",
+    en: "Draw a route of at least two cells - then tank calculations will appear.",
   },
   rocket_fuel_consumption: {
     ru: "Расход за полёт: {{kg}} кг",
@@ -214,7 +405,7 @@ export const translations = {
   },
   rocket_modules_speed_hint: {
     ru: "Устанавливаемые модули не влияют на дальность полёта ракеты, только на скорость.",
-    en: "Installed modules do not affect flight range — only speed.",
+    en: "Installed modules do not affect flight range - only speed.",
   },
   aria_rocket_open_sidebar: {
     ru: "Открыть панель ракеты",
@@ -250,8 +441,8 @@ export const translations = {
     en: "Add module",
   },
   rocket_builder_catalog_empty_before: {
-    ru: "Элементов пока нет — добавьте их в ",
-    en: "No items yet — add them to ",
+    ru: "Элементов пока нет - добавьте их в ",
+    en: "No items yet - add them to ",
   },
   rocket_builder_section_modules: { ru: "Модули", en: "Modules" },
   rocket_builder_section_cargo: {
@@ -305,8 +496,8 @@ export const translations = {
   aria_close: { ru: "Закрыть", en: "Close" },
 
   hex_map_select_route_hint: {
-    ru: "ЛКМ — продолжить маршрут от текущего конца (если маршрута нет — от центра карты). ПКМ — новый маршрут от центра до выбранной клетки.",
-    en: "Left click — extend the route from the current end (if there is no route yet, from the map center). Right click — new route from the center to the selected cell.",
+    ru: "ЛКМ - продолжить маршрут от текущего конца (если маршрута нет - от центра карты). ПКМ - новый маршрут от центра до выбранной клетки.",
+    en: "Left click - extend the route from the current end (if there is no route yet, from the map center). Right click - new route from the center to the selected cell.",
   },
   hex_map_reset_route: { ru: "Сбросить маршрут", en: "Reset route" },
   hex_map_aria_cell: { ru: "Ячейка {{idx}}", en: "Cell {{idx}}" },
@@ -338,7 +529,7 @@ export const translations = {
   },
   aria_star_map_edit_object: { ru: "Редактировать объект", en: "Edit object" },
   aria_star_map_delete_object: { ru: "Удалить объект", en: "Delete object" },
-  star_map_type_planet: { ru: "Планета", en: "Planet" },
+  star_map_type_planet: { ru: "Планетойд", en: "Planetoid" },
   star_map_type_wreck: { ru: "Обломок", en: "Wreck" },
   star_map_type_nebula: { ru: "Туманность", en: "Nebula" },
   star_map_main_short: { ru: "основная", en: "home" },
@@ -346,9 +537,13 @@ export const translations = {
     ru: "Клетка {{cell}} · q {{q}}, r {{r}}",
     en: "Cell {{cell}} · q {{q}}, r {{r}}",
   },
+  star_map_hex_coords: {
+    ru: "q {{q}}, r {{r}}",
+    en: "q {{q}}, r {{r}}",
+  },
   star_map_empty_catalog: {
-    ru: "На карте пока нет объектов — откройте редактор и добавьте планеты, туманности или обломки.",
-    en: "No objects on the map yet — open the editor to add planets, nebulae, or wrecks.",
+    ru: "На карте пока нет объектов - откройте редактор и добавьте планеты, туманности или обломки.",
+    en: "No objects on the map yet - open the editor to add planets, nebulae, or wrecks.",
   },
   star_map_open_editor: { ru: "Изменить карту", en: "Edit map" },
 

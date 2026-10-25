@@ -1,10 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { ThemeContext } from "../../../providers/app-theme-provider";
 import { FaRegMoon } from "react-icons/fa";
 import { IconButton } from "../../icon-button/IconButton";
 import { FaMoon } from "react-icons/fa";
-import { DupeIcon } from "../../../icons";
-import { DuplicantContext } from "../../../providers/duplicant-provider";
 import { Link } from "react-router-dom";
 import { IoMenuOutline } from "react-icons/io5";
 import {
@@ -19,9 +17,6 @@ import style from "./header.module.css";
 
 export default function Header() {
   const { colors, toggleTheme } = useContext(ThemeContext);
-  const { duplicants } = useContext(DuplicantContext);
-  const [dupeLinkHover, setDupeLinkHover] = useState(false);
-  const accent = colors.primary.main;
   const { language, setLanguage } = useContext(LocalizationContext);
   const { t } = useTranslation();
   const { isMobile, drawerOpen, toggleDrawer } = useMobileNav();
@@ -44,7 +39,7 @@ export default function Header() {
           columnGap: isMobile ? 14 : 12,
           padding: "0 20px",
           minWidth: 0,
-          overflow: "hidden",
+          overflow: "visible",
         }}
       >
         {isMobile ? (
@@ -106,91 +101,21 @@ export default function Header() {
           style={{
             display: "flex",
             flexDirection: "row",
-            alignItems: "stretch",
+            alignItems: "center",
             gap: 10,
             minWidth: 0,
             width: "max-content",
             maxWidth: "100%",
             justifySelf: "end",
+            overflow: "visible",
           }}
         >
-          <Link
-            to="/settings?tab=colony"
-            aria-label={t("aria_game_settings_duplicants", {
-              count: duplicants.length,
-            })}
-            className={style["dupe-hide"]}
-            onMouseEnter={() => setDupeLinkHover(true)}
-            onMouseLeave={() => setDupeLinkHover(false)}
-            style={{
-              boxSizing: "border-box",
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              alignSelf: "center",
-              gap: 8,
-              padding: "4px 8px",
-              borderRadius: 10,
-              color: colors.text.primary,
-              textDecoration: "none",
-              flexShrink: 0,
-              background: dupeLinkHover
-                ? `color-mix(in srgb, ${accent} 20%, ${colors.background.paper})`
-                : `color-mix(in srgb, ${accent} 11%, ${colors.background.paper})`,
-              border: `1px solid color-mix(in srgb, ${accent} 36%, ${colors.border.main})`,
-              transition: "background 0.15s ease, box-shadow 0.15s ease",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 34,
-                height: 34,
-                borderRadius: "50%",
-                flexShrink: 0,
-                background: `color-mix(in srgb, ${accent} 22%, ${colors.background.average})`,
-                boxShadow: `inset 0 1px 0 color-mix(in srgb, ${accent} 42%, transparent)`,
-              }}
-            >
-              <DupeIcon
-                size={22}
-                style={{
-                  color: accent,
-                  filter: "drop-shadow(0 1px 2px rgb(0 0 0 / 0.4))",
-                }}
-              />
-            </div>
-            <span
-              style={{
-                fontVariantNumeric: "tabular-nums",
-                fontWeight: 700,
-                fontSize: "0.9375rem",
-                lineHeight: 1,
-                minWidth: "1.35rem",
-                textAlign: "center",
-              }}
-            >
-              {duplicants.length}
-            </span>
-          </Link>
-          <div
-            className={style["dupe-hide"]}
-            style={{
-              width: 1,
-              alignSelf: "stretch",
-              flexShrink: 0,
-              backgroundColor: colors.border.main,
-            }}
-          />
           <Select
             className={style["lang-hide"]}
             fieldBackground={colors.layout.background}
             style={{
               width: 100,
               flexShrink: 0,
-              alignSelf: "center",
               justifyContent: "center",
             }}
             hideLabelMargin
@@ -207,7 +132,7 @@ export default function Header() {
           <IconButton
             className={style["theme-hide"]}
             type="button"
-            style={{ flexShrink: 0, alignSelf: "center" }}
+            style={{ flexShrink: 0 }}
             onClick={() =>
               toggleTheme(colors.mode === "dark" ? "light" : "dark")
             }

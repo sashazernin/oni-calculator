@@ -4,6 +4,8 @@ import { ThemeContext } from "../../../providers/app-theme-provider";
 import { Button, type ButtonColorOverrides } from "../../button/Button";
 import { menuItems } from "../../../menu-items/menu-items";
 import { useTranslation } from "../../../hooks/useTranslation";
+import GoogleDriveSettings from "../../google-drive/GoogleDriveSettings";
+import { useAppSettings } from "../../../providers/app-settings-provider";
 
 function navItemActive(
   main: string,
@@ -30,6 +32,9 @@ function isItemActive(pathname: string, href: string) {
   return loc === p;
 }
 
+const NAV_ICON_SLOT_PX = 24;
+const NAV_ICON_SIZE_PX = 20;
+
 export type NavbarLayout = "sidebar" | "drawer";
 
 export type NavbarProps = {
@@ -45,6 +50,14 @@ export default function Navbar({
   const { t } = useTranslation();
   const { colors } = useContext(ThemeContext);
   const { pathname } = useLocation();
+  const { activePlanetoid } = useAppSettings();
+  const visibleMenuItems = useMemo(
+    () =>
+      menuItems.filter(
+        (item) => !item.spacedOutOnly || activePlanetoid?.gameType !== "classic"
+      ),
+    [activePlanetoid?.gameType]
+  );
   const activeNav = useMemo(
     () => navItemActive(colors.primary.main, colors.mode, colors.text.primary),
     [colors.primary.main, colors.mode, colors.text.primary]
@@ -58,12 +71,12 @@ export default function Navbar({
         flexDirection: "column",
         gap: 4,
         padding: "8px 0",
-        flex: layout === "drawer" ? 1 : undefined,
+        flex: 1,
         minHeight: 0,
-        overflowY: layout === "drawer" ? "auto" : undefined,
+        overflowY: "auto",
       }}
     >
-      {menuItems.map((item) => {
+      {visibleMenuItems.map((item) => {
         const active = isItemActive(pathname, item.href);
         const ItemIcon =
           active && item.activeIcon ? item.activeIcon : item.icon;
@@ -92,10 +105,30 @@ export default function Navbar({
             aria-current={active ? "page" : undefined}
           >
             {ItemIcon ? (
-              <ItemIcon
-                style={{ fontSize: "1.25rem" }}
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: NAV_ICON_SLOT_PX,
+                  minWidth: NAV_ICON_SLOT_PX,
+                  height: NAV_ICON_SLOT_PX,
+                  flexShrink: 0,
+                }}
                 aria-hidden
-              />
+              >
+                <ItemIcon
+                  size={NAV_ICON_SIZE_PX}
+                  style={{
+                    fontSize: NAV_ICON_SIZE_PX,
+                    width: NAV_ICON_SIZE_PX,
+                    height: NAV_ICON_SIZE_PX,
+                    maxWidth: NAV_ICON_SIZE_PX,
+                    maxHeight: NAV_ICON_SIZE_PX,
+                    flexShrink: 0,
+                  }}
+                />
+              </span>
             ) : null}
             {t(item.labelKey)}
           </Button>
@@ -104,18 +137,24 @@ export default function Navbar({
     </div>
   );
 
-  if (layout === "drawer") {
-    return list;
-  }
-
-  return (
+  const shell = (
     <div
       style={{
+        display: "flex",
+        flexDirection: "column",
+        flex: layout === "drawer" ? 1 : undefined,
+        height: layout === "sidebar" ? "100%" : undefined,
+        minHeight: 0,
         backgroundColor: colors.layout.background,
-        minWidth: 220,
+        minWidth: layout === "sidebar" ? 220 : undefined,
       }}
     >
       {list}
+      <div style={{ flexShrink: 0, paddingBottom: 4 }}>
+        <GoogleDriveSettings compact onNavigate={onNavigate} />
+      </div>
     </div>
   );
+
+  return shell;
 }

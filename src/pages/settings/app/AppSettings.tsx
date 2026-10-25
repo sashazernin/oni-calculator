@@ -4,6 +4,7 @@ import { Select } from "../../../components/select/Select";
 import { Languages, LocalizationContext } from "../../../providers/localization-provider";
 import { useTranslation } from "../../../hooks/useTranslation";
 import type { TranslationKey } from "../../../i18n/translations";
+import GoogleDriveSettings from "../../../components/google-drive/GoogleDriveSettings";
 
 export default function AppSettings() {
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -17,9 +18,17 @@ export default function AppSettings() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        width: "100%",
+        maxWidth: 420,
+        alignSelf: "flex-start",
+      }}
+    >
       <Select
-        style={{ minWidth: 100 }}
         label={t("settings_theme")}
         fullWidth
         value={theme}
@@ -28,7 +37,6 @@ export default function AppSettings() {
         onChange={(value) => toggleTheme(value)}
       />
       <Select
-        style={{ minWidth: 100 }}
         label={t("settings_language")}
         fullWidth
         value={Languages[language]}
@@ -36,6 +44,7 @@ export default function AppSettings() {
         items={Object.values(Languages) as { label: string, value: string }[]}
         onChange={(value) => setLanguage(value.value as any)}
       />
+      <GoogleDriveSettings />
     </div>
   );
 }

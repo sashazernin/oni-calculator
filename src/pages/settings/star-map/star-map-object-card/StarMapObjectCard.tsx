@@ -1,5 +1,6 @@
 import { useContext, type CSSProperties } from "react";
-import { IoMdPlanet, IoMdWarning } from "react-icons/io";
+import { IoMdWarning } from "react-icons/io";
+import { PlanetoidIcon } from "../../../../icons";
 import { WiSmog } from "react-icons/wi";
 import { LuPencil, LuTrash2 } from "react-icons/lu";
 import { IconButton } from "../../../../components/icon-button/IconButton";
@@ -102,7 +103,7 @@ export default function StarMapObjectCard({ item, cellLine, onEdit, onDelete }: 
         }}
       >
         {item.type === "planet" ? (
-          <IoMdPlanet size={32} style={{ color: colors.primary.main, opacity: 0.95 }} aria-hidden />
+          <PlanetoidIcon size={32} style={{ color: colors.primary.main, opacity: 0.95 }} />
         ) : item.type === "nebula" ? (
           <WiSmog size={32} style={{ color: "rgba(195, 165, 245, 0.95)" }} aria-hidden />
         ) : (

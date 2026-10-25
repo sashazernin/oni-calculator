@@ -13,7 +13,7 @@ import { ThemeContext } from "../../providers/app-theme-provider";
 
 type Ripple = { id: number; x: number; y: number };
 
-export type ButtonVariant = "primary" | "translucent";
+export type ButtonVariant = "primary" | "translucent" | "outline";
 
 export type ButtonColorOverrides = Partial<{
   main: string;
@@ -54,6 +54,14 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
           contrastText: colors.text.primary,
         }
         : {}),
+      ...(variant === "outline"
+        ? {
+          main: "transparent",
+          hover: `color-mix(in srgb, ${t.main} 14%, transparent)`,
+          active: `color-mix(in srgb, ${t.main} 24%, transparent)`,
+          contrastText: t.main,
+        }
+        : {}),
       ...props.colorOverrides,
     };
     const main = o?.main ?? t.main;
@@ -80,6 +88,14 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
       "--btn-bg-active": active,
       "--btn-fg": contrastText,
       "--btn-ripple": ripple,
+      ...(variant === "outline"
+        ? {
+          "--btn-border": t.main,
+          "--btn-border-hover": t.hover,
+          "--btn-border-active": t.active,
+          "--btn-disabled-bg": "transparent",
+        }
+        : {}),
     } as CSSProperties;
 
     const [ripples, setRipples] = useState<Ripple[]>([]);
@@ -90,7 +106,9 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
       setRipples((prev) => [...prev, { id, x, y }]);
     };
 
-    const commonClass = ["button", props.className].filter(Boolean).join(" ");
+    const commonClass = ["button", variant === "outline" ? "button--outline" : null, props.className]
+      .filter(Boolean)
+      .join(" ");
     const mergedStyle = { ...buttonStyle, ...props.style };
 
     const ripplesNode = (

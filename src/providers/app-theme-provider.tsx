@@ -1,22 +1,11 @@
-import { createContext, useLayoutEffect, useMemo, useState } from 'react';
+import { createContext, useLayoutEffect, useMemo } from 'react';
+import { useAppSettings } from './app-settings-provider';
 
 export const supportedThemes = ['system', 'light', 'dark'];
 
 export type ISupportedThemes = typeof supportedThemes[number];
 
 export const THEME_STORAGE_KEY = 'theme';
-
-function readStoredTheme(): ISupportedThemes {
-  try {
-    const raw = localStorage.getItem(THEME_STORAGE_KEY);
-    if (raw && (supportedThemes as readonly string[]).includes(raw)) {
-      return raw as ISupportedThemes;
-    }
-  } catch {
-    /* private mode, quota, … */
-  }
-  return 'system';
-}
 
 interface ThemeOptions {
   mode: 'light' | 'dark';
@@ -40,7 +29,6 @@ interface ThemeOptions {
   shadow: {
     default: string;
   };
-  /** Нейтральные обводки (панели, поля в покое, разделители). */
   border: {
     main: string;
   };
@@ -137,11 +125,11 @@ const theme = (appTheme: ISupportedThemes) => {
   };
 
   const themeColors = (() => {
-    switch (appTheme) {
-      case 'dark': return darkSchema;
-      case 'light': return lightSchema;
-      default: return lightSchema;
+    if (appTheme === 'system') {
+      const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return systemDarkMode ? darkSchema : lightSchema;
     }
+    return appTheme === 'dark' ? darkSchema : lightSchema;
   })();
 
   return themeColors;
@@ -157,20 +145,11 @@ export function AppThemeProvider({
   children
 }: Readonly<{
   children: React.ReactNode;
-  userId?: string;
 }>) {
+  const { data, setTheme } = useAppSettings();
+  const appTheme = data.theme;
+
   const systemDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  const [appTheme, setAppTheme] = useState<ISupportedThemes>(() => readStoredTheme());
-
-  const toggleTheme = (next: ISupportedThemes) => {
-    setAppTheme(next);
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      /* ignore */
-    }
-  };
 
   const currentTheme = useMemo(() => {
     if (appTheme === 'system') {
@@ -195,7 +174,6 @@ export function AppThemeProvider({
       colors.mode === 'dark' ? 'dark' : 'light'
     );
 
-    /** Смесь с opaque-фоном, не с `transparent` — у WebKit смесь с transparent даёт «белее» дорожку. */
     const pageBg = colors.background.default;
     document.documentElement.style.setProperty('--page-bg-for-scrollbar', pageBg);
     const text = colors.text.primary;
@@ -214,8 +192,13 @@ export function AppThemeProvider({
     );
   }, [colors]);
 
+  const value = useMemo(
+    () => ({ theme: appTheme, toggleTheme: setTheme, colors }),
+    [appTheme, setTheme, colors]
+  );
+
   return (
-    <ThemeContext.Provider value={{ theme: appTheme, toggleTheme, colors }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

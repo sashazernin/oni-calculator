@@ -8,14 +8,21 @@ import useConfirmDialog from "../../hooks/useCongirmDialog";
 type IConfirmationProps = {
   title?: string;
   message?: string;
+  /** @default true */
+  destructive?: boolean;
   children: ReactElement<{
     onClick?: (e: ReactMouseEvent<HTMLElement>) => void;
   }>;
 };
 
 export default function Confirmation(props: IConfirmationProps) {
-  const { title, message, children } = props;
-  const { confirmDialog, openConfirmDialog } = useConfirmDialog({ title, message, onConfirm: children.props.onClick });
+  const { title, message, destructive, children } = props;
+  const { confirmDialog, openConfirmDialog } = useConfirmDialog({
+    title,
+    message,
+    destructive,
+    onConfirm: children.props.onClick,
+  });
 
   return (
     <>

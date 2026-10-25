@@ -1,27 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { z } from "zod";
-import { dupeSchema } from "../schemas/gameSchemas";
+import { createContext, useContext, useMemo } from "react";
 import type { IDuplicate } from "../types/game-data-types";
-
-const DUPES_STORAGE_KEY = "oni-calculator:game-duplicants";
-
-const dupeListSchema = z.array(dupeSchema);
-
-function readStoredDuplicates(): IDuplicate[] {
-  try {
-    const raw = localStorage.getItem(DUPES_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    const r = dupeListSchema.safeParse(parsed);
-    return r.success ? r.data : [];
-  } catch {
-    return [];
-  }
-}
+import { useAppSettings } from "./app-settings-provider";
 
 export type DuplicantContextValue = {
   duplicants: IDuplicate[];
-  /** Заменяет весь список; в `useEffect` он же синхронизируется в `localStorage`. */
   setDuplicants: (next: IDuplicate[]) => void;
 };
 
@@ -35,23 +17,11 @@ export function useDuplicants() {
 }
 
 export default function DuplicantProvider({ children }: { children: React.ReactNode }) {
-  const [duplicants, setDuplicantsState] = useState<IDuplicate[]>(() => readStoredDuplicates());
-
-  const setDuplicants = useCallback((next: IDuplicate[]) => {
-    setDuplicantsState(next);
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(DUPES_STORAGE_KEY, JSON.stringify(duplicants));
-    } catch {
-      /* private mode, quota, … */
-    }
-  }, [duplicants]);
+  const { data, setDuplicants } = useAppSettings();
 
   const value = useMemo(
-    () => ({ duplicants, setDuplicants }),
-    [duplicants, setDuplicants]
+    () => ({ duplicants: data.duplicants, setDuplicants }),
+    [data.duplicants, setDuplicants]
   );
 
   return (

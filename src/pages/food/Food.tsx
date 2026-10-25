@@ -491,7 +491,7 @@ export default function Food() {
               style={{
                 display: "grid",
                 gridTemplateColumns:
-                  "repeat(auto-fill, minmax(min(100%, 100px), 1fr))",
+                  "repeat(auto-fill, minmax(min(100%, 128px), 1fr))",
                 gap: 10,
                 minWidth: 0,
                 boxSizing: "border-box",
@@ -513,12 +513,10 @@ export default function Food() {
               ) : null}
               {foodItemsFiltered.map((item) => {
                 const isSelected = selectedItem?.name === item.name;
-                const qualityColor =
-                  typeof item.quality === "number" ? getQualityColor(item.quality) : null;
                 return (
                   <div
                     key={item.name}
-                    style={{ display: "flex", minWidth: 0, minHeight: 0 }}
+                    style={{ display: "flex", minWidth: 0, minHeight: 0, width: "100%" }}
                   >
                     <Button
                       variant="translucent"
@@ -536,11 +534,11 @@ export default function Food() {
                         position: "relative",
                         width: "100%",
                         aspectRatio: "1",
-                        minHeight: 0,
+                        minWidth: 128,
+                        minHeight: 128,
                         padding: "clamp(8px, 2vw, 12px)",
                         boxSizing: "border-box",
                         borderRadius: 10,
-                        overflow: "visible",
                       }}
                       onClick={() => {
                         setSelectedItem(item);
@@ -557,34 +555,6 @@ export default function Food() {
                           color: "inherit",
                         }}
                       >
-                        {qualityColor !== null ? (
-                          <span
-                            aria-hidden
-                            style={{
-                              position: "absolute",
-                              top: 6,
-                              right: 6,
-                              zIndex: 1,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              width: 22,
-                              height: 22,
-                              borderRadius: "50%",
-                              background: qualityColor,
-                              color: "#fff",
-                              fontSize: "0.6875rem",
-                              fontWeight: 800,
-                              fontVariantNumeric: "tabular-nums",
-                              lineHeight: 1,
-                              boxShadow:
-                                "0 1px 3px color-mix(in srgb, #000 35%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 25%, transparent)",
-                              pointerEvents: "none",
-                            }}
-                          >
-                            {item.quality}
-                          </span>
-                        ) : null}
                         <div
                           style={{
                             fontSize: "0.75rem",
@@ -592,7 +562,10 @@ export default function Food() {
                             color: "inherit",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            paddingRight: qualityColor !== null ? 18 : 0,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            wordBreak: "break-word",
                           }}
                         >
                           {entityName(item.name)}

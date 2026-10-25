@@ -5,15 +5,21 @@ import App from './App.tsx'
 import { AppThemeProvider } from './providers/app-theme-provider.tsx'
 import DuplicantProvider from './providers/duplicant-provider'
 import LocalizationProvider from './providers/localization-provider.tsx'
+import GoogleDriveProvider from './providers/google-drive-provider.tsx'
+import AppSettingsProvider from './providers/app-settings-provider.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AppThemeProvider>
-      <LocalizationProvider>
-        <DuplicantProvider>
-          <App />
-        </DuplicantProvider>
-      </LocalizationProvider>
-    </AppThemeProvider>
+    <GoogleDriveProvider>
+      <AppSettingsProvider>
+        <AppThemeProvider>
+          <LocalizationProvider>
+            <DuplicantProvider>
+              <App />
+            </DuplicantProvider>
+          </LocalizationProvider>
+        </AppThemeProvider>
+      </AppSettingsProvider>
+    </GoogleDriveProvider>
   </StrictMode>,
 )

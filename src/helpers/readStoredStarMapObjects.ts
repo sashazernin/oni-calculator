@@ -3,7 +3,7 @@ import { cellNumberFromAxial } from "./hex-map-geometry";
 
 export const STAR_MAP_OBJECTS_KEY = "oni-calculator.star-map.objects";
 
-const initialObjects = (): HexMapObjectItem[] => {
+export const defaultStarMapObjects = (): HexMapObjectItem[] => {
   const planet = cellNumberFromAxial(0, 0);
   const out: HexMapObjectItem[] = [];
   if (planet != null) out.push({ cellNumber: planet, name: "Home planet", type: "planet", main: true });
@@ -11,12 +11,12 @@ const initialObjects = (): HexMapObjectItem[] => {
 };
 
 export function readStoredStarMapObjects(): HexMapObjectItem[] {
-  if (typeof window === "undefined") return initialObjects();
+  if (typeof window === "undefined") return defaultStarMapObjects();
   try {
     const raw = window.localStorage.getItem(STAR_MAP_OBJECTS_KEY);
-    if (!raw) return initialObjects();
+    if (!raw) return defaultStarMapObjects();
     const data: unknown = JSON.parse(raw);
-    if (!Array.isArray(data)) return initialObjects();
+    if (!Array.isArray(data)) return defaultStarMapObjects();
     const parsed: HexMapObjectItem[] = [];
     for (const x of data) {
       if (!x || typeof x !== "object") continue;
@@ -34,8 +34,8 @@ export function readStoredStarMapObjects(): HexMapObjectItem[] {
         main: typeof rec.main === "boolean" ? rec.main : undefined,
       });
     }
-    return parsed.length > 0 ? parsed : initialObjects();
+    return parsed.length > 0 ? parsed : defaultStarMapObjects();
   } catch {
-    return initialObjects();
+    return defaultStarMapObjects();
   }
 }

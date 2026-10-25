@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { IoMdPlanet, IoMdWarning } from "react-icons/io";
+import { IoMdWarning } from "react-icons/io";
+import { PlanetoidIcon } from "../../icons";
 import { WiSmog } from "react-icons/wi";
 import { RxCross1 } from "react-icons/rx";
 import spaceBg from "../../../assets/space_bg.jpg";
@@ -620,8 +621,8 @@ export default function HexMap({
     [handleHexActivation]
   );
 
-  const foSize = HEX_DRAW_R * 2.6;
-  const iconPx = HEX_DRAW_R * 1.85;
+  const foSize = HEX_DRAW_R * 2.15;
+  const iconPx = HEX_DRAW_R * 1.28;
 
   const bgStyle = {
     backgroundColor: "rgb(6 4 14)",
@@ -1087,7 +1088,7 @@ export default function HexMap({
                           userSelect: "none",
                         }}
                       >
-                        <IoMdPlanet size={iconPx} aria-hidden style={{ opacity: 0.95 }} />
+                        <PlanetoidIcon size={iconPx} style={{ opacity: 0.95 }} />
                       </div>
                     </foreignObject>
                     <text
@@ -1399,7 +1400,7 @@ export default function HexMap({
               aria-hidden
             >
               {inspectorEditType === "planet" ? (
-                <IoMdPlanet size={28} style={{ color: colors.primary.main, opacity: 0.95 }} />
+                <PlanetoidIcon size={28} style={{ color: colors.primary.main, opacity: 0.95 }} />
               ) : inspectorEditType === "nebula" ? (
                 <WiSmog size={28} style={{ color: "rgba(195, 165, 245, 0.95)" }} />
               ) : (

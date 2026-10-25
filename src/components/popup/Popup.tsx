@@ -3,6 +3,7 @@ import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type
 import { createPortal } from "react-dom";
 import { IconButton } from "../icon-button/IconButton";
 import { ThemeContext } from "../../providers/app-theme-provider";
+import { useTranslation } from "../../hooks/useTranslation";
 
 const Portal = ({ children }: { children: ReactNode }) => {
   return createPortal(children, document.body);
@@ -48,6 +49,7 @@ function mergeHeaderClass(a?: string, b?: string) {
 
 export function Popup(props: Readonly<IPopupProps>) {
   const { colors } = useContext(ThemeContext);
+  const { t } = useTranslation();
   const {
     open,
     zIndex = 1300,
@@ -148,9 +150,10 @@ export function Popup(props: Readonly<IPopupProps>) {
             flexShrink: 0,
           }
           : {
-            width: "max-content",
+            width: `min(${width}px, calc(100vw - 2rem))`,
             height: "max-content",
             maxWidth: "min(100vw - 2rem, 900px)",
+            boxSizing: "border-box",
           };
 
   const dialogFrameStyle: CSSProperties = {
@@ -209,15 +212,26 @@ export function Popup(props: Readonly<IPopupProps>) {
     };
   }, [open, mounted]);
 
+  const closeButtonSize = 44;
+
   const CloseButtonComponent = useMemo(() => {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 28, width: 28 }}>
-        <IconButton color='action' style={{ height: '100%', width: '100%' }} onClick={onClose}>
-          <RxCross1 size={18} />
-        </IconButton>
-      </div>
-    )
-  }, [onClose]);
+      <IconButton
+        type="button"
+        color="action"
+        aria-label={t("aria_close")}
+        onClick={onClose}
+        style={{
+          width: closeButtonSize,
+          height: closeButtonSize,
+          flexShrink: 0,
+          margin: -6,
+        }}
+      >
+        <RxCross1 size={20} />
+      </IconButton>
+    );
+  }, [onClose, t]);
 
   if (!mounted) return;
 
@@ -329,10 +343,13 @@ export function Popup(props: Readonly<IPopupProps>) {
           <div
             style={{
               overflow: "auto",
-              overflowX: isDrawerRight ? "hidden" : undefined,
+              overflowX:
+                isDrawerRight || variant === "fit-content" ? "hidden" : undefined,
               minHeight: 0,
               display: "flex",
               flexDirection: "column",
+              width: variant === "fit-content" ? "100%" : undefined,
+              boxSizing: "border-box",
               flex:
                 variant === "standard" ||
                   variant === "fullscreen" ||

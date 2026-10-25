@@ -590,6 +590,7 @@ export function Select<T>({
         minWidth: 0,
         height: FIELD_H,
         minHeight: FIELD_H,
+        overflow: "visible",
         border: `1px solid ${borderColor}`,
         borderRadius: 10,
         backgroundColor: disabled ? disabledFill : fieldSurface,
@@ -614,6 +615,9 @@ export function Select<T>({
         gap: 6,
         width: fullWidth ? "100%" : "auto",
         minWidth: 0,
+        overflow: "visible",
+        paddingTop: hasLabel && float ? 8 : 0,
+        boxSizing: "border-box",
         ...triggerOuterStyle,
       }}
     >

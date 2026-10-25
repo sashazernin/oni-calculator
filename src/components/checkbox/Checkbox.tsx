@@ -29,6 +29,10 @@ const dashSvg = (stroke: string) =>
 export type CheckboxProps = {
   label?: ReactNode;
   indeterminate?: boolean;
+  /** На всю ширину контейнера (чекбокс слева, текст рядом). */
+  fullWidth?: boolean;
+  /** Меньший зазор между чекбоксом и подписью. */
+  dense?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size">;
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
@@ -45,6 +49,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       onFocus,
       onBlur,
       indeterminate,
+      fullWidth,
+      dense,
       ...inputRest
     },
     ref
@@ -151,13 +157,15 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         htmlFor={id}
         className={className}
         style={{
-          display: "inline-flex",
+          display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          gap: 10,
+          gap: dense ? 6 : 10,
+          width: fullWidth ? "100%" : undefined,
           cursor: disabled ? "not-allowed" : "pointer",
           userSelect: "none",
           minWidth: 0,
+          boxSizing: "border-box",
         }}
       >
         {control}

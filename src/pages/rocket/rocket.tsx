@@ -18,6 +18,7 @@ import { Popup, POPUP_Z_INDEX_ABOVE_PAGE_DRAWERS } from "../../components/popup/
 import Tabs from "../../components/tabs/Tabs";
 import { useTranslation } from "../../hooks/useTranslation";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useAppSettings } from "../../providers/app-settings-provider";
 import { FiPlusCircle } from "react-icons/fi";
 import { IoMdWarning } from "react-icons/io";
 import { IoChevronBackOutline } from "react-icons/io5";
@@ -27,11 +28,8 @@ import styles from "./rocket.module.css";
 type TranslationFn = ReturnType<typeof useTranslation>["t"];
 type EntityNameFn = ReturnType<typeof useTranslation>["entityName"];
 import { HEX_MAP_CENTER_CELL_INDEX } from "../../helpers/hex-map-geometry";
-import { readStoredStarMapObjects } from "../../helpers/readStoredStarMapObjects";
 import {
   createStoredRocket,
-  readStoredRockets,
-  ROCKETS_STORAGE_KEY,
   type StoredRocketSnapshot,
 } from "../../helpers/readStoredRockets";
 import { ThemeContext } from "../../providers/app-theme-provider";
@@ -613,8 +611,19 @@ function RocketTabPanel(props: RocketTabPanelProps) {
 export default function Rocket() {
   const { colors } = useContext(ThemeContext);
   const { t, entityName } = useTranslation();
-  const [objects] = useState<HexMapObjectItem[]>(readStoredStarMapObjects);
-  const [page, setPage] = useState<RocketsPageState>(readStoredRockets);
+  const { data, setRockets } = useAppSettings();
+  const objects = data.starMap;
+  const page = data.rockets;
+  const pageRef = useRef(page);
+  pageRef.current = page;
+  const setPage = useCallback(
+    (updater: SetStateAction<RocketsPageState>) => {
+      const next =
+        typeof updater === "function" ? updater(pageRef.current) : updater;
+      setRockets(next);
+    },
+    [setRockets]
+  );
   const [enginePickerFor, setEnginePickerFor] = useState<number | null>(null);
 
   const { rockets, activeIndex } = page;
@@ -624,7 +633,7 @@ export default function Rocket() {
       ...s,
       rockets: s.rockets.map((r, i) => (i === index ? { ...r, ...partial } : r)),
     }));
-  }, []);
+  }, [setPage]);
 
   const updateRocketStack = useCallback(
     (index: number, updater: SetStateAction<PlacedRocketStackModule[]>) => {
@@ -644,7 +653,7 @@ export default function Rocket() {
         };
       });
     },
-    [],
+    [setPage],
   );
 
   const lastEngineByRocketRef = useRef(new Map<string, RocketEngineId | null>());
@@ -659,17 +668,6 @@ export default function Rocket() {
     }
   }, [activeIndex, rockets, patchRocket]);
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(
-        ROCKETS_STORAGE_KEY,
-        JSON.stringify({ rockets, activeIndex }),
-      );
-    } catch {
-      /* quota / private mode */
-    }
-  }, [rockets, activeIndex]);
-
   const addRocket = useCallback(() => {
     setPage((s) => {
       const created = createStoredRocket(s.rockets.length);
@@ -682,7 +680,7 @@ export default function Rocket() {
       ];
       return { rockets: nextRockets, activeIndex: nextRockets.length - 1 };
     });
-  }, [t]);
+  }, [setPage, t]);
 
   const removeRocket = useCallback(() => {
     setPage((s) => {
@@ -692,7 +690,7 @@ export default function Rocket() {
       if (ai >= nextRockets.length) ai = nextRockets.length - 1;
       return { rockets: nextRockets, activeIndex: ai };
     });
-  }, []);
+  }, [setPage]);
 
   const pickerRocketIndex =
     enginePickerFor !== null ? enginePickerFor : activeIndex;

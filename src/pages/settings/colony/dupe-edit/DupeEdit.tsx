@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Popup } from "../../../../components/popup/Popup";
-import { Button } from "../../../../components/button/Button";
+import FormDialog from "../../../../components/form-dialog/FormDialog";
 import { Checkbox } from "../../../../components/checkbox/Checkbox";
 import { TextField } from "../../../../components/text-field/TextField";
 import type { IDuplicate } from "../../../../types/game-data-types";
@@ -14,7 +13,7 @@ interface IDupeEditProps {
   open: boolean;
   onClose: () => void;
   onSave: (newDupe: IDuplicate) => void;
-  /** Заполняет форму при открытии; `undefined` — новый дубликат. */
+  /** Заполняет форму при открытии; `undefined` — новый дубликант. */
   dupe?: IDuplicate;
   title?: string;
 }
@@ -60,7 +59,7 @@ export default function DupeEdit(props: IDupeEditProps) {
 
   const handleSave = useCallback(() => {
     const r = safeParseZodWithFieldErrors(dupeSchema, newDupe);
-    setIsSubmit(true)
+    setIsSubmit(true);
     if (r.success === false) {
       setError(r.errors);
       return;
@@ -71,56 +70,33 @@ export default function DupeEdit(props: IDupeEditProps) {
   }, [newDupe, onSave, handleClose]);
 
   return (
-    <Popup
-      open={open}
-      onClose={handleClose}
-      title={resolvedTitle}
-      variant="fit-content"
-      bottom={
-        <>
-          <Button onClick={handleClose} style={{ textTransform: "none" }}>
-            {t("button_cancel")}
-          </Button>
-          <Button onClick={handleSave} style={{ textTransform: "none" }}>
-            {t("button_save")}
-          </Button>
-        </>
-      }
-    >
-      <div
-        style={{
-          padding: 16,
-          minWidth: 500,
-          display: "flex",
-          flexDirection: "column",
-          gap: 16,
+    <FormDialog open={open} onClose={handleClose} title={resolvedTitle} onSave={handleSave}>
+      <TextField
+        label={t("dupe_name_label")}
+        value={newDupe.name}
+        fullWidth
+        error={error.name ? t(error.name as TranslationKey) : undefined}
+        onChange={(e) => {
+          setError((prev) => {
+            const next = { ...prev };
+            delete next.name;
+            return next;
+          });
+          setNewDupe((d) => ({ ...d, name: e.target.value }));
         }}
-      >
-        <TextField
-          label={t("dupe_name_label")}
-          value={newDupe.name}
-          error={error.name ? t(error.name as TranslationKey) : undefined}
-          onChange={(e) => {
-            setError((prev) => {
-              const next = { ...prev };
-              delete next.name;
-              return next;
-            });
-            setNewDupe((d) => ({ ...d, name: e.target.value }));
-          }}
-        />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div>{t("dupe_peculiarities")}</div>
-          <Divider />
-        </div>
-        <Checkbox
-          label={t("dupe_bottomless_stomach")}
-          checked={newDupe.gluttonous}
-          onChange={(e) => {
-            setNewDupe((d) => ({ ...d, gluttonous: e.target.checked }));
-          }}
-        />
+      />
+      <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%" }}>
+        <div>{t("dupe_peculiarities")}</div>
+        <Divider />
       </div>
-    </Popup>
+      <Checkbox
+        label={t("dupe_bottomless_stomach")}
+        checked={newDupe.gluttonous}
+        dense
+        onChange={(e) => {
+          setNewDupe((d) => ({ ...d, gluttonous: e.target.checked }));
+        }}
+      />
+    </FormDialog>
   );
 }

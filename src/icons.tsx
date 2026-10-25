@@ -1,4 +1,6 @@
 import type { CSSProperties, SVGProps } from "react";
+import { GiPlanetCore } from "react-icons/gi";
+import type { IconBaseProps } from "react-icons";
 
 export type DupeIconProps = Omit<SVGProps<SVGSVGElement>, "width" | "height"> & {
   size?: number | string;
@@ -47,4 +49,17 @@ export function DupeIcon({ className, style, size, ...rest }: DupeIconProps) {
       </g>
     </svg>
   );
+}
+
+/** Та же иконка, что в пункте навбара «Планетойд» (GiPlanetCore). */
+export function PlanetoidIcon({ size, style, className }: IconBaseProps) {
+  return <GiPlanetCore size={size} style={style} className={className} aria-hidden />;
+}
+
+export { GiPlanetCore as planetoidNavIcon };
+
+/** Иконка пункта навбара «Колония» (дупликант). */
+export function dupeNavIcon({ style, className, size, ...rest }: IconBaseProps) {
+  const px = typeof size === "number" ? size : 20;
+  return <DupeIcon size={px} style={style} className={className} {...rest} />;
 }

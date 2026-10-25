@@ -1,5 +1,14 @@
-import { useCallback, useContext, useEffect, useMemo, useState, type CSSProperties } from "react";
-import { IoMdPlanet, IoMdWarning } from "react-icons/io";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type SetStateAction,
+} from "react";
+import { IoMdWarning } from "react-icons/io";
+import { PlanetoidIcon } from "../../../icons";
 import { WiSmog } from "react-icons/wi";
 import {
   HexMapPopup,
@@ -9,11 +18,12 @@ import {
 import { HEX_MAP_CELLS } from "../../../helpers/hex-map-geometry";
 import { Button } from "../../../components/button/Button";
 import Divider from "../../../components/divider/Devider";
+import PageToolbar, { pageStatCardStyle } from "../../../components/page-toolbar/PageToolbar";
 import { ThemeContext } from "../../../providers/app-theme-provider";
 import { useTranslation } from "../../../hooks/useTranslation";
 import StarMapObjectCard from "./star-map-object-card/StarMapObjectCard";
 import StarMapObjectEdit from "./star-map-object-edit/StarMapObjectEdit";
-import { readStoredStarMapObjects, STAR_MAP_OBJECTS_KEY } from "../../../helpers/readStoredStarMapObjects";
+import { useAppSettings } from "../../../providers/app-settings-provider";
 
 const STAR_MAP_TYPE_ORDER: Record<HexMapObjectType, number> = {
   planet: 0,
@@ -21,36 +31,41 @@ const STAR_MAP_TYPE_ORDER: Record<HexMapObjectType, number> = {
   wreck: 2,
 };
 
-export default function StarMap() {
+type StarMapProps = {
+  pageTitle?: string;
+};
+
+export default function StarMap({ pageTitle }: StarMapProps) {
   const { colors } = useContext(ThemeContext);
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [editCellNumber, setEditCellNumber] = useState<number | null>(null);
 
-  const [objects, setObjects] = useState<HexMapObjectItem[]>(readStoredStarMapObjects);
+  const { data, setStarMap } = useAppSettings();
+  const objects = data.starMap;
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(STAR_MAP_OBJECTS_KEY, JSON.stringify(objects));
-    } catch {
-      /* quota / private mode */
-    }
-  }, [objects]);
+  const setObjects = useCallback(
+    (updater: SetStateAction<HexMapObjectItem[]>) => {
+      const next = typeof updater === "function" ? updater(objects) : updater;
+      setStarMap(next);
+    },
+    [objects, setStarMap]
+  );
 
   const onCreateObject = useCallback((item: HexMapObjectItem) => {
     setObjects((prev) => {
       if (prev.some((o) => o.cellNumber === item.cellNumber)) return prev;
       return [...prev, item];
     });
-  }, []);
+  }, [setObjects]);
 
   const onDeleteObject = useCallback((cellNumber: number) => {
     setObjects((prev) => prev.filter((o) => o.cellNumber !== cellNumber));
-  }, []);
+  }, [setObjects]);
 
   const onUpdateObject = useCallback((item: HexMapObjectItem) => {
     setObjects((prev) => prev.map((o) => (o.cellNumber === item.cellNumber ? { ...item } : o)));
-  }, []);
+  }, [setObjects]);
 
   const { catalogSorted, planetCount, nebulaCount, wreckCount } = useMemo(() => {
     const p = objects.filter((o) => o.type === "planet");
@@ -78,17 +93,7 @@ export default function StarMap() {
     }
   }, [objects, editCellNumber]);
 
-  const statCardStyle = (): CSSProperties => ({
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    padding: "8px 12px",
-    borderRadius: 12,
-    border: `1px solid ${colors.border.main}`,
-    backgroundColor: colors.background.paper,
-    boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
-    minWidth: 0,
-  });
+  const statCardStyle = pageStatCardStyle(colors);
 
   const catalogGridStyle: CSSProperties = {
     display: "grid",
@@ -98,42 +103,29 @@ export default function StarMap() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          flexWrap: "wrap",
-          gap: 12,
-          alignItems: "center",
-        }}
+      <PageToolbar
+        title={pageTitle ?? t("settings_tab_space_map")}
+        actions={<Button onClick={() => setOpen(true)}>{t("star_map_open_editor")}</Button>}
       >
-        <div style={statCardStyle()}>
-          <IoMdPlanet size={26} style={{ color: colors.primary.main, flexShrink: 0, opacity: 0.95 }} aria-hidden />
-          <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
-              {planetCount}
-            </span>
-          </div>
+        <div style={statCardStyle}>
+          <PlanetoidIcon size={26} style={{ color: colors.primary.main, flexShrink: 0, opacity: 0.95 }} />
+          <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
+            {planetCount}
+          </span>
         </div>
-        <div style={statCardStyle()}>
+        <div style={statCardStyle}>
           <WiSmog size={28} style={{ color: "rgba(195, 165, 245, 0.95)", flexShrink: 0 }} aria-hidden />
-          <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
-              {nebulaCount}
-            </span>
-          </div>
+          <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
+            {nebulaCount}
+          </span>
         </div>
-        <div style={statCardStyle()}>
+        <div style={statCardStyle}>
           <IoMdWarning size={24} style={{ color: "rgba(255, 200, 120, 0.92)", flexShrink: 0 }} aria-hidden />
-          <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
-              {wreckCount}
-            </span>
-          </div>
+          <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
+            {wreckCount}
+          </span>
         </div>
-        <div style={{ flex: 1, minWidth: 8 }} />
-        <Button onClick={() => setOpen(true)}>{t("star_map_open_editor")}</Button>
-      </div>
+      </PageToolbar>
       <Divider />
 
       {catalogSorted.length === 0 ? (
@@ -143,7 +135,7 @@ export default function StarMap() {
           {catalogSorted.map((o) => {
             const ax = HEX_MAP_CELLS[o.cellNumber];
             const cellLine = ax
-              ? t("star_map_cell_coords", { cell: o.cellNumber, q: ax.q, r: ax.r })
+              ? t("star_map_hex_coords", { q: ax.q, r: ax.r })
               : `Cell ${o.cellNumber}`;
             return (
               <StarMapObjectCard

@@ -28,6 +28,21 @@
   --mono: var(--font-mono);
 }
 
+@keyframes app-boot-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.app-boot-spinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--text-primary, #e8e8e8) 18%, transparent);
+  border-top-color: rgb(84 201 194);
+  animation: app-boot-spin 0.75s linear infinite;
+}
+
 html {
   height: 100%;
   width: 100%;
