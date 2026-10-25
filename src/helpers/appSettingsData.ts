@@ -28,10 +28,11 @@ import {
 import type { PlanetoidsState } from "../types/planetoid-types";
 import {
   activePlanetoidFromState,
+  ensureColonyPlanetoidState,
   emptyPlanetoidsState,
-  loadPlanetoidsStateFromLocal,
-  migrateLegacyColonyToPlanetoidsState,
+  hasStoredColonyActivity,
   persistPlanetoidsState,
+  visiblePlanetoids,
   PLANETOIDS_STATE_KEY,
   readPlanetoidsStateFromLocal,
   syncColonyIntoActivePlanetoid,
@@ -88,15 +89,10 @@ function readLanguageFromStorage(): ISupportedLanguages {
   return resolveSystemLanguage();
 }
 
-function hasLegacyColonyStorage(): boolean {
-  try {
-    if (localStorage.getItem(DUPES_STORAGE_KEY)) return true;
-    if (localStorage.getItem(STAR_MAP_OBJECTS_KEY)) return true;
-    if (localStorage.getItem(ROCKETS_STORAGE_KEY)) return true;
-  } catch {
-    /* */
-  }
-  return false;
+function removeLegacyColonyStorageKeys(): void {
+  localStorage.removeItem(DUPES_STORAGE_KEY);
+  localStorage.removeItem(ROCKETS_STORAGE_KEY);
+  localStorage.removeItem(STAR_MAP_OBJECTS_KEY);
 }
 
 function colonyFromPlanetoidsState(state: PlanetoidsState): {
@@ -105,13 +101,24 @@ function colonyFromPlanetoidsState(state: PlanetoidsState): {
   rockets: RocketsStoragePayload;
 } {
   const active = activePlanetoidFromState(state);
-  if (!active) {
-    return { duplicants: [], starMap: readStoredStarMapObjects(), rockets: readStoredRockets() };
+  if (active) {
+    return {
+      duplicants: active.duplicants,
+      starMap: active.starMap,
+      rockets: active.rockets,
+    };
+  }
+  if (state.planetoids.length === 0) {
+    return {
+      duplicants: readDuplicantsFromStorage(),
+      starMap: readStoredStarMapObjects(),
+      rockets: readStoredRockets(),
+    };
   }
   return {
-    duplicants: active.duplicants,
-    starMap: active.starMap,
-    rockets: active.rockets,
+    duplicants: [],
+    starMap: defaultStarMapObjects(),
+    rockets: defaultRocketsPayload(),
   };
 }
 
@@ -143,17 +150,22 @@ export function createEmptyAppSettingsData(): AppSettingsData {
 export function loadAppSettingsDataFromLocal(): AppSettingsData {
   const theme = readThemeFromStorage();
   const language = readLanguageFromStorage();
-  const storedPlanetoids = readPlanetoidsStateFromLocal();
-  const planetoidsState = storedPlanetoids
-    ? storedPlanetoids
-    : hasLegacyColonyStorage()
-      ? migrateLegacyColonyToPlanetoidsState(
-          readDuplicantsFromStorage(),
-          readStoredStarMapObjects(),
-          readStoredRockets()
-        )
-      : emptyPlanetoidsState();
-  const colony = colonyFromPlanetoidsState(planetoidsState);
+  let planetoidsState = readPlanetoidsStateFromLocal() ?? emptyPlanetoidsState();
+  let colony = colonyFromPlanetoidsState(planetoidsState);
+  if (
+    visiblePlanetoids(planetoidsState.planetoids).length === 0 &&
+    planetoidsState.planetoids.length === 0
+  ) {
+    const legacyColony = {
+      duplicants: readDuplicantsFromStorage(),
+      starMap: readStoredStarMapObjects(),
+      rockets: readStoredRockets(),
+    };
+    if (hasStoredColonyActivity(legacyColony)) {
+      planetoidsState = ensureColonyPlanetoidState(planetoidsState, legacyColony);
+      colony = colonyFromPlanetoidsState(planetoidsState);
+    }
+  }
 
   return {
     theme,
@@ -200,12 +212,15 @@ function parsePlanetoid(raw: unknown): Planetoid | null {
   const rec = raw as Record<string, unknown>;
   const id = rec.id;
   const name = rec.name;
+  const hidden = rec.hidden === true;
   if (typeof id !== "string" || !id) return null;
-  if (typeof name !== "string" || !name.trim()) return null;
+  if (typeof name !== "string") return null;
+  if (!hidden && !name.trim()) return null;
   const gameType = parsePlanetoidGameType(rec.gameType);
   return {
     id,
-    name: name.trim(),
+    name: hidden ? "" : name.trim(),
+    hidden: hidden || undefined,
     gameType,
     expansions: gameType === "spaced-out" ? Boolean(rec.expansions) : false,
     duplicants: parseDuplicants(rec.duplicants),
@@ -259,13 +274,27 @@ export function parseAppSettingsData(snapshot: AppSettingsSnapshot): AppSettings
   const duplicants = parseDuplicants(snapshot.duplicants);
   const starMap = parseStarMap(snapshot.starMap);
   const rockets = parseRocketsStoragePayload(snapshot.rockets);
-  const migrated = loadPlanetoidsStateFromLocal({ duplicants, starMap, rockets });
+
+  const colony = { duplicants, starMap, rockets };
+  if (hasStoredColonyActivity(colony)) {
+    const ensured = ensureColonyPlanetoidState(emptyPlanetoidsState(), colony);
+    const fromHidden = colonyFromPlanetoidsState(ensured);
+    return {
+      theme,
+      language,
+      activePlanetoidId: ensured.activePlanetoidId,
+      planetoids: ensured.planetoids,
+      duplicants: fromHidden.duplicants,
+      starMap: fromHidden.starMap,
+      rockets: fromHidden.rockets,
+    };
+  }
 
   return {
     theme,
     language,
-    activePlanetoidId: migrated.activePlanetoidId,
-    planetoids: migrated.planetoids,
+    activePlanetoidId: "",
+    planetoids: [],
     duplicants,
     starMap,
     rockets,
@@ -295,38 +324,35 @@ export function appSettingsDataToSnapshot(data: AppSettingsData): AppSettingsSna
   };
 }
 
-export function clearUnconfiguredColonyFromLocalStorage(): void {
-  try {
-    localStorage.removeItem(PLANETOIDS_STATE_KEY);
-    localStorage.removeItem(DUPES_STORAGE_KEY);
-    localStorage.removeItem(ROCKETS_STORAGE_KEY);
-    localStorage.removeItem(STAR_MAP_OBJECTS_KEY);
-  } catch {
-    /* */
-  }
-}
-
 export function persistAppSettingsDataToLocal(data: AppSettingsData): void {
   try {
     localStorage.setItem(THEME_STORAGE_KEY, data.theme);
     localStorage.setItem(LANGUAGE_STORAGE_KEY, data.language);
-    if (data.planetoids.length === 0) {
-      clearUnconfiguredColonyFromLocalStorage();
+
+    const colony = {
+      duplicants: data.duplicants,
+      starMap: data.starMap,
+      rockets: data.rockets,
+    };
+
+    if (data.planetoids.length > 0) {
+      const synced = syncColonyIntoActivePlanetoid(
+        { activePlanetoidId: data.activePlanetoidId, planetoids: data.planetoids },
+        colony
+      );
+      persistPlanetoidsState(synced);
+      removeLegacyColonyStorageKeys();
       return;
     }
 
-    const synced = syncColonyIntoActivePlanetoid(
-      { activePlanetoidId: data.activePlanetoidId, planetoids: data.planetoids },
-      {
-        duplicants: data.duplicants,
-        starMap: data.starMap,
-        rockets: data.rockets,
-      }
-    );
-    persistPlanetoidsState(synced);
-    localStorage.setItem(DUPES_STORAGE_KEY, JSON.stringify(data.duplicants));
-    localStorage.setItem(ROCKETS_STORAGE_KEY, JSON.stringify(data.rockets));
-    localStorage.setItem(STAR_MAP_OBJECTS_KEY, JSON.stringify(data.starMap));
+    localStorage.removeItem(PLANETOIDS_STATE_KEY);
+    if (hasStoredColonyActivity(colony)) {
+      localStorage.setItem(DUPES_STORAGE_KEY, JSON.stringify(data.duplicants));
+      localStorage.setItem(ROCKETS_STORAGE_KEY, JSON.stringify(data.rockets));
+      localStorage.setItem(STAR_MAP_OBJECTS_KEY, JSON.stringify(data.starMap));
+    } else {
+      removeLegacyColonyStorageKeys();
+    }
   } catch {
     /* quota / private mode */
   }

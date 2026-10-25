@@ -1,3 +1,28 @@
+.header-planetoid-chip {
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.header-planetoid-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .header-planetoid-chip {
+    display: none !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .dupe-hide {
+    display: none !important;
+  }
+}
+
 @media (max-width: 415px) {
   .lang-hide {
     display: none !important;

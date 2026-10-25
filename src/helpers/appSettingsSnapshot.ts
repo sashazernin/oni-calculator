@@ -2,6 +2,7 @@ import { THEME_STORAGE_KEY } from "../providers/app-theme-provider";
 import { LANGUAGE_STORAGE_KEY } from "../providers/localization-provider";
 import { ROCKETS_STORAGE_KEY } from "./readStoredRockets";
 import { STAR_MAP_OBJECTS_KEY } from "./readStoredStarMapObjects";
+import { PLANETOIDS_STATE_KEY } from "./planetoidStorage";
 
 const DUPES_STORAGE_KEY = "oni-calculator:game-duplicants";
 
@@ -29,12 +30,22 @@ function readJson(key: string): unknown {
   }
 }
 
+/** Устаревший путь: снимок только из localStorage без полной сборки состояния. */
 export function buildAppSettingsSnapshot(): AppSettingsSnapshot {
+  const planetoidsRaw = readJson(PLANETOIDS_STATE_KEY);
   return {
     version: SETTINGS_SNAPSHOT_VERSION,
     exportedAt: new Date().toISOString(),
     theme: localStorage.getItem(THEME_STORAGE_KEY),
     language: localStorage.getItem(LANGUAGE_STORAGE_KEY),
+    activePlanetoidId:
+      planetoidsRaw && typeof planetoidsRaw === "object" && planetoidsRaw !== null
+        ? (planetoidsRaw as { activePlanetoidId?: string }).activePlanetoidId ?? null
+        : null,
+    planetoids:
+      planetoidsRaw && typeof planetoidsRaw === "object" && planetoidsRaw !== null
+        ? (planetoidsRaw as { planetoids?: unknown }).planetoids
+        : undefined,
     duplicants: readJson(DUPES_STORAGE_KEY),
     rockets: readJson(ROCKETS_STORAGE_KEY),
     starMap: readJson(STAR_MAP_OBJECTS_KEY),

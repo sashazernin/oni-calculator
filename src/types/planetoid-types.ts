@@ -7,6 +7,8 @@ export type PlanetoidGameType = "spaced-out" | "classic";
 export type Planetoid = {
   id: string;
   name: string;
+  /** Служебный планетойд для колонии до явного создания; не показывается в UI. */
+  hidden?: boolean;
   gameType: PlanetoidGameType;
   /** DLC «Дополнения» (только Spaced Out). */
   expansions: boolean;

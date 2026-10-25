@@ -44,24 +44,36 @@ export const translations = {
     en: ". Use it to work out how many plants you need to grow to feed your colony.",
   },
   page_home_rocket_before: {
-    ru: "Также есть ",
-    en: "There is also a ",
+    ru: "На ",
+    en: "On the ",
   },
   page_home_rocket_link: {
-    ru: "страница ракеты",
+    ru: "странице ракеты",
     en: "rocket page",
   },
   page_home_rocket_after: {
-    ru: " - расчёт маршрута и модулей. В настройках на вкладке «Звездная карта» можно выставить объекты на карте.",
-    en: " - for route and module planning. In Settings under the Star map tab you can place objects on the map.",
+    ru: " можно собрать ракету и посчитать маршрут с учётом модулей и топлива.",
+    en: " you can build a rocket and plan a route with modules and fuel in mind.",
+  },
+  page_home_star_map_before: {
+    ru: "В разделе ",
+    en: "In ",
+  },
+  page_home_star_map_link: {
+    ru: "Звёздная карта",
+    en: "Star map",
+  },
+  page_home_star_map_after: {
+    ru: " расставляют объекты на карте звёздной системы - они используются для понимания расположения объектов на звёздной карте в игре при указании пути полёта (режим Spaced Out).",
+    en: " you place objects on the star system map - this helps you see where objects sit on the in-game star map when you set a flight path (Spaced Out).",
   },
   page_home_contact_prefix: {
     ru: "При возникновении вопросов или пожеланий напишите мне на почту:",
     en: "If you have questions or suggestions, email me at:",
   },
   page_home_planetoids_before: {
-    ru: "В приложении есть раздел ",
-    en: "The app has a ",
+    ru: "Раздел ",
+    en: "The ",
   },
   page_home_planetoids_link: {
     ru: "Планетойд",
@@ -71,19 +83,22 @@ export const translations = {
     ru: " - несколько колоний в одном сохранении. У каждой свои дупликанты, ракеты и (для Spaced Out) звёздная карта; для планетойда можно выбрать классическую игру или дополнение Spaced Out.",
     en: " section for several colonies in one save. Each has its own duplicants, rockets, and (for Spaced Out) star map; you can mark Classic or the Spaced Out expansion per planetoid.",
   },
-  page_home_duplicants_hint: {
-    ru: "В разделе «Колония» можно указать дупликантов - их количество автоматически подставляется в калькулятор еды.",
-    en: "In Colony you can add duplicants - their count is applied automatically in the food calculator.",
+  page_home_save_explanation: {
+    ru: "Планетойд создавать не обязательно: дупликанты, ракеты и звёздная карта сохраняются в браузере. При подключённом Google Диске те же данные синхронизируются с вашим аккаунтом. Когда вы создадите первый планетойд, текущие данные колонии запишутся на него. Если планетоидов несколько, у каждого свои данные - активный планетойд выбирается в разделе «Планетойд».",
+    en: "You do not have to create a planetoid first: duplicants, rockets, and the star map are saved in the browser. With Google Drive connected, the same data syncs to your Google account. When you create your first planetoid, your current colony data is stored on it. If you have several planetoids, each keeps its own data - switch the active planetoid in the Planetoid section.",
   },
-  page_home_browser_storage: {
-    ru: "По умолчанию настройки и данные колонии сохраняются в памяти браузера; у проекта нет своего сервера. При желании можно подключить облачное хранение через Google Диск - они синхронизируются с вашим аккаунтом Google. Подробнее - в",
-    en: "By default, settings and colony data are saved in this browser’s storage; this project has no server of its own. You can optionally connect Google Drive cloud storage - they sync to your Google account. See the",
+  page_home_colony_before: {
+    ru: "В разделе ",
+    en: "In ",
   },
-  page_home_privacy_link: {
-    ru: "политике конфиденциальности",
-    en: "Privacy Policy",
+  page_home_colony_link: {
+    ru: "Колония",
+    en: "Colony",
   },
-
+  page_home_colony_after: {
+    ru: " задают дупликантов - их количество автоматически подставляется в калькулятор еды.",
+    en: " you add duplicants - their count is applied automatically in the food calculator.",
+  },
   privacy_title: {
     ru: "Политика конфиденциальности - Simple ONI Calculator",
     en: "Privacy Policy - Simple ONI Calculator",
@@ -233,6 +248,7 @@ export const translations = {
   food_picker_drawer_title: { ru: "Выбор еды", en: "Food selection" },
   aria_decrease_count: { ru: "Уменьшить", en: "Decrease count" },
   aria_increase_count: { ru: "Увеличить", en: "Increase count" },
+  aria_edit_count: { ru: "Ввести количество", en: "Enter count" },
   unit_grams: { ru: "г", en: "g" },
   unit_kcal: { ru: "ккал", en: "kcal" },
 

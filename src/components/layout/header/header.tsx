@@ -1,8 +1,11 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ThemeContext } from "../../../providers/app-theme-provider";
 import { FaRegMoon } from "react-icons/fa";
 import { IconButton } from "../../icon-button/IconButton";
 import { FaMoon } from "react-icons/fa";
+import { DupeIcon, PlanetoidIcon } from "../../../icons";
+import { DuplicantContext } from "../../../providers/duplicant-provider";
+import { useAppSettings } from "../../../providers/app-settings-provider";
 import { Link } from "react-router-dom";
 import { IoMenuOutline } from "react-icons/io5";
 import {
@@ -17,9 +20,33 @@ import style from "./header.module.css";
 
 export default function Header() {
   const { colors, toggleTheme } = useContext(ThemeContext);
+  const { duplicants } = useContext(DuplicantContext);
+  const { activePlanetoid } = useAppSettings();
+  const [dupeLinkHover, setDupeLinkHover] = useState(false);
+  const [planetoidLinkHover, setPlanetoidLinkHover] = useState(false);
+  const accent = colors.primary.main;
   const { language, setLanguage } = useContext(LocalizationContext);
   const { t } = useTranslation();
   const { isMobile, drawerOpen, toggleDrawer } = useMobileNav();
+
+  const chipLinkStyle = (hovered: boolean) => ({
+    boxSizing: "border-box" as const,
+    display: "flex",
+    flexDirection: "row" as const,
+    alignItems: "center",
+    alignSelf: "center",
+    gap: 8,
+    padding: "4px 8px",
+    borderRadius: 10,
+    color: colors.text.primary,
+    textDecoration: "none",
+    flexShrink: 0,
+    background: hovered
+      ? `color-mix(in srgb, ${accent} 20%, ${colors.background.paper})`
+      : `color-mix(in srgb, ${accent} 11%, ${colors.background.paper})`,
+    border: `1px solid color-mix(in srgb, ${accent} 36%, ${colors.border.main})`,
+    transition: "background 0.15s ease, box-shadow 0.15s ease",
+  });
 
   return (
     <div
@@ -101,7 +128,7 @@ export default function Header() {
           style={{
             display: "flex",
             flexDirection: "row",
-            alignItems: "center",
+            alignItems: "stretch",
             gap: 10,
             minWidth: 0,
             width: "max-content",
@@ -110,12 +137,134 @@ export default function Header() {
             overflow: "visible",
           }}
         >
+          {activePlanetoid ? (
+            <Link
+              to="/planetoids"
+              title={activePlanetoid.name}
+              className={style["header-planetoid-chip"]}
+              aria-label={`${t("nav_planetoids")}: ${activePlanetoid.name}`}
+              onMouseEnter={() => setPlanetoidLinkHover(true)}
+              onMouseLeave={() => setPlanetoidLinkHover(false)}
+              style={{
+                ...chipLinkStyle(planetoidLinkHover),
+                alignSelf: "stretch",
+                flexShrink: 1,
+                gap: 8,
+                padding: "5px 10px 5px 8px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  alignSelf: "stretch",
+                  flexShrink: 0,
+                  padding: "0 2px",
+                }}
+              >
+                <PlanetoidIcon
+                  size={26}
+                  style={{
+                    color: accent,
+                    filter: "drop-shadow(0 1px 2px rgb(0 0 0 / 0.4))",
+                  }}
+                  aria-hidden
+                />
+              </div>
+              <span
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  gap: 2,
+                  minWidth: 0,
+                  lineHeight: 1.15,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "0.6875rem",
+                    fontWeight: 600,
+                    color: `color-mix(in srgb, ${colors.text.primary} 58%, transparent)`,
+                  }}
+                >
+                  {t("nav_planetoids")}
+                </span>
+                <span
+                  className={style["header-planetoid-chip-name"]}
+                  style={{
+                    fontWeight: 700,
+                    fontSize: "0.8125rem",
+                    color: colors.text.primary,
+                  }}
+                >
+                  {activePlanetoid.name}
+                </span>
+              </span>
+            </Link>
+          ) : null}
+          <Link
+            to="/colony"
+            aria-label={t("aria_game_settings_duplicants", {
+              count: duplicants.length,
+            })}
+            className={style["dupe-hide"]}
+            onMouseEnter={() => setDupeLinkHover(true)}
+            onMouseLeave={() => setDupeLinkHover(false)}
+            style={chipLinkStyle(dupeLinkHover)}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 34,
+                height: 34,
+                borderRadius: "50%",
+                flexShrink: 0,
+                background: `color-mix(in srgb, ${accent} 22%, ${colors.background.average})`,
+                boxShadow: `inset 0 1px 0 color-mix(in srgb, ${accent} 42%, transparent)`,
+              }}
+            >
+              <DupeIcon
+                size={22}
+                style={{
+                  color: accent,
+                  filter: "drop-shadow(0 1px 2px rgb(0 0 0 / 0.4))",
+                }}
+              />
+            </div>
+            <span
+              style={{
+                fontVariantNumeric: "tabular-nums",
+                fontWeight: 700,
+                fontSize: "0.9375rem",
+                lineHeight: 1,
+                minWidth: "1.35rem",
+                textAlign: "center",
+              }}
+            >
+              {duplicants.length}
+            </span>
+          </Link>
+          <div
+            className={style["dupe-hide"]}
+            style={{
+              width: 1,
+              alignSelf: "stretch",
+              flexShrink: 0,
+              backgroundColor: colors.border.main,
+            }}
+            aria-hidden
+          />
           <Select
             className={style["lang-hide"]}
             fieldBackground={colors.layout.background}
             style={{
               width: 100,
               flexShrink: 0,
+              alignSelf: "center",
               justifyContent: "center",
             }}
             hideLabelMargin
@@ -132,7 +281,7 @@ export default function Header() {
           <IconButton
             className={style["theme-hide"]}
             type="button"
-            style={{ flexShrink: 0 }}
+            style={{ flexShrink: 0, alignSelf: "center" }}
             onClick={() =>
               toggleTheme(colors.mode === "dark" ? "light" : "dark")
             }

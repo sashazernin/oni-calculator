@@ -1,6 +1,4 @@
 import type { Planetoid, PlanetoidGameType, PlanetoidsState } from "../types/planetoid-types";
-import type { IDuplicate } from "../types/game-data-types";
-import type { HexMapObjectItem } from "../types/hex-map-types";
 import { defaultRocketsPayload } from "./readStoredRockets";
 import { defaultStarMapObjects } from "./readStoredStarMapObjects";
 
@@ -29,25 +27,69 @@ export function createPlanetoid(
   };
 }
 
-export function emptyPlanetoidsState(): PlanetoidsState {
-  return { activePlanetoidId: "", planetoids: [] };
+export function createHiddenPlanetoid(
+  colony?: Pick<Planetoid, "duplicants" | "starMap" | "rockets">
+): Planetoid {
+  return {
+    id: newPlanetoidId(),
+    name: "",
+    hidden: true,
+    gameType: "spaced-out",
+    expansions: false,
+    duplicants: colony?.duplicants ?? [],
+    starMap: colony?.starMap ?? defaultStarMapObjects(),
+    rockets: colony?.rockets ?? defaultRocketsPayload(),
+  };
 }
 
-export function migrateLegacyColonyToPlanetoidsState(
-  duplicants: IDuplicate[],
-  starMap: HexMapObjectItem[],
-  rockets: PlanetoidsState["planetoids"][0]["rockets"]
+export function visiblePlanetoids(planetoids: Planetoid[]): Planetoid[] {
+  return planetoids.filter((p) => !p.hidden);
+}
+
+export function hasStoredColonyActivity(
+  colony: Pick<Planetoid, "duplicants" | "starMap" | "rockets">
+): boolean {
+  if (colony.duplicants.length > 0) return true;
+  if (JSON.stringify(colony.rockets) !== JSON.stringify(defaultRocketsPayload())) return true;
+  if (JSON.stringify(colony.starMap) !== JSON.stringify(defaultStarMapObjects())) return true;
+  return false;
+}
+
+export function activeVisiblePlanetoid(
+  activePlanetoidId: string,
+  planetoids: Planetoid[]
+): Planetoid | null {
+  const active = planetoids.find((p) => p.id === activePlanetoidId) ?? null;
+  if (!active || active.hidden) return null;
+  return active;
+}
+
+/** Пока нет явных планетоидов — держим колонию в скрытом планетойде. */
+export function ensureColonyPlanetoidState(
+  state: PlanetoidsState,
+  colony: Pick<Planetoid, "duplicants" | "starMap" | "rockets">
 ): PlanetoidsState {
-  const first: Planetoid = {
-    id: newPlanetoidId(),
-    name: "Планетойд 1",
-    gameType: "classic",
-    expansions: false,
-    duplicants,
-    starMap,
-    rockets,
-  };
-  return { activePlanetoidId: first.id, planetoids: [first] };
+  if (visiblePlanetoids(state.planetoids).length > 0) {
+    return syncColonyIntoActivePlanetoid(state, colony);
+  }
+
+  let hidden = state.planetoids.find((p) => p.hidden);
+  if (!hidden) {
+    if (!hasStoredColonyActivity(colony)) {
+      return state;
+    }
+    hidden = createHiddenPlanetoid(colony);
+    const planetoids = [...state.planetoids.filter((p) => !p.hidden), hidden];
+    state = { activePlanetoidId: hidden.id, planetoids };
+    return state;
+  }
+
+  state = { ...state, activePlanetoidId: hidden.id };
+  return syncColonyIntoActivePlanetoid(state, colony);
+}
+
+export function emptyPlanetoidsState(): PlanetoidsState {
+  return { activePlanetoidId: "", planetoids: [] };
 }
 
 export function readPlanetoidsStateFromLocal(): PlanetoidsState | null {
@@ -72,23 +114,6 @@ export function persistPlanetoidsState(state: PlanetoidsState): void {
   }
 }
 
-export function loadPlanetoidsStateFromLocal(legacy?: {
-  duplicants: IDuplicate[];
-  starMap: HexMapObjectItem[];
-  rockets: Planetoid["rockets"];
-}): PlanetoidsState {
-  const stored = readPlanetoidsStateFromLocal();
-  if (stored) return stored;
-  if (legacy) {
-    return migrateLegacyColonyToPlanetoidsState(
-      legacy.duplicants,
-      legacy.starMap,
-      legacy.rockets
-    );
-  }
-  return emptyPlanetoidsState();
-}
-
 export function activePlanetoidFromState(state: PlanetoidsState): Planetoid | null {
   return state.planetoids.find((p) => p.id === state.activePlanetoidId) ?? state.planetoids[0] ?? null;
 }
@@ -110,7 +135,7 @@ export function switchActivePlanetoid(
 ): PlanetoidsState | null {
   const withSaved = syncColonyIntoActivePlanetoid(state, currentColony);
   const next = withSaved.planetoids.find((p) => p.id === nextId);
-  if (!next) return null;
+  if (!next || next.hidden) return null;
   return { ...withSaved, activePlanetoidId: nextId };
 }
 
@@ -137,13 +162,21 @@ export function removePlanetoidFromState(
   id: string,
   currentColony: Pick<Planetoid, "duplicants" | "starMap" | "rockets">
 ): PlanetoidsState | null {
-  if (state.planetoids.length <= 1) return null;
+  const target = state.planetoids.find((p) => p.id === id);
+  if (!target || target.hidden) return null;
+
   const withSaved = syncColonyIntoActivePlanetoid(state, currentColony);
+  const visible = visiblePlanetoids(withSaved.planetoids);
+  if (visible.length <= 1) {
+    const hidden = createHiddenPlanetoid(currentColony);
+    return { activePlanetoidId: hidden.id, planetoids: [hidden] };
+  }
+
   const planetoids = withSaved.planetoids.filter((p) => p.id !== id);
-  if (planetoids.length === withSaved.planetoids.length) return null;
   let activePlanetoidId = withSaved.activePlanetoidId;
   if (activePlanetoidId === id) {
-    activePlanetoidId = planetoids[0]!.id;
+    const nextVisible = visiblePlanetoids(planetoids);
+    activePlanetoidId = nextVisible[0]?.id ?? activePlanetoidId;
   }
   return { ...withSaved, activePlanetoidId, planetoids };
 }

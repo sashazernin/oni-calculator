@@ -13,6 +13,7 @@ import { LuCirclePlus } from "react-icons/lu";
 import Divider from "../../../components/divider/Devider";
 import PageToolbar, { pageStatCardStyle } from "../../../components/page-toolbar/PageToolbar";
 import PlanetoidTypePicker from "../../../components/planetoid/PlanetoidTypePicker";
+import { visiblePlanetoids } from "../../../helpers/planetoidStorage";
 
 type PlanetoidsSettingsProps = {
   pageTitle: string;
@@ -26,7 +27,8 @@ export default function PlanetoidsSettings({ pageTitle }: PlanetoidsSettingsProp
   const [addOpen, setAddOpen] = useState(false);
   const [addDefaultGameType, setAddDefaultGameType] = useState<PlanetoidGameType>("classic");
   const [editTarget, setEditTarget] = useState<Planetoid | null>(null);
-  const canDeletePlanetoid = data.planetoids.length > 1;
+  const visible = visiblePlanetoids(data.planetoids);
+  const canDeletePlanetoid = visible.length > 1;
 
   const catalogGridStyle: CSSProperties = {
     display: "grid",
@@ -47,7 +49,7 @@ export default function PlanetoidsSettings({ pageTitle }: PlanetoidsSettingsProp
       <PlanetoidAddModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        suggestedName={t("planetoid_default_name", { n: data.planetoids.length + 1 })}
+        suggestedName={t("planetoid_default_name", { n: visible.length + 1 })}
         defaultGameType={addDefaultGameType}
         onAdd={addPlanetoid}
       />
@@ -69,18 +71,18 @@ export default function PlanetoidsSettings({ pageTitle }: PlanetoidsSettingsProp
           <div
             style={statCardStyle}
             title={t("planetoid_total_label")}
-            aria-label={`${t("planetoid_total_label")}: ${data.planetoids.length}`}
+            aria-label={`${t("planetoid_total_label")}: ${visible.length}`}
           >
             <PlanetoidIcon size={26} style={{ color: colors.primary.main, flexShrink: 0, opacity: 0.95 }} />
             <span style={{ fontSize: 22, fontWeight: 700, color: colors.text.primary, lineHeight: 1.15 }}>
-              {data.planetoids.length}
+              {visible.length}
             </span>
           </div>
         </PageToolbar>
 
         <Divider />
 
-        {data.planetoids.length === 0 ? (
+        {visible.length === 0 ? (
           <PlanetoidTypePicker
             title={t("planetoids_pick_type_intro")}
             onPick={(gameType) => {
@@ -89,7 +91,7 @@ export default function PlanetoidsSettings({ pageTitle }: PlanetoidsSettingsProp
           />
         ) : (
           <div style={catalogGridStyle}>
-            {data.planetoids.map((p) => (
+            {visible.map((p) => (
               <PlanetoidCard
                 key={p.id}
                 planetoid={p}

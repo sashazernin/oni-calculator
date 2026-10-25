@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { AssetImage } from "../../components/asset-image/AssetImage";
 import { Button } from "../../components/button/Button";
 import {
@@ -19,11 +19,157 @@ import { DupeIcon } from "../../icons";
 import { IconButton } from "../../components/icon-button/IconButton";
 import { FiPlusCircle } from "react-icons/fi";
 import { AiOutlineMinusCircle } from "react-icons/ai";
+import { GiStomach } from "react-icons/gi";
 import { useTranslation } from "../../hooks/useTranslation";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { TextField } from "../../components/text-field/TextField";
 import { Popup } from "../../components/popup/Popup";
 import styles from "./food.module.css";
+
+function clampDupeCount(raw: string, max: number): number {
+  const parsed = parseInt(raw, 10);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.max(0, Math.min(max, parsed));
+}
+
+type DuplicantCountCounterProps = {
+  accent: string;
+  value: number;
+  onChange: (next: number) => void;
+  icon?: "dupe" | "stomach";
+  maxValue?: number;
+};
+
+function DuplicantCountCounter({
+  accent,
+  value,
+  onChange,
+  icon = "dupe",
+  maxValue = 99,
+}: DuplicantCountCounterProps) {
+  const { colors } = useContext(ThemeContext);
+  const { t } = useTranslation();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+
+  const commitDraft = () => {
+    onChange(clampDupeCount(draft, maxValue));
+    setEditing(false);
+  };
+
+  const handleCountKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.currentTarget.blur();
+    }
+  };
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+        padding: "8px 12px",
+        borderRadius: 12,
+        background: `color-mix(in srgb, ${accent} 13%, ${colors.background.paper})`,
+        border: `1px solid color-mix(in srgb, ${accent} 38%, ${colors.border.main})`,
+        boxShadow:
+          colors.mode === "dark"
+            ? "0 1px 0 color-mix(in srgb, #fff 6%, transparent)"
+            : "0 1px 0 color-mix(in srgb, #000 5%, transparent)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 42,
+          height: 42,
+          borderRadius: "50%",
+          flexShrink: 0,
+          background: `color-mix(in srgb, ${accent} 22%, ${colors.background.average})`,
+          boxShadow: `inset 0 1px 0 color-mix(in srgb, ${accent} 45%, transparent)`,
+        }}
+      >
+        {icon === "stomach" ? (
+          <GiStomach
+            size={26}
+            style={{
+              color: accent,
+              filter: "drop-shadow(0 1px 3px rgb(0 0 0 / 0.45))",
+            }}
+          />
+        ) : (
+          <DupeIcon
+            size={26}
+            style={{
+              color: accent,
+              filter: "drop-shadow(0 1px 3px rgb(0 0 0 / 0.45))",
+            }}
+          />
+        )}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <IconButton
+          color="action"
+          aria-label={t("aria_decrease_count")}
+          onClick={() => {
+            setEditing(false);
+            if (value > 0) onChange(value - 1);
+          }}
+        >
+          <AiOutlineMinusCircle size={22} />
+        </IconButton>
+        <input
+          type="text"
+          inputMode="numeric"
+          autoComplete="off"
+          aria-label={t("aria_edit_count")}
+          value={editing ? draft : String(value)}
+          onFocus={(e) => {
+            setEditing(true);
+            setDraft(String(value));
+            e.target.select();
+          }}
+          onBlur={commitDraft}
+          onChange={(e) => {
+            setDraft(e.target.value.replace(/\D/g, "").slice(0, 2));
+          }}
+          onKeyDown={handleCountKeyDown}
+          style={{
+            boxSizing: "border-box",
+            width: "2.75rem",
+            minWidth: "2.75rem",
+            padding: "6px 4px",
+            textAlign: "center",
+            fontVariantNumeric: "tabular-nums",
+            fontWeight: 700,
+            fontSize: "0.9375rem",
+            lineHeight: 1.15,
+            color: colors.text.primary,
+            background: colors.background.average,
+            borderRadius: 8,
+            border: `1px solid ${colors.border.main}`,
+            outline: "none",
+          }}
+        />
+        <IconButton
+          color="action"
+          aria-label={t("aria_increase_count")}
+          onClick={() => {
+            setEditing(false);
+            if (value < maxValue) onChange(value + 1);
+          }}
+        >
+          <FiPlusCircle size={22} />
+        </IconButton>
+      </div>
+    </div>
+  );
+}
 
 export default function Food() {
   const { colors } = useContext(ThemeContext);
@@ -37,27 +183,35 @@ export default function Food() {
   const [redDupe, setRedDupe] = useState(0);
 
   const setDefaultDupes = useCallback(() => {
-    const greenDupe = []
-
-    const redDupe = []
-
-    duplicants.forEach((duplicate) => {
-      if (duplicate.gluttonous) {
-        redDupe.push(duplicate);
-      } else {
-        greenDupe.push(duplicate);
-      }
-    });
-
-    setGreenDupe(greenDupe.length);
-    setRedDupe(redDupe.length);
+    const total = duplicants.length;
+    const gluttonous = duplicants.filter((d) => d.gluttonous).length;
+    setGreenDupe(total);
+    setRedDupe(gluttonous);
   }, [duplicants]);
 
   useEffect(() => {
-    setDefaultDupes()
+    setDefaultDupes();
   }, [setDefaultDupes]);
 
-  const totalPerCycle = useMemo(() => greenDupe * 1000 + redDupe * 1500, [greenDupe, redDupe]);
+  const setTotalDupeCount = useCallback((next: number) => {
+    const n = Math.max(0, Math.min(99, next));
+    setGreenDupe(n);
+    setRedDupe((r) => Math.min(r, n));
+  }, []);
+
+  const setGluttonousCount = useCallback(
+    (next: number) => {
+      const n = Math.max(0, Math.min(99, next, greenDupe));
+      setRedDupe(n);
+    },
+    [greenDupe]
+  );
+
+  const totalPerCycle = useMemo(() => {
+    const gluttonous = Math.min(redDupe, greenDupe);
+    const normal = Math.max(0, greenDupe - gluttonous);
+    return normal * 1000 + gluttonous * 1500;
+  }, [greenDupe, redDupe]);
 
   /** Латиница a–z и кириллица а–я (и ё) по правилам `ru` */
   const foodItemsSorted = useMemo(
@@ -335,87 +489,6 @@ export default function Food() {
   const foodPickerHint =
     narrowFoodLayout && !foodPickerOpen ? t("food_select_open_panel_hint") : t("food_select_prompt");
 
-  const dupeCounter = useCallback(
-    (accent: string, value: number, onChange: (next: number) => void) => (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 12,
-          padding: "8px 12px",
-          borderRadius: 12,
-          background: `color-mix(in srgb, ${accent} 13%, ${colors.background.paper})`,
-          border: `1px solid color-mix(in srgb, ${accent} 38%, ${colors.border.main})`,
-          boxShadow:
-            colors.mode === "dark"
-              ? "0 1px 0 color-mix(in srgb, #fff 6%, transparent)"
-              : "0 1px 0 color-mix(in srgb, #000 5%, transparent)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 42,
-            height: 42,
-            borderRadius: "50%",
-            flexShrink: 0,
-            background: `color-mix(in srgb, ${accent} 22%, ${colors.background.average})`,
-            boxShadow: `inset 0 1px 0 color-mix(in srgb, ${accent} 45%, transparent)`,
-          }}
-        >
-          <DupeIcon
-            size={26}
-            style={{
-              color: accent,
-              filter: "drop-shadow(0 1px 3px rgb(0 0 0 / 0.45))",
-            }}
-          />
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton
-            color="action"
-            aria-label={t("aria_decrease_count")}
-            onClick={() => {
-              if (value > 0) onChange(value - 1);
-            }}
-          >
-            <AiOutlineMinusCircle size={22} />
-          </IconButton>
-          <div
-            style={{
-              minWidth: "2.35rem",
-              padding: "6px 8px",
-              textAlign: "center",
-              fontVariantNumeric: "tabular-nums",
-              fontWeight: 700,
-              fontSize: "0.9375rem",
-              lineHeight: 1.15,
-              color: colors.text.primary,
-              background: colors.background.average,
-              borderRadius: 8,
-              border: `1px solid ${colors.border.main}`,
-            }}
-          >
-            {value}
-          </div>
-          <IconButton
-            color="action"
-            aria-label={t("aria_increase_count")}
-            onClick={() => {
-              if (value < 99) onChange(value + 1);
-            }}
-          >
-            <FiPlusCircle size={22} />
-          </IconButton>
-        </div>
-      </div>
-    ),
-    [colors, t]
-  );
-
   const foodSidebarBlocks = (
     <div
       style={{
@@ -437,8 +510,18 @@ export default function Food() {
           padding: narrowFoodLayout ? 0 : "12px 14px",
         }}
       >
-        {dupeCounter("#0EAD78", greenDupe, setGreenDupe)}
-        {dupeCounter("#E53935", redDupe, setRedDupe)}
+        <DuplicantCountCounter
+          accent="#0EAD78"
+          value={greenDupe}
+          onChange={setTotalDupeCount}
+        />
+        <DuplicantCountCounter
+          accent="#E53935"
+          value={redDupe}
+          onChange={setGluttonousCount}
+          icon="stomach"
+          maxValue={greenDupe}
+        />
         <Button
           type="button"
           variant="translucent"

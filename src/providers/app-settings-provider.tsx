@@ -11,10 +11,11 @@ import type { HexMapObjectItem } from "../types/hex-map-types";
 import type { IDuplicate } from "../types/game-data-types";
 import type { Planetoid, PlanetoidGameType } from "../types/planetoid-types";
 import {
+  activeVisiblePlanetoid,
   createPlanetoid,
+  ensureColonyPlanetoidState,
   removePlanetoidFromState,
   switchActivePlanetoid,
-  syncColonyIntoActivePlanetoid,
   updatePlanetoidInState,
 } from "../helpers/planetoidStorage";
 import {
@@ -161,8 +162,6 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
     const payload = dataRef.current;
     persistAppSettingsDataToLocal(payload);
 
-    if (payload.planetoids.length === 0) return;
-
     if (token || readStoredToken()) {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => {
@@ -181,7 +180,7 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
         patch.starMap !== undefined ||
         patch.rockets !== undefined
       ) {
-        const synced = syncColonyIntoActivePlanetoid(
+        const synced = ensureColonyPlanetoidState(
           { activePlanetoidId: next.activePlanetoidId, planetoids: next.planetoids },
           {
             duplicants: next.duplicants,
@@ -190,6 +189,7 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
           }
         );
         next.planetoids = synced.planetoids;
+        next.activePlanetoidId = synced.activePlanetoidId;
       }
       dataRef.current = next;
       return next;
@@ -228,7 +228,7 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
     (name: string, gameType: PlanetoidGameType, expansions: boolean) => {
       skipPersistRef.current = false;
       setData((prev) => {
-        const synced = syncColonyIntoActivePlanetoid(
+        const synced = ensureColonyPlanetoidState(
           { activePlanetoidId: prev.activePlanetoidId, planetoids: prev.planetoids },
           {
             duplicants: prev.duplicants,
@@ -237,16 +237,17 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
           }
         );
         const created = createPlanetoid(name, gameType, expansions);
-        const firstColony =
-          synced.planetoids.length === 0
-            ? {
-                ...created,
-                duplicants: prev.duplicants,
-                starMap: prev.starMap,
-                rockets: prev.rockets,
-              }
-            : created;
-        const planetoids = [...synced.planetoids, firstColony];
+        const withoutHidden = synced.planetoids.filter((p) => !p.hidden);
+        const isFirstVisible = withoutHidden.length === 0;
+        const firstColony = isFirstVisible
+          ? {
+              ...created,
+              duplicants: prev.duplicants,
+              starMap: prev.starMap,
+              rockets: prev.rockets,
+            }
+          : created;
+        const planetoids = [...withoutHidden, firstColony];
         const next: AppSettingsData = {
           ...prev,
           activePlanetoidId: firstColony.id,
@@ -450,7 +451,7 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
   );
 
   const activePlanetoid = useMemo(
-    () => data.planetoids.find((p) => p.id === data.activePlanetoidId) ?? null,
+    () => activeVisiblePlanetoid(data.activePlanetoidId, data.planetoids),
     [data.planetoids, data.activePlanetoidId]
   );
 
