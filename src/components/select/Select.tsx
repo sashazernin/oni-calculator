@@ -415,9 +415,11 @@ export function Select<T>({
         flex: 1,
         width: "100%",
         minWidth: 0,
+        minHeight: "100%",
+        alignSelf: "stretch",
         gap: 4,
         position: "relative",
-        zIndex: 2
+        zIndex: 2,
       }}
     >
       <input
@@ -597,16 +599,22 @@ export function Select<T>({
     )
     : null;
 
-  const onFieldShellMouseDown: MouseEventHandler<HTMLDivElement> | undefined =
-    disableSearch
-      ? (e) => {
-          if (disabled) return;
-          const target = e.target as HTMLElement;
-          if (target.closest("button") || target.closest("input")) return;
-          e.preventDefault();
-          toggleList();
-        }
-      : undefined;
+  const onFieldShellMouseDown: MouseEventHandler<HTMLDivElement> = (e) => {
+    if (disabled) return;
+    const target = e.target as HTMLElement;
+    if (target.closest("button")) return;
+    if (target.closest("input")) {
+      if (disableSearch) {
+        e.preventDefault();
+        toggleList();
+      }
+      return;
+    }
+    e.preventDefault();
+    setFocused(true);
+    setOpen(true);
+    inputRef.current?.focus();
+  };
 
   const fieldShell = (
     children: ReactNode,
@@ -621,8 +629,10 @@ export function Select<T>({
         alignItems: "center",
         boxSizing: "border-box",
         minWidth: 0,
-        height: FIELD_H,
+        height: hideLabelMargin ? "auto" : FIELD_H,
         minHeight: FIELD_H,
+        flex: hideLabelMargin ? "1 1 0" : undefined,
+        alignSelf: hideLabelMargin ? "stretch" : undefined,
         overflow: "visible",
         border: `1px solid ${borderColor}`,
         borderRadius: 10,
@@ -630,7 +640,7 @@ export function Select<T>({
         boxShadow,
         padding: `0 ${FIELD_PAD_X}px`,
         transition: `border-color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease`,
-        cursor: disabled ? "not-allowed" : disableSearch ? "pointer" : undefined,
+        cursor: disabled ? "not-allowed" : "pointer",
         ...(!hideLabelMargin ? { marginTop: extra?.marginTop ?? 0 } : {}),
       }}
     >
@@ -646,11 +656,13 @@ export function Select<T>({
         display: "flex",
         flexDirection: "column",
         alignItems: "stretch",
-        gap: 6,
+        gap: hideLabelMargin ? 0 : 6,
         width: fullWidth ? "100%" : "auto",
         minWidth: 0,
+        minHeight: hideLabelMargin ? FIELD_H : undefined,
+        alignSelf: hideLabelMargin ? "stretch" : undefined,
         overflow: "visible",
-        paddingTop: hasLabel && float ? 8 : 0,
+        paddingTop: hasLabel && float && !hideLabelMargin ? 8 : 0,
         boxSizing: "border-box",
         ...triggerOuterStyle,
       }}

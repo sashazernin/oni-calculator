@@ -23,6 +23,13 @@
   }
 }
 
+.headerLangSelect {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 @media (max-width: 415px) {
   .lang-hide {
     display: none !important;

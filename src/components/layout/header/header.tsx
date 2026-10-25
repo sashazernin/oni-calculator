@@ -212,7 +212,7 @@ export default function Header() {
             className={style["dupe-hide"]}
             onMouseEnter={() => setDupeLinkHover(true)}
             onMouseLeave={() => setDupeLinkHover(false)}
-            style={chipLinkStyle(dupeLinkHover)}
+            style={{ ...chipLinkStyle(dupeLinkHover), alignSelf: "stretch" }}
           >
             <div
               style={{
@@ -259,13 +259,12 @@ export default function Header() {
             aria-hidden
           />
           <Select
-            className={style["lang-hide"]}
+            className={`${style["lang-hide"]} ${style.headerLangSelect}`}
             fieldBackground={colors.layout.background}
+            disableSearch
             style={{
               width: 100,
               flexShrink: 0,
-              alignSelf: "center",
-              justifyContent: "center",
             }}
             hideLabelMargin
             label={t("lang_short_label")}
@@ -281,7 +280,7 @@ export default function Header() {
           <IconButton
             className={style["theme-hide"]}
             type="button"
-            style={{ flexShrink: 0, alignSelf: "center" }}
+            style={{ flexShrink: 0, alignSelf: "center", marginBlock: "auto" }}
             onClick={() =>
               toggleTheme(colors.mode === "dark" ? "light" : "dark")
             }
