@@ -4,7 +4,39 @@ import { liquids } from "./liquids"
 import { other } from "./other"
 import { resourses } from "./resourses"
 
-export const ROCKET_EXTERNAL_TANK_KG = 900
+/** Большой резервуар жидкого топлива: 100 кг сухой массы, 900 кг топлива. */
+export const ROCKET_EXTERNAL_TANK_KG = 900;
+
+/** Встроенный бак парового двигателя в классическом калькуляторе, кг. */
+export const CLASSIC_STEAM_INTERNAL_FUEL_KG = 900;
+
+/** Большой твёрдый бак окислителя: 100 кг сухой массы, 2700 кг окислителя. */
+export const CLASSIC_LARGE_SOLID_OXIDIZER_CAPACITY_KG = 2700;
+
+/** Резервуар жидкого окислителя: 100 кг сухой массы, 2700 кг окислителя. */
+export const CLASSIC_LIQUID_OXIDIZER_CAPACITY_KG = 2700;
+
+/** Макс. число внешних топливных баков в классическом калькуляторе (как oni-rocket.kim-g.ru). */
+export const CLASSIC_MAX_LIQUID_FUEL_TANKS = 4;
+
+/** Макс. число баков окислителя в классическом калькуляторе. */
+export const CLASSIC_MAX_OXIDIZER_TANKS = 8;
+
+export const CLASSIC_OXIDIZER_EFFICIENCY_MULT = {
+  oxylite: 1,
+  liquidOxygen: 1.33,
+} as const;
+
+export type ClassicOxidizerId = keyof typeof CLASSIC_OXIDIZER_EFFICIENCY_MULT;
+
+export const CLASSIC_ROCKET_ENGINE_IDS = {
+  steam: "steam",
+  petroleum: "petroleum",
+  hydrogen: "hydrogen",
+  biodiesel: "biodieselEngine",
+} as const;
+
+export type ClassicEngineId = keyof typeof CLASSIC_ROCKET_ENGINE_IDS;
 
 export const ROCKET_OXIDIZER_TANK_KG = 450
 
@@ -56,7 +88,14 @@ const steam: IRocketEngine = {
   height: 5,
   width: 7,
   load: 15,
-  power: 27
+  power: 27,
+  classicFlight: {
+    dryKg: 2000,
+    efficiencyKmPerKg: 20,
+    needsOxidizer: false,
+    /** Встроенный бак в классическом калькуляторе (кг). */
+    maxFuelKg: CLASSIC_STEAM_INTERNAL_FUEL_KG,
+  },
 }
 
 const smallPetroleum: IRocketEngine = {
@@ -85,7 +124,12 @@ const petroleum: IRocketEngine = {
   height: 5,
   width: 7,
   load: 6,
-  power: 48
+  power: 48,
+  classicFlight: {
+    dryKg: 200,
+    efficiencyKmPerKg: 40,
+    needsOxidizer: true,
+  },
 }
 
 const biodieselEngine: IRocketEngine = {
@@ -99,7 +143,12 @@ const biodieselEngine: IRocketEngine = {
   height: 5,
   width: 7,
   power: 31,
-  load: 7
+  load: 7,
+  classicFlight: {
+    dryKg: 200,
+    efficiencyKmPerKg: 50,
+    needsOxidizer: true,
+  },
 }
 
 const radbolt: IRocketEngine = {
@@ -128,7 +177,12 @@ const hydrogen: IRocketEngine = {
   height: 5,
   width: 7,
   load: 7,
-  power: 55
+  power: 55,
+  classicFlight: {
+    dryKg: 500,
+    efficiencyKmPerKg: 60,
+    needsOxidizer: true,
+  },
 }
 
 export const rocketEngines = {
@@ -152,6 +206,7 @@ const largeLiquidFuelTank: IRocketModule = {
   width: 5,
   weight: 100,
   load: 5,
+  classicFlight: { fuelCapacityKg: ROCKET_EXTERNAL_TANK_KG },
 }
 
 const largeSolidOxidizerTank: IRocketModule = {
@@ -162,6 +217,7 @@ const largeSolidOxidizerTank: IRocketModule = {
   width: 5,
   weight: 100,
   load: 5,
+  classicFlight: { oxidizerCapacityKg: CLASSIC_LARGE_SOLID_OXIDIZER_CAPACITY_KG },
 }
 
 const liquidOxidizerTank: IRocketModule = {
@@ -172,6 +228,7 @@ const liquidOxidizerTank: IRocketModule = {
   width: 5,
   weight: 100,
   load: 5,
+  classicFlight: { oxidizerCapacityKg: CLASSIC_LIQUID_OXIDIZER_CAPACITY_KG },
 }
 
 const smallSolidOxidizerTank: IRocketModule = {
@@ -208,7 +265,31 @@ const cargoBay: IRocketModule = {
   height: 3,
   width: 3,
   weight: 200,
-  load: 4
+  load: 4,
+}
+
+const classicCargoBay: IRocketModule = {
+  name: "classic_rocket_cargo_bay",
+  type: 'rocket-cargo',
+  image: "rocket/cargos/Classic_Cargo_Bay.webp",
+  height: 5,
+  width: 5,
+  weight: 1000,
+  load: 1,
+  classicOnly: true,
+  classicFlight: { dryKg: 2000 },
+}
+
+const classicBiologicalCargoBay: IRocketModule = {
+  name: "classic_rocket_cargo_biological",
+  type: "rocket-cargo",
+  image: "rocket/cargos/Classic_Biological_Cargo_Bay.webp",
+  height: 5,
+  width: 5,
+  weight: 1000,
+  load: 1,
+  classicOnly: true,
+  classicFlight: { dryKg: 2000 },
 }
 
 const gasCargoCanister: IRocketModule = {
@@ -263,6 +344,8 @@ const liquidCargoTank: IRocketModule = {
 
 export const rocketCargos = {
   biologicalCargoBay,
+  classicBiologicalCargoBay,
+  classicCargoBay,
   cargoBay,
   gasCargoCanister,
   largeCargoBay,
@@ -302,10 +385,23 @@ const soloSpacefarerNosecone: IRocketModule = {
   load: 3
 }
 
+const commandCapsule: IRocketModule = {
+  name: "gd_rocket_head_command_capsule",
+  type: 'rocket-head',
+  image: "rocket/heads/command_capsule.webp",
+  height: 5,
+  width: 5,
+  weight: 200,
+  commondModule: true,
+  load: 5,
+  classicOnly: true,
+}
+
 export const rocketHeads = {
   basicNosecone,
   Drillcone,
-  soloSpacefarerNosecone
+  soloSpacefarerNosecone,
+  commandCapsule
 }
 
 const artifactTransportModule: IRocketModule = {
@@ -335,7 +431,7 @@ const cartographicModule: IRocketModule = {
   height: 5,
   width: 5,
   weight: 1350,
-  load: 3
+  load: 3,
 }
 
 const orbitalCargoModule: IRocketModule = {
@@ -355,7 +451,32 @@ const researchModule: IRocketModule = {
   height: 2,
   width: 3,
   weight: 1000,
-  load: 3
+  load: 3,
+  classicFlight: { dryKg: 200 },
+}
+
+const classicResearchModule: IRocketModule = {
+  name: "classic_rocket_mod_research",
+  type: 'rocket-module',
+  image: "rocket/modules/Classic_Research_Module.webp",
+  height: 5,
+  width: 5,
+  weight: 200,
+  load: 1,
+  classicOnly: true,
+  classicFlight: { dryKg: 200 },
+}
+
+const classicSightseeingModule: IRocketModule = {
+  name: "classic_rocket_mod_sightseeing",
+  type: "rocket-module",
+  image: "rocket/modules/Sight-Seeing_Module.webp",
+  height: 5,
+  width: 5,
+  weight: 200,
+  load: 1,
+  classicOnly: true,
+  classicFlight: { dryKg: 200 },
 }
 
 const roverModule: IRocketModule = {
@@ -399,6 +520,18 @@ const trailblazerModule: IRocketModule = {
   load: 4
 }
 
+const solidFuelThruster: IRocketModule = {
+  name: "gd_rocket_mod_solid_furl_thruster",
+  type: 'rocket-module',
+  image: "rocket/modules/Solid_Fuel_Thruster.webp",
+  height: 5,
+  width: 7,
+  weight: 200,
+  load: 4,
+  classicOnly: true,
+  classicFlight: { boosterRangeKm: 12_000, boosterWetKg: 800 },
+}
+
 export const rocketModules = {
   artifactTransportModule,
   batteryModule,
@@ -408,7 +541,10 @@ export const rocketModules = {
   roverModule,
   solarPanelModule,
   spacefarerModule,
-  trailblazerModule
+  trailblazerModule,
+  solidFuelThruster,
+  classicResearchModule,
+  classicSightseeingModule,
 }
 
 export const rocketPlatform: IRocketModule = {
@@ -418,4 +554,14 @@ export const rocketPlatform: IRocketModule = {
   height: 2,
   width: 7,
   weight: 800,
+}
+
+/** Сухая масса модуля в классическом калькуляторе (кг). */
+export function rocketModuleClassicDryKg(mod: IRocketModule): number {
+  return mod.classicFlight?.dryKg ?? mod.weight;
+}
+
+export function classicRocketEngineData(id: ClassicEngineId): IRocketEngine {
+  const rocketId = CLASSIC_ROCKET_ENGINE_IDS[id];
+  return rocketEngines[rocketId];
 }

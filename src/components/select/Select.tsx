@@ -10,6 +10,7 @@ import {
   type ChangeEventHandler,
   type CSSProperties,
   type KeyboardEventHandler,
+  type MouseEventHandler,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
@@ -43,6 +44,8 @@ export type SelectProps<T> = {
   hideLabelMargin?: boolean;
   /** Фон поля и «таблетки» подписи (по умолчанию как у карточек — `paper`). Для хедера — цвет подложки шапки. */
   fieldBackground?: string;
+  /** Только выбор из списка, без фильтрации и редактирования текста в поле. */
+  disableSearch?: boolean;
 };
 
 function objectIdIfPresent(item: unknown): string | undefined {
@@ -127,6 +130,7 @@ export function Select<T>({
   style: triggerOuterStyle,
   hideLabelMargin,
   fieldBackground,
+  disableSearch = false,
 }: SelectProps<T>) {
   const { colors } = useContext(ThemeContext);
   const { t } = useTranslation();
@@ -237,6 +241,17 @@ export function Select<T>({
     setFilterQuery("");
   }, [displayLabel]);
 
+  const toggleList = useCallback(() => {
+    if (disabled) return;
+    if (open) {
+      closeList();
+    } else {
+      setFocused(true);
+      setOpen(true);
+      inputRef.current?.focus();
+    }
+  }, [closeList, disabled, open]);
+
   const commitSelection = useCallback(
     (item: T) => {
       const label = resolvedGetLabel(item);
@@ -338,6 +353,7 @@ export function Select<T>({
   }, [open, closeList]);
 
   const onInputChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    if (disableSearch) return;
     const v = e.target.value;
     setInputValue(v);
     setFilterQuery(v);
@@ -420,16 +436,27 @@ export function Select<T>({
         aria-invalid={showError}
         aria-describedby={showError ? `${id}-error` : undefined}
         disabled={disabled}
+        readOnly={disableSearch}
+        aria-readonly={disableSearch ? true : undefined}
         value={inputValue}
         onChange={onInputChange}
         autoComplete="off"
         onFocus={() => {
           if (!disabled) {
             setFocused(true);
-            setOpen(true);
+            if (!disableSearch) setOpen(true);
           }
         }}
         onBlur={() => setFocused(false)}
+        onMouseDown={
+          disableSearch
+            ? (e) => {
+                if (disabled) return;
+                e.preventDefault();
+                toggleList();
+              }
+            : undefined
+        }
         onKeyDown={onInputKeyDown}
         style={{
           flex: 1,
@@ -447,7 +474,7 @@ export function Select<T>({
           backgroundColor: "transparent",
           height: INPUT_LINE_H,
           padding: 0,
-          cursor: disabled ? "not-allowed" : "text",
+          cursor: disabled ? "not-allowed" : disableSearch ? "pointer" : "text",
           opacity: disabled ? 0.72 : 1
         }}
       />
@@ -460,13 +487,7 @@ export function Select<T>({
           e.preventDefault();
         }}
         onClick={() => {
-          if (disabled) return;
-          if (open) {
-            closeList();
-          } else {
-            setOpen(true);
-            inputRef.current?.focus();
-          }
+          toggleList();
         }}
         style={{
           display: "inline-flex",
@@ -576,12 +597,24 @@ export function Select<T>({
     )
     : null;
 
+  const onFieldShellMouseDown: MouseEventHandler<HTMLDivElement> | undefined =
+    disableSearch
+      ? (e) => {
+          if (disabled) return;
+          const target = e.target as HTMLElement;
+          if (target.closest("button") || target.closest("input")) return;
+          e.preventDefault();
+          toggleList();
+        }
+      : undefined;
+
   const fieldShell = (
     children: ReactNode,
     extra?: { marginTop?: number }
   ) => (
     <div
       ref={rootRef}
+      onMouseDown={onFieldShellMouseDown}
       style={{
         position: "relative",
         display: "flex",
@@ -597,6 +630,7 @@ export function Select<T>({
         boxShadow,
         padding: `0 ${FIELD_PAD_X}px`,
         transition: `border-color ${FLOAT_MS}s ease, background-color ${FLOAT_MS}s ease`,
+        cursor: disabled ? "not-allowed" : disableSearch ? "pointer" : undefined,
         ...(!hideLabelMargin ? { marginTop: extra?.marginTop ?? 0 } : {}),
       }}
     >

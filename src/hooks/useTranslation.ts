@@ -12,6 +12,7 @@ export function useTranslation() {
   const t = useCallback(
     (key: TranslationKey, vars?: Record<string, string | number>) => {
       const row = translations[key];
+      if (!row) return key;
       let str: string = row[language as ISupportedLanguages] as string;
       if (vars) {
         for (const [k, v] of Object.entries(vars)) {

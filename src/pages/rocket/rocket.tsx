@@ -40,6 +40,7 @@ import RocketBuilder, {
   rocketModuleCellBudget,
   rocketRouteSteps,
   rocketStackModules,
+  sanitizeRocketStackForEngine,
   type PlacedRocketStackModule,
   type RocketFuelPlan,
   type RocketOxidizerVariant,
@@ -663,8 +664,18 @@ export default function Rocket() {
     if (!r) return;
     const prevE = lastEngineByRocketRef.current.get(r.id);
     lastEngineByRocketRef.current.set(r.id, r.engineId);
-    if (prevE !== undefined && prevE !== r.engineId) {
-      patchRocket(activeIndex, { selectedOxidizerVariant: "oxylite" });
+    if (prevE !== undefined && prevE !== r.engineId && r.engineId) {
+      const steps = rocketRouteSteps(r.way);
+      const stackModules = sanitizeRocketStackForEngine(
+        r.stackModules,
+        r.engineId,
+        steps,
+        r.selectedOxidizerVariant ?? "oxylite",
+      );
+      patchRocket(activeIndex, {
+        stackModules,
+        selectedOxidizerVariant: "oxylite",
+      });
     }
   }, [activeIndex, rockets, patchRocket]);
 
@@ -700,10 +711,23 @@ export default function Rocket() {
   const selectEngine = useCallback(
     (id: RocketEngineId) => {
       if (enginePickerFor === null) return;
-      patchRocket(enginePickerFor, { engineId: id });
+      const r = rockets[enginePickerFor];
+      if (!r) return;
+      const steps = rocketRouteSteps(r.way);
+      const stackModules = sanitizeRocketStackForEngine(
+        r.stackModules,
+        id,
+        steps,
+        "oxylite",
+      );
+      patchRocket(enginePickerFor, {
+        engineId: id,
+        stackModules,
+        selectedOxidizerVariant: "oxylite",
+      });
       setEnginePickerFor(null);
     },
-    [enginePickerFor, patchRocket],
+    [enginePickerFor, patchRocket, rockets],
   );
 
   const textMuted = `color-mix(in srgb, ${colors.text.primary} 68%, transparent)`;

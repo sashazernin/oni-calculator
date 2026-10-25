@@ -1,4 +1,16 @@
 import type { PlacedRocketStackModule, RocketOxidizerVariant } from "../components/rocket-builder/RocketBuilder";
+import { parseCargoBayKinds } from "./classicCargoBayKinds";
+import { parseResearchSightseeingKinds } from "./classicResearchSightseeingKinds";
+import {
+  classicModulesWithNormalizedCargoKinds,
+  classicRocketEngines,
+  defaultClassicFlightSnapshot,
+  parseClassicTargetDistanceKm,
+  type ClassicEngineId,
+  type ClassicFlightSnapshot,
+  type ClassicOxidizerId,
+  type ClassicRocketModules,
+} from "./classicRocketFlight";
 import { rocketEngines, type RocketEngineId } from "../game-data/rocket";
 
 export const ROCKETS_STORAGE_KEY = "oni-calculator.rockets.v1";
@@ -10,6 +22,8 @@ export type StoredRocketSnapshot = {
   engineId: RocketEngineId | null;
   selectedOxidizerVariant: RocketOxidizerVariant;
   stackModules: PlacedRocketStackModule[];
+  /** Калькулятор полёта базовой игры. */
+  classicFlight?: ClassicFlightSnapshot;
 };
 
 export type RocketsStoragePayload = {
@@ -34,6 +48,64 @@ export function createStoredRocket(titleIndex: number): StoredRocketSnapshot {
     engineId: null,
     selectedOxidizerVariant: "oxylite",
     stackModules: [],
+    classicFlight: defaultClassicFlightSnapshot(),
+  };
+}
+
+function parseClassicModules(raw: unknown): ClassicRocketModules | null {
+  if (!raw || typeof raw !== "object") return null;
+  const rec = raw as Record<string, unknown>;
+  const num = (k: string) => {
+    const v = rec[k];
+    return typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(99, Math.floor(v))) : 0;
+  };
+  const cargoBays = num("cargoBays");
+  const researchSightseeing = num("researchSightseeing");
+  const modules: ClassicRocketModules = classicModulesWithNormalizedCargoKinds({
+    cargoBays,
+    cargoBayKinds: parseCargoBayKinds(rec.cargoBayKinds, cargoBays),
+    researchSightseeing,
+    researchSightseeingKinds: parseResearchSightseeingKinds(
+      rec.researchSightseeingKinds,
+      researchSightseeing,
+    ),
+    solidBoosters: num("solidBoosters"),
+    fuelTanks: num("fuelTanks"),
+    oxidizerTanks: num("oxidizerTanks"),
+    commandCapsules: 1,
+  });
+  return modules;
+}
+
+function parseClassicEngineId(raw: unknown): ClassicEngineId | null {
+  if (typeof raw !== "string") return null;
+  return raw in classicRocketEngines ? (raw as ClassicEngineId) : null;
+}
+
+function parseClassicOxidizer(raw: unknown): ClassicOxidizerId {
+  return raw === "liquidOxygen" ? "liquidOxygen" : "oxylite";
+}
+
+function parseClassicFlight(raw: unknown): ClassicFlightSnapshot {
+  const base = defaultClassicFlightSnapshot();
+  if (!raw || typeof raw !== "object") return base;
+  const rec = raw as Record<string, unknown>;
+  const engineId = parseClassicEngineId(rec.engineId) ?? base.engineId;
+  const oxidizer = parseClassicOxidizer(rec.oxidizer);
+  const modules = parseClassicModules(rec.modules) ?? base.modules;
+  const targetDistanceKm = parseClassicTargetDistanceKm(rec.targetDistanceKm);
+  return { engineId, oxidizer, modules, targetDistanceKm };
+}
+
+export function ensureClassicFlight(snapshot: StoredRocketSnapshot): ClassicFlightSnapshot {
+  const flight = snapshot.classicFlight ?? defaultClassicFlightSnapshot();
+  return {
+    ...flight,
+    modules: classicModulesWithNormalizedCargoKinds({
+      ...flight.modules,
+      commandCapsules: 1,
+    }),
+    targetDistanceKm: parseClassicTargetDistanceKm(flight.targetDistanceKm),
   };
 }
 
@@ -95,6 +167,7 @@ function parseRocket(raw: unknown, fallbackIndex: number): StoredRocketSnapshot 
     engineId: parseEngineId(rec.engineId),
     selectedOxidizerVariant: parseOxidizer(rec.selectedOxidizerVariant),
     stackModules: parseStackModules(rec.stackModules),
+    classicFlight: parseClassicFlight(rec.classicFlight),
   };
 }
 

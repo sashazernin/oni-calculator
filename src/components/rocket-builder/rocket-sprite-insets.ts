@@ -96,6 +96,12 @@ export const ROCKET_MODULE_SPRITE_INSETS: Record<
     right: 30,
   },
   "rocket/cargos/Cargo_Bay.webp": { bottom: 0, top: 0, left: 30, right: 30 },
+  "rocket/cargos/Classic_Cargo_Bay.webp": {
+    bottom: 3,
+    top: 3,
+    left: 40,
+    right: 20,
+  },
   "rocket/cargos/Gas_Cargo_Canister.webp": {
     bottom: 0,
     top: 0,
@@ -111,8 +117,8 @@ export const ROCKET_MODULE_SPRITE_INSETS: Record<
   "rocket/cargos/Large_Gas_Cargo_Canister.webp": {
     bottom: 0,
     top: 0,
-    left: 30,
-    right: 30,
+    left: 6,
+    right: 15,
   },
   "rocket/cargos/Liquid_Cargo_Tank.webp": {
     bottom: 0,
@@ -125,6 +131,30 @@ export const ROCKET_MODULE_SPRITE_INSETS: Record<
     top: 0,
     left: 30,
     right: 30,
+  },
+  "rocket/heads/command_capsule.webp": {
+    top: 0,
+    bottom: 2,
+    left: 0,
+    right: 0,
+  },
+  "rocket/modules/Classic_Research_Module.webp": {
+    top: 6,
+    bottom: 8,
+    left: 36,
+    right: 36,
+  },
+  "rocket/modules/Sight-Seeing_Module.webp": {
+    top: 6,
+    bottom: 8,
+    left: 36,
+    right: 36,
+  },
+  "rocket/modules/Solid_Fuel_Thruster.webp": {
+    top: 6,
+    bottom: 22,
+    left: 20,
+    right: 20,
   },
 };
 

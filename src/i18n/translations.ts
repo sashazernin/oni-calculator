@@ -347,6 +347,74 @@ export const translations = {
     ru: "Раздел ракет будет реализован в скором будущем.",
     en: "The rockets section will be available soon.",
   },
+  classic_rocket_tab_builder: { ru: "Ракета", en: "Rocket" },
+  classic_rocket_tab_chart: { ru: "График", en: "Chart" },
+  classic_rocket_main_view_label: {
+    ru: "Что показать в основной области",
+    en: "Main area view",
+  },
+  classic_rocket_section_engines: { ru: "Двигатель", en: "Engine" },
+  classic_rocket_section_extra_modules: {
+    ru: "Выберите дополнительные модули",
+    en: "Choose additional modules",
+  },
+  classic_rocket_section_extra_modules_hint: {
+    ru: "Вариант модуля можно сменить на схеме ракеты",
+    en: "You can change the module variant on the rocket diagram",
+  },
+  classic_rocket_section_base_modules: { ru: "Другие модули", en: "Other modules" },
+  classic_rocket_mod_cargo: { ru: "Грузовые отсеки", en: "Cargo bays" },
+  classic_rocket_cargo_kind_picker: {
+    ru: "Тип грузового отсека",
+    en: "Cargo bay type",
+  },
+  classic_rocket_rs_kind_picker: {
+    ru: "Исследовательский или экскурсионный модуль",
+    en: "Research or sightseeing module",
+  },
+  classic_rocket_mod_research: {
+    ru: "Исследовательские / экскурсионные",
+    en: "Research / sightseeing",
+  },
+  classic_rocket_mod_solid_booster: {
+    ru: "Твердотопливные ускорители",
+    en: "Solid fuel thrusters",
+  },
+  classic_rocket_mod_fuel_tank: { ru: "Топливный бак", en: "Fuel tank" },
+  classic_rocket_mod_oxidizer_tank: { ru: "Бак окислителя", en: "Oxidizer tank" },
+  classic_rocket_mod_command: { ru: "Командный отсек", en: "Command capsule" },
+  classic_rocket_oxylite: { ru: "Оксилит", en: "Oxylite" },
+  classic_rocket_liquid_oxygen: { ru: "Жидкий кислород", en: "Liquid oxygen" },
+  classic_rocket_stats_title: { ru: "Статистика ракеты", en: "Rocket statistics" },
+  classic_rocket_stat_dry_mass: {
+    ru: "Масса с пустыми баками",
+    en: "Mass with empty tanks",
+  },
+  classic_rocket_stat_fuel_mass: { ru: "Масса топлива", en: "Fuel mass" },
+  classic_rocket_stat_base_distance: { ru: "Базовое расстояние", en: "Base distance" },
+  classic_rocket_stat_mass_penalty: { ru: "Штраф за массу", en: "Mass penalty" },
+  classic_rocket_stat_final_distance: { ru: "Итоговое расстояние", en: "Final distance" },
+  classic_rocket_chart_title: {
+    ru: "Диаграмма «Расстояние / топливо»",
+    en: "Distance / fuel chart",
+  },
+  classic_rocket_chart_axis_fuel: { ru: "Топливо (кг)", en: "Fuel (kg)" },
+  classic_rocket_chart_tooltip_distance: {
+    ru: "Расстояние (км)",
+    en: "Distance (km)",
+  },
+  classic_rocket_target_distance: {
+    ru: "Расстояние",
+    en: "Distance",
+  },
+  classic_rocket_target_unreachable: {
+    ru: "Недостижимо",
+    en: "Out of range",
+  },
+  classic_rocket_target_impossible: {
+    ru: "Невозможно",
+    en: "Impossible",
+  },
   rocket_need_planetoid_before: {
     ru: "Чтобы пользоваться калькулятором ракеты, сначала создайте планетойд в разделе ",
     en: "To use the rocket calculator, create a planetoid first in ",

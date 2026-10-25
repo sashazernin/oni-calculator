@@ -109,6 +109,11 @@ export const gameDataTranslations = {
     en: "Biological Cargo Bay",
   },
   gd_rocket_cargo_bay: { ru: "Грузовой отсек", en: "Cargo Bay" },
+  classic_rocket_cargo_bay: { ru: "Грузовой отсек", en: "Cargo Bay" },
+  classic_rocket_mod_sightseeing: {
+    ru: "Экскурсионный модуль",
+    en: "Sight-Seeing Module",
+  },
   gd_rocket_cargo_gas_canister: {
     ru: "Грузовой контейнер для газа",
     en: "Gas Cargo Canister",
@@ -138,6 +143,10 @@ export const gameDataTranslations = {
     ru: "Одноместный головной обтекатель",
     en: "Solo Spacefarer Nosecone",
   },
+  gd_rocket_head_command_capsule: {
+    ru: "Командный отсек",
+    en: "Command Capsule",
+  },
   gd_rocket_mod_artifact_transport: {
     ru: "Модуль перевозки артефактов",
     en: "Artifact Transport Module",
@@ -164,6 +173,10 @@ export const gameDataTranslations = {
   gd_rocket_mod_trailblazer: {
     ru: "Модуль первопроходца",
     en: "Trailblazer Module",
+  },
+  gd_rocket_mod_solid_furl_thruster: {
+    ru: "Твердотопливный ускоритель",
+    en: "Solid Fuel Thruster",
   },
   gd_rocket_platform: { ru: "Ракетная платформа", en: "Rocket Platform" },
 

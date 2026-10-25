@@ -17,6 +17,18 @@ import { ThemeContext } from "../../providers/app-theme-provider";
 import { useTranslation } from "../../hooks/useTranslation";
 import type { TranslationKey } from "../../i18n/translations";
 import { getAssetImageUrl } from "../asset-image/AssetImage";
+import {
+  CLASSIC_CARGO_BAY_KIND_ORDER,
+  classicCargoBayKindImage,
+  classicCargoSlotIndexFromUid,
+  type ClassicCargoBayKind,
+} from "../../helpers/classicCargoBayKinds";
+import {
+  CLASSIC_RESEARCH_SIGHTSEEING_KIND_ORDER,
+  classicResearchSightseeingKindImage,
+  classicResearchSightseeingSlotIndexFromUid,
+  type ClassicResearchSightseeingKind,
+} from "../../helpers/classicResearchSightseeingKinds";
 import { Popup } from "../popup/Popup";
 import { getRocketModuleSpriteInset } from "./rocket-sprite-insets";
 import { liquids } from "../../game-data/liquids";
@@ -37,11 +49,16 @@ export const ROCKET_CELL_PX = 40
 
 /** Ширина колонки с номером ряда слева от сетки. */
 const ROCKET_ROW_INDEX_RAIL_PX = 26
-/** Мин. ширина колонки с накопленным load справа. */
+/** Мин. ширина колонки с нагрузкой (burden / `load`) модулей справа. */
 const ROCKET_LOAD_RAIL_MIN_PX = 40
+/** Невидимый «мост» от классического модуля к панели выбора типа (px). */
+const CLASSIC_MODULE_PICKER_BRIDGE_PX = 58
+const CLASSIC_MODULE_PICKER_COLUMN_PX = 52
+const CLASSIC_MODULE_PICKER_COLUMN_OVERLAP_PX = 10
 
-function partLoad(part: IRocketModule | IRocketEngine): number {
-  return part.load ?? 0
+/** Игровая «нагрузка» (burden / load), не высота модуля в ячейках. */
+function rocketPartBurden(part: IRocketModule | IRocketEngine): number {
+  return typeof part.load === "number" ? part.load : 0;
 }
 
 export const rocketStackModules: Record<string, IRocketModule> = {
@@ -328,6 +345,36 @@ export function normalizeRocketStackPlacements(
   return [...compactedBody, snappedHead];
 }
 
+/** SO-билдер: убрать классические модули и пересобрать стек под новый двигатель и авто-баки. */
+export function sanitizeRocketStackForEngine(
+  stackModules: PlacedRocketStackModule[],
+  engineId: RocketEngineId,
+  steps: number,
+  oxidizerVariant: RocketOxidizerVariant,
+): PlacedRocketStackModule[] {
+  const engine = rocketEngines[engineId];
+  const budget = rocketModuleCellBudget(engine);
+  const fuelPlan = computeRocketFuelPlan(engine, steps);
+  const inferred = buildInferredTankPlacements(
+    engine,
+    budget,
+    [],
+    fuelPlan,
+    oxidizerVariant,
+  );
+  let tankStackRows = 0;
+  for (const p of inferred) {
+    const m = rocketStackModules[p.moduleKey];
+    if (m) tankStackRows += m.height;
+  }
+  const bodyModuleBudget = Math.max(0, budget - tankStackRows);
+  const withoutClassic = stackModules.filter((p) => {
+    const mod = rocketStackModules[p.moduleKey];
+    return mod && !mod.classicOnly;
+  });
+  return normalizeRocketStackPlacements(withoutClassic, bodyModuleBudget);
+}
+
 function cellKey(row: number, col: number) {
   return `${row},${col}`;
 }
@@ -373,6 +420,18 @@ export function rocketModuleCellBudget(engine: IRocketEngine): number {
   return Math.max(0, engine.maxHeight - engine.height);
 }
 
+/** Нижний ряд (exclusive) занятого стеком модулей в координатах сетки. */
+export function placementsStackExtentRows(
+  placements: readonly PlacedRocketStackModule[],
+): number {
+  let max = 0;
+  for (const p of placements) {
+    const m = rocketStackModules[p.moduleKey];
+    if (m) max = Math.max(max, p.row + m.height);
+  }
+  return max;
+}
+
 /** Число прыжков по маршруту (ребра между шестиугольниками). */
 export function rocketRouteSteps(way: number[] | null | undefined): number {
   if (!way || way.length < 2) return 0
@@ -400,7 +459,7 @@ export type RocketOxidizerPlanLine = {
 export type RocketFuelPlan = {
   steps: number
   totalFuelKg: number
-  /** Объём одного модуля в расчёте: внешний топливный = 900; только встроенный — вместимость бака. */
+  /** Объём одного модуля в расчёте: внешний топливный = ROCKET_EXTERNAL_TANK_KG; только встроенный — вместимость бака. */
   volumePerTankKg: number
   /** Число внешних топливных модулей (после учёта встроенного бака). */
   tanksNeeded: number
@@ -504,6 +563,19 @@ interface RocketBuilderProps {
   onPlacementsChange: React.Dispatch<React.SetStateAction<PlacedRocketStackModule[]>>;
   /** Баки по расчёту топлива/окислителя (не редактируются пользователем). */
   inferredTankPlacements?: PlacedRocketStackModule[];
+  /** Только отображение сетки и модулей (классический калькулятор). */
+  readOnly?: boolean;
+  /** Виды грузовых отсеков (классика), длина = число отсеков. */
+  classicCargoBayKinds?: ClassicCargoBayKind[];
+  onClassicCargoBayKindChange?: (
+    slotIndex: number,
+    kind: ClassicCargoBayKind,
+  ) => void;
+  classicResearchSightseeingKinds?: ClassicResearchSightseeingKind[];
+  onClassicResearchSightseeingKindChange?: (
+    slotIndex: number,
+    kind: ClassicResearchSightseeingKind,
+  ) => void;
 }
 
 export default function RocketBuilder(props: RocketBuilderProps) {
@@ -512,10 +584,16 @@ export default function RocketBuilder(props: RocketBuilderProps) {
     placements,
     onPlacementsChange,
     inferredTankPlacements = [],
+    readOnly = false,
+    classicCargoBayKinds,
+    onClassicCargoBayKindChange,
+    classicResearchSightseeingKinds,
+    onClassicResearchSightseeingKindChange,
   } = props;
   const { colors } = useContext(ThemeContext);
   const { t, entityName } = useTranslation();
   const gridWrapRef = useRef<HTMLDivElement>(null);
+  const classicSidePickerZoneRef = useRef<HTMLDivElement>(null);
   /** Курсор над любой свободной ячейкой зоны модулей — показываем общую подсветку области. */
   const [highlightFreeStack, setHighlightFreeStack] = useState(false);
   const [addModuleOpen, setAddModuleOpen] = useState(false);
@@ -536,7 +614,9 @@ export default function RocketBuilder(props: RocketBuilderProps) {
   const rocketTotalRows = engine?.maxHeight ?? 0;
   const platform = rocketPlatform;
   const platformRows = platform.height;
-  const totalGridRows = rocketTotalRows + platformRows;
+  /** Классический калькулятор: без стартовой платформы Spaced Out. */
+  const showPlatform = !readOnly;
+  const platformRowCount = showPlatform ? platformRows : 0;
   const engineColOffset = engine
     ? Math.floor((ROCKET_GRID_COLUMNS - engine.width) / 2)
     : 0;
@@ -578,6 +658,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
     }
     for (const entry of stackCatalog) {
       const [k, m] = entry;
+      if (m.classicOnly) continue;
       const arr = byType.get(m.type);
       if (arr) arr.push([k, m]);
     }
@@ -610,13 +691,18 @@ export default function RocketBuilder(props: RocketBuilderProps) {
   );
 
   useEffect(() => {
+    if (readOnly) return;
+    const withoutClassic = placements.filter((p) => {
+      const mod = rocketStackModules[p.moduleKey];
+      return mod && !mod.classicOnly;
+    });
     const next = normalizeRocketStackPlacements(
-      placements,
+      withoutClassic,
       bodyModuleBudget,
     );
     if (placementsDeepEqual(placements, next)) return;
     onPlacementsChange(next);
-  }, [placements, bodyModuleBudget, onPlacementsChange]);
+  }, [readOnly, placements, bodyModuleBudget, onPlacementsChange]);
 
   useEffect(() => {
     if (!addModuleOpen) setHoveredCatalogModKey(null);
@@ -697,8 +783,157 @@ export default function RocketBuilder(props: RocketBuilderProps) {
     [onPlacementsChange],
   );
 
+  const stackExtentRows = useMemo(
+    () => placementsStackExtentRows(mergedPlacements),
+    [mergedPlacements],
+  );
+
+  /** В readOnly (классика) высота зоны модулей = фактический стек, без запаса по maxHeight. */
+  const gridModuleBudget = readOnly ? stackExtentRows : budget;
+  const gridRocketTotalRows =
+    readOnly && engine
+      ? gridModuleBudget + engine.height
+      : rocketTotalRows;
+
   const gridPixelWidth = ROCKET_GRID_COLUMNS * ROCKET_CELL_PX;
-  const moduleZoneHeightPx = budget * ROCKET_CELL_PX;
+  const moduleZoneHeightPx = gridModuleBudget * ROCKET_CELL_PX;
+  const gridContentHeightPx =
+    (gridRocketTotalRows + platformRowCount) * ROCKET_CELL_PX;
+
+  const hoveredClassicCargoSlot = useMemo(() => {
+    if (!hoveredStackModuleUid) return null;
+    return classicCargoSlotIndexFromUid(hoveredStackModuleUid);
+  }, [hoveredStackModuleUid]);
+
+  const hoveredClassicRsSlot = useMemo(() => {
+    if (!hoveredStackModuleUid) return null;
+    return classicResearchSightseeingSlotIndexFromUid(hoveredStackModuleUid);
+  }, [hoveredStackModuleUid]);
+
+  const classicModulePickerAnchorY = useMemo(() => {
+    const slot =
+      hoveredClassicCargoSlot !== null
+        ? hoveredClassicCargoSlot
+        : hoveredClassicRsSlot;
+    if (slot === null) return null;
+    const placement = mergedPlacements.find((p) => {
+      if (hoveredClassicCargoSlot !== null) {
+        return classicCargoSlotIndexFromUid(p.uid) === hoveredClassicCargoSlot;
+      }
+      return classicResearchSightseeingSlotIndexFromUid(p.uid) === slot;
+    });
+    if (!placement) return null;
+    const mod = rocketStackModules[placement.moduleKey];
+    if (!mod) return null;
+    return (placement.row + mod.height / 2) * ROCKET_CELL_PX;
+  }, [hoveredClassicCargoSlot, hoveredClassicRsSlot, mergedPlacements]);
+
+  const classicCargoKindPickerEnabled =
+    readOnly && classicCargoBayKinds && onClassicCargoBayKindChange;
+
+  const classicRsKindPickerEnabled =
+    readOnly &&
+    classicResearchSightseeingKinds &&
+    onClassicResearchSightseeingKindChange;
+
+  const classicSidePickerEnabled =
+    classicCargoKindPickerEnabled || classicRsKindPickerEnabled;
+
+  const showClassicCargoPicker =
+    classicCargoKindPickerEnabled &&
+    hoveredClassicCargoSlot !== null &&
+    classicModulePickerAnchorY !== null;
+
+  const showClassicRsPicker =
+    classicRsKindPickerEnabled &&
+    hoveredClassicRsSlot !== null &&
+    classicModulePickerAnchorY !== null;
+
+  const showClassicSidePicker = showClassicCargoPicker || showClassicRsPicker;
+
+  const syncClassicPickableHoverFromPointer = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!classicSidePickerEnabled) return;
+      const zone = classicSidePickerZoneRef.current;
+      const gridEl = gridWrapRef.current;
+      if (!zone || !gridEl) return;
+
+      const zoneR = zone.getBoundingClientRect();
+      const xZone = clientX - zoneR.left;
+      const yZone = clientY - zoneR.top;
+
+      const pickerLeft =
+        gridPixelWidth - CLASSIC_MODULE_PICKER_COLUMN_OVERLAP_PX;
+      const pickerRight =
+        pickerLeft + CLASSIC_MODULE_PICKER_COLUMN_PX;
+      if (
+        xZone >= pickerLeft &&
+        xZone < pickerRight &&
+        yZone >= 0 &&
+        yZone <= gridContentHeightPx
+      ) {
+        return;
+      }
+
+      const gridR = gridEl.getBoundingClientRect();
+      const x = clientX - gridR.left;
+      const y = clientY - gridR.top;
+      if (x < 0 || y < 0 || x >= gridPixelWidth || y >= moduleZoneHeightPx) {
+        setHoveredStackModuleUid(null);
+        return;
+      }
+
+      for (let i = mergedPlacements.length - 1; i >= 0; i--) {
+        const p = mergedPlacements[i];
+        if (p.uid.startsWith(INFERRED_ROCKET_TANK_UID_PREFIX)) continue;
+        const isCargo = classicCargoSlotIndexFromUid(p.uid) !== null;
+        const isRs = classicResearchSightseeingSlotIndexFromUid(p.uid) !== null;
+        if (!isCargo && !isRs) continue;
+        const mod = rocketStackModules[p.moduleKey];
+        if (!mod) continue;
+        const left = p.col * ROCKET_CELL_PX;
+        const top = p.row * ROCKET_CELL_PX;
+        const wPx = mod.width * ROCKET_CELL_PX;
+        const hPx = mod.height * ROCKET_CELL_PX;
+        const hitRight = left + wPx + CLASSIC_MODULE_PICKER_BRIDGE_PX;
+        if (x >= left && x < hitRight && y >= top && y < top + hPx) {
+          setHoveredStackModuleUid(p.uid);
+          return;
+        }
+      }
+      setHoveredStackModuleUid(null);
+    },
+    [
+      classicSidePickerEnabled,
+      mergedPlacements,
+      gridPixelWidth,
+      moduleZoneHeightPx,
+      gridContentHeightPx,
+    ],
+  );
+
+  const loadRailMarkers = useMemo(() => {
+    if (!engine) return [];
+    const railLabel = (part: IRocketModule | IRocketEngine) =>
+      readOnly ? part.height : rocketPartBurden(part);
+    const markers: { key: string; centerY: number; label: number }[] = [
+      {
+        key: "engine",
+        centerY: (gridModuleBudget + engine.height / 2) * ROCKET_CELL_PX,
+        label: railLabel(engine),
+      },
+    ];
+    for (const p of mergedPlacements) {
+      const mod = rocketStackModules[p.moduleKey];
+      if (!mod) continue;
+      markers.push({
+        key: p.uid,
+        centerY: (p.row + mod.height / 2) * ROCKET_CELL_PX,
+        label: railLabel(mod),
+      });
+    }
+    return markers;
+  }, [mergedPlacements, engine, gridModuleBudget, readOnly]);
 
   const syncHighlightFromPointer = useCallback(
     (clientX: number, clientY: number) => {
@@ -722,7 +957,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
       const col = Math.floor(x / ROCKET_CELL_PX);
       const row = Math.floor(y / ROCKET_CELL_PX);
       if (
-        row < budget &&
+        row < gridModuleBudget &&
         col >= 0 &&
         col < ROCKET_GRID_COLUMNS &&
         !occ.has(cellKey(row, col))
@@ -732,7 +967,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
         setHighlightFreeStack(false);
       }
     },
-    [budget, gridPixelWidth, moduleZoneHeightPx, occ],
+    [gridModuleBudget, gridPixelWidth, moduleZoneHeightPx, occ],
   );
 
   if (!engine) {
@@ -782,7 +1017,6 @@ export default function RocketBuilder(props: RocketBuilderProps) {
       userSelect: "none",
     }) as const;
 
-  const gridContentHeightPx = totalGridRows * ROCKET_CELL_PX;
   const loadRailLabelStyle = {
     position: "absolute" as const,
     left: 0,
@@ -815,18 +1049,36 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             height: gridContentHeightPx,
           }}
         >
-          {Array.from({ length: totalGridRows }).map((_, r) => (
+          {Array.from({ length: gridRocketTotalRows + platformRowCount }).map((_, r) => (
             <div key={`row-${r}`} style={railCellStyle("flex-end")}>
-              {totalGridRows - r}
+              {gridRocketTotalRows + platformRowCount - r}
             </div>
           ))}
         </div>
         <div
+          ref={classicSidePickerZoneRef}
+          style={{
+            position: "relative",
+            flexShrink: 0,
+            width: gridPixelWidth,
+            height: gridContentHeightPx,
+          }}
+          onMouseMove={(e) => {
+            syncClassicPickableHoverFromPointer(e.clientX, e.clientY);
+          }}
+          onMouseLeave={(e) => {
+            if (!readOnly || !classicSidePickerEnabled) return;
+            const next = e.relatedTarget;
+            if (next instanceof Node && e.currentTarget.contains(next)) return;
+            setHoveredStackModuleUid(null);
+          }}
+        >
+        <div
           ref={gridWrapRef}
-          style={{ position: "relative", width: gridPixelWidth }}
-          onMouseMove={(e) =>
-            syncHighlightFromPointer(e.clientX, e.clientY)
-          }
+          style={{ position: "relative", width: gridPixelWidth, flexShrink: 0 }}
+          onMouseMove={(e) => {
+            syncHighlightFromPointer(e.clientX, e.clientY);
+          }}
           onMouseLeave={() => setHighlightFreeStack(false)}
         >
           <div
@@ -839,19 +1091,19 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             }}
           >
             {Array.from({
-              length: totalGridRows * ROCKET_GRID_COLUMNS,
+              length: (gridRocketTotalRows + platformRowCount) * ROCKET_GRID_COLUMNS,
             }).map((_, i) => {
               const row = Math.floor(i / ROCKET_GRID_COLUMNS);
               const col = i % ROCKET_GRID_COLUMNS;
 
-              const inModuleZone = row < budget;
+              const inModuleZone = row < gridModuleBudget;
               const occupied = occ.has(cellKey(row, col));
 
-              const cellInteract = inModuleZone && !occupied;
+              const cellInteract = !readOnly && inModuleZone && !occupied;
 
               const inEngineFootprint =
-                row >= budget &&
-                row < rocketTotalRows &&
+                row >= gridModuleBudget &&
+                row < gridRocketTotalRows &&
                 col >= engineColOffset &&
                 col < engineColOffset + engine.width;
 
@@ -883,16 +1135,16 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                     borderBottom: `1px solid ${colors.border.main}`,
                     boxSizing: "border-box",
                     cursor:
-                      row >= budget
+                      row >= gridModuleBudget
                         ? "default"
                         : cellInteract
                           ? "pointer"
                           : "default",
                     backgroundColor: (() => {
-                      if (row >= budget && inEngineFootprint) {
+                      if (row >= gridModuleBudget && inEngineFootprint) {
                         return `color-mix(in srgb, ${colors.text.primary} 4%, transparent)`;
                       }
-                      if (row >= budget) {
+                      if (row >= gridModuleBudget) {
                         return `color-mix(in srgb, ${colors.text.primary} 7%, transparent)`;
                       }
                       return "transparent";
@@ -904,7 +1156,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             })}
           </div>
 
-          {budget > 0 && highlightFreeStack ? (
+          {!readOnly && gridModuleBudget > 0 && highlightFreeStack ? (
             <div
               aria-hidden
               style={{
@@ -937,22 +1189,24 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             </div>
           ) : null}
 
-          {/* Платформа под двигателем — нижние ряды той же сетки. */}
-          <img
-            alt=""
-            draggable={false}
-            src={getAssetImageUrl(platform.image)}
-            style={{
-              position: "absolute",
-              pointerEvents: "none",
-              left: -platformSpriteInset.left,
-              top: rocketTotalRows * ROCKET_CELL_PX - platformSpriteInset.top,
-              width: platformDrawW,
-              height: platformDrawH,
-              objectFit: "contain",
-              zIndex: 0,
-            }}
-          />
+          {showPlatform ? (
+            <img
+              alt=""
+              draggable={false}
+              src={getAssetImageUrl(platform.image)}
+              style={{
+                position: "absolute",
+                pointerEvents: "none",
+                left: -platformSpriteInset.left,
+                top:
+                  gridRocketTotalRows * ROCKET_CELL_PX - platformSpriteInset.top,
+                width: platformDrawW,
+                height: platformDrawH,
+                objectFit: "contain",
+                zIndex: 0,
+              }}
+            />
+          ) : null}
 
           {/* Двигатель в нижней части той же сетки (высота двигателя в ячейках). */}
           <img
@@ -964,7 +1218,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
               pointerEvents: "none",
               left:
                 engineColOffset * ROCKET_CELL_PX - engineSpriteInset.left,
-              top: budget * ROCKET_CELL_PX - engineSpriteInset.top,
+              top: gridModuleBudget * ROCKET_CELL_PX - engineSpriteInset.top,
               width: engineDrawW,
               height: engineDrawH,
               objectFit: "contain",
@@ -976,12 +1230,23 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             const mod = rocketStackModules[p.moduleKey];
             if (!mod) return null;
             const inferredTank = p.uid.startsWith(INFERRED_ROCKET_TANK_UID_PREFIX);
+            const classicCargoSlot = classicCargoSlotIndexFromUid(p.uid);
+            const classicRsSlot = classicResearchSightseeingSlotIndexFromUid(p.uid);
+            const isClassicCargoModule =
+              readOnly && classicCargoSlot !== null && !inferredTank;
+            const isClassicRsModule =
+              readOnly && classicRsSlot !== null && !inferredTank;
+            const isClassicPickableModule =
+              isClassicCargoModule || isClassicRsModule;
             const modInset = getRocketModuleSpriteInset(mod);
             const wPx = mod.width * ROCKET_CELL_PX;
             const hPx = mod.height * ROCKET_CELL_PX;
             const drawW = wPx + modInset.left + modInset.right;
             const drawH = hPx + modInset.top + modInset.bottom;
-            const isHovered = !inferredTank && hoveredStackModuleUid === p.uid;
+            const isHovered =
+              !inferredTank &&
+              hoveredStackModuleUid === p.uid &&
+              (!readOnly || isClassicPickableModule);
             const crossSize = Math.max(
               22,
               Math.min(36, Math.floor(Math.min(wPx, hPx) * 0.28)),
@@ -997,11 +1262,21 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                 onMouseEnter={() => {
                   if (!inferredTank) setHoveredStackModuleUid(p.uid);
                 }}
-                onMouseLeave={() =>
+                onMouseLeave={(e) => {
+                  if (isClassicPickableModule) {
+                    const related = e.relatedTarget;
+                    if (
+                      related instanceof Element &&
+                      (related.closest("[data-classic-module-picker]") ||
+                        related.closest("[data-classic-module-picker-bridge]"))
+                    ) {
+                      return;
+                    }
+                  }
                   setHoveredStackModuleUid((prev) =>
                     prev === p.uid ? null : prev,
-                  )
-                }
+                  );
+                }}
                 onClick={
                   inferredTank
                     ? undefined
@@ -1017,9 +1292,19 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                   width: wPx,
                   height: hPx,
                   zIndex: 2,
-                  pointerEvents: inferredTank ? "none" : "auto",
+                  pointerEvents:
+                    inferredTank || (readOnly && !isClassicPickableModule)
+                      ? "none"
+                      : "auto",
                   overflow: "visible",
-                  cursor: inferredTank ? "default" : "pointer",
+                  cursor:
+                    inferredTank
+                      ? "default"
+                      : isClassicPickableModule
+                        ? "pointer"
+                        : readOnly
+                          ? "default"
+                          : "pointer",
                 }}
               >
                 <img
@@ -1033,6 +1318,18 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                     width: drawW,
                     height: drawH,
                     objectFit: "contain",
+                    objectPosition: isRocketHeadModule(mod)
+                      ? "bottom center"
+                      : p.moduleKey === "solidFuelThruster"
+                        ? "top center"
+                        : p.moduleKey === "classicResearchModule" ||
+                            p.moduleKey === "classicSightseeingModule"
+                          ? "bottom center"
+                          : "center",
+                    transform:
+                      p.moduleKey === "largeGasCargoCanister"
+                        ? "translateX(-14px)"
+                        : undefined,
                     pointerEvents: "none",
                   }}
                 />
@@ -1051,34 +1348,180 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                         boxSizing: "border-box",
                       }}
                     />
-                    <div
-                      aria-hidden
-                      style={{
-                        position: "absolute",
-                        left: "50%",
-                        top: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: crossSize,
-                        height: crossSize,
-                        borderRadius: "50%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: colors.background.default,
-                        color: primary,
-                        border: `2px solid ${primary}`,
-                        pointerEvents: "none",
-                        zIndex: 2,
-                        boxShadow: `0 2px 8px color-mix(in srgb, ${colors.text.primary} 22%, transparent)`,
-                      }}
-                    >
-                      <FiX size={crossSize * 0.5} strokeWidth={2.5} />
-                    </div>
+                    {!readOnly ? (
+                      <div
+                        aria-hidden
+                        style={{
+                          position: "absolute",
+                          left: "50%",
+                          top: "50%",
+                          transform: "translate(-50%, -50%)",
+                          width: crossSize,
+                          height: crossSize,
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: colors.background.default,
+                          color: primary,
+                          border: `2px solid ${primary}`,
+                          pointerEvents: "none",
+                          zIndex: 2,
+                          boxShadow: `0 2px 8px color-mix(in srgb, ${colors.text.primary} 22%, transparent)`,
+                        }}
+                      >
+                        <FiX size={crossSize * 0.5} strokeWidth={2.5} />
+                      </div>
+                    ) : null}
                   </>
+                ) : null}
+                {isClassicPickableModule && hoveredStackModuleUid === p.uid ? (
+                  <div
+                    aria-hidden
+                    data-classic-module-picker-bridge
+                    style={{
+                      position: "absolute",
+                      left: wPx,
+                      top: 0,
+                      width: CLASSIC_MODULE_PICKER_BRIDGE_PX,
+                      height: hPx,
+                      zIndex: 3,
+                    }}
+                  />
                 ) : null}
               </div>
             );
           })}
+        </div>
+        {classicSidePickerEnabled ? (
+          <div
+            data-classic-module-picker
+            style={{
+              position: "absolute",
+              left: gridPixelWidth - CLASSIC_MODULE_PICKER_COLUMN_OVERLAP_PX,
+              top: 0,
+              width: CLASSIC_MODULE_PICKER_COLUMN_PX,
+              paddingLeft: CLASSIC_MODULE_PICKER_COLUMN_OVERLAP_PX,
+              height: gridContentHeightPx,
+              boxSizing: "border-box",
+              zIndex: 15,
+            }}
+          >
+            {showClassicSidePicker ? (
+            <div
+              role="toolbar"
+              aria-label={
+                showClassicCargoPicker
+                  ? t("classic_rocket_cargo_kind_picker")
+                  : t("classic_rocket_rs_kind_picker")
+              }
+              style={{
+                position: "absolute",
+                left: 0,
+                top: classicModulePickerAnchorY ?? 0,
+                transform: "translateY(-50%)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+                padding: 4,
+                borderRadius: 8,
+                border: `1px solid ${colors.border.main}`,
+                background: colors.background.paper,
+                boxShadow: `0 4px 14px color-mix(in srgb, ${colors.text.primary} 18%, transparent)`,
+                zIndex: 12,
+              }}
+            >
+              {showClassicCargoPicker
+                ? CLASSIC_CARGO_BAY_KIND_ORDER.map((kind) => {
+                    const active =
+                      classicCargoBayKinds![hoveredClassicCargoSlot!] === kind;
+                    return (
+                      <button
+                        key={kind}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() =>
+                          onClassicCargoBayKindChange!(
+                            hoveredClassicCargoSlot!,
+                            kind,
+                          )
+                        }
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 36,
+                          height: 36,
+                          padding: 2,
+                          borderRadius: 6,
+                          border: `2px solid ${active ? primary : colors.border.main}`,
+                          background: active
+                            ? `color-mix(in srgb, ${primary} 14%, ${colors.background.paper})`
+                            : colors.background.average,
+                          cursor: "pointer",
+                        }}
+                      >
+                        <img
+                          src={getAssetImageUrl(classicCargoBayKindImage(kind))}
+                          alt=""
+                          style={{
+                            maxWidth: 28,
+                            maxHeight: 28,
+                            objectFit: "contain",
+                          }}
+                        />
+                      </button>
+                    );
+                  })
+                : CLASSIC_RESEARCH_SIGHTSEEING_KIND_ORDER.map((kind) => {
+                    const active =
+                      classicResearchSightseeingKinds![
+                        hoveredClassicRsSlot!
+                      ] === kind;
+                    return (
+                      <button
+                        key={kind}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() =>
+                          onClassicResearchSightseeingKindChange!(
+                            hoveredClassicRsSlot!,
+                            kind,
+                          )
+                        }
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 36,
+                          height: 36,
+                          padding: 2,
+                          borderRadius: 6,
+                          border: `2px solid ${active ? primary : colors.border.main}`,
+                          background: active
+                            ? `color-mix(in srgb, ${primary} 14%, ${colors.background.paper})`
+                            : colors.background.average,
+                          cursor: "pointer",
+                        }}
+                      >
+                        <img
+                          src={getAssetImageUrl(
+                            classicResearchSightseeingKindImage(kind),
+                          )}
+                          alt=""
+                          style={{
+                            maxWidth: 28,
+                            maxHeight: 28,
+                            objectFit: "contain",
+                          }}
+                        />
+                      </button>
+                    );
+                  })}
+            </div>
+            ) : null}
+          </div>
+        ) : null}
         </div>
         <div
           aria-hidden
@@ -1089,37 +1532,26 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             height: gridContentHeightPx,
           }}
         >
-          {mergedPlacements.map((p) => {
-            const mod = rocketStackModules[p.moduleKey];
-            if (!mod) return null;
-            const cy = (p.row + mod.height / 2) * ROCKET_CELL_PX;
-            return (
-              <div
-                key={`load-${p.uid}`}
-                style={{
-                  ...loadRailLabelStyle,
-                  top: cy,
-                }}
-              >
-                {partLoad(mod)}
-              </div>
-            );
-          })}
-          <div
-            style={{
-              ...loadRailLabelStyle,
-              top: (budget + engine.height / 2) * ROCKET_CELL_PX,
-            }}
-          >
-            {partLoad(engine)}
-          </div>
+          {loadRailMarkers.map((m) => (
+            <div
+              key={`load-${m.key}`}
+              style={{
+                ...loadRailLabelStyle,
+                top: m.centerY,
+              }}
+            >
+              {m.label}
+            </div>
+          ))}
         </div>
       </div>
 
+      {!readOnly ? (
       <Popup
         open={addModuleOpen}
         title={t("rocket_builder_add_module_popup_title")}
         variant="fit-content"
+        width={640}
         closeButton
         onClose={() => setAddModuleOpen(false)}
       >
@@ -1131,7 +1563,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
         ) : !addModuleOpen ? null : (
           <div
             style={{
-              width: "min(100vw - 3rem, 580px)",
+              width: "100%",
               maxHeight: "min(460px, 70vh)",
               overflowY: "auto",
               overflowX: "hidden",
@@ -1161,8 +1593,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns:
-                      "repeat(auto-fill, minmax(min(112px, 100%), 1fr))",
+                    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
                     gap: 12,
                   }}
                 >
@@ -1284,6 +1715,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
           </div>
         )}
       </Popup>
+      ) : null}
     </div>
   );
 }
