@@ -23,7 +23,6 @@ import { GiStomach } from "react-icons/gi";
 import { useTranslation } from "../../hooks/useTranslation";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { useAppSettings } from "../../providers/app-settings-provider";
-import { visiblePlanetoids } from "../../helpers/planetoidStorage";
 import { isFoodShownForPlanetoid } from "../../helpers/foodPlanetoidFilter";
 import { TextField } from "../../components/text-field/TextField";
 import { Popup } from "../../components/popup/Popup";
@@ -177,8 +176,7 @@ function DuplicantCountCounter({
 export default function Food() {
   const { colors } = useContext(ThemeContext);
   const { t, entityName, language } = useTranslation();
-  const { activePlanetoid, data } = useAppSettings();
-  const hasVisiblePlanetoids = visiblePlanetoids(data.planetoids).length > 0;
+  const { activePlanetoid, planetoidRestrictionsActive } = useAppSettings();
 
   const [selectedItem, setSelectedItem] = useState<IFood | null>(null);
 
@@ -233,16 +231,16 @@ export default function Food() {
   const foodItemsForPlanetoid = useMemo(
     () =>
       foodItemsSorted.filter((item) =>
-        isFoodShownForPlanetoid(item, activePlanetoid, hasVisiblePlanetoids)
+        isFoodShownForPlanetoid(item, activePlanetoid, planetoidRestrictionsActive)
       ),
-    [foodItemsSorted, activePlanetoid, hasVisiblePlanetoids]
+    [foodItemsSorted, activePlanetoid, planetoidRestrictionsActive]
   );
 
   useEffect(() => {
     if (!selectedItem) return;
-    if (isFoodShownForPlanetoid(selectedItem, activePlanetoid, hasVisiblePlanetoids)) return;
+    if (isFoodShownForPlanetoid(selectedItem, activePlanetoid, planetoidRestrictionsActive)) return;
     setSelectedItem(null);
-  }, [selectedItem, activePlanetoid, hasVisiblePlanetoids]);
+  }, [selectedItem, activePlanetoid, planetoidRestrictionsActive]);
 
   const { tree, uniqueResourses, uniqueTools } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }>, uniqueTools: Record<string, GameNode & { total: number }> } => {
     if (!selectedItem) return { tree: null, uniqueResourses: {}, uniqueTools: {} };

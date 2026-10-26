@@ -45,7 +45,7 @@ export default function Home() {
           style={{
             margin: 0,
             fontFamily: "var(--font-heading)",
-            fontSize: "clamp(1.25rem, 2.2vw, 1.5rem)",
+            fontSize: "1.5rem",
             fontWeight: 700,
             letterSpacing: "-0.025em",
             lineHeight: 1.25,

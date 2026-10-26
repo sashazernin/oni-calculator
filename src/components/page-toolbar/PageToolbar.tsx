@@ -1,6 +1,12 @@
 import { useContext, type CSSProperties, type ReactNode } from "react";
 import { ThemeContext } from "../../providers/app-theme-provider";
 
+/** Единый размер заголовка страниц (без уменьшения на узких экранах). */
+export const PAGE_TITLE_FONT_SIZE = "1.35rem";
+
+/** Минимальная высота строки заголовка страницы (вровень с чипами/кнопками). */
+export const PAGE_TOOLBAR_MIN_HEIGHT_PX = 44;
+
 export type PageToolbarProps = {
   title: string;
   children?: ReactNode;
@@ -35,17 +41,23 @@ export default function PageToolbar({ title, children, actions }: PageToolbarPro
         alignItems: "center",
         rowGap: 10,
         width: "100%",
+        minHeight: PAGE_TOOLBAR_MIN_HEIGHT_PX,
+        boxSizing: "border-box",
       }}
     >
       <h2
         style={{
           margin: 0,
           fontFamily: "var(--font-heading)",
-          fontSize: "clamp(1.15rem, 2vw, 1.35rem)",
+          fontSize: PAGE_TITLE_FONT_SIZE,
           fontWeight: 700,
           color: colors.text.primary,
           flexShrink: 0,
           lineHeight: 1.2,
+          minHeight: PAGE_TOOLBAR_MIN_HEIGHT_PX,
+          display: "flex",
+          alignItems: "center",
+          boxSizing: "border-box",
         }}
       >
         {title}

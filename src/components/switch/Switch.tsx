@@ -21,6 +21,7 @@ export function Switch({
   labelImageAlt = "",
   togglePosition = "end",
   disabled,
+  style,
   ...rest
 }: SwitchProps) {
   const { colors } = useContext(ThemeContext);
@@ -120,6 +121,7 @@ export function Switch({
         opacity: disabled ? 0.55 : 1,
         font: "inherit",
         textAlign: "left",
+        ...style,
       }}
       {...rest}
     >

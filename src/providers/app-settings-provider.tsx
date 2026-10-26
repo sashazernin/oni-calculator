@@ -27,6 +27,7 @@ import {
   persistAppSettingsDataToLocal,
   type AppSettingsData,
 } from "../helpers/appSettingsData";
+import { planetoidRestrictionsActive } from "../helpers/planetoidGameplay";
 import type { RocketsStoragePayload } from "../helpers/readStoredRockets";
 import {
   DRIVE_STATUS_NOT_CONNECTED,
@@ -53,8 +54,11 @@ export type AppSettingsContextValue = {
   ready: boolean;
   data: AppSettingsData;
   activePlanetoid: Planetoid | null;
+  /** Тип планетойда влияет на меню и контент (еда, ракеты…). */
+  planetoidRestrictionsActive: boolean;
   setTheme: (theme: ISupportedThemes) => void;
   setLanguage: (language: ISupportedLanguages) => void;
+  setMixedMode: (mixedMode: boolean) => void;
   setDuplicants: (duplicants: IDuplicate[]) => void;
   setRockets: (payload: RocketsStoragePayload) => void;
   setStarMap: (objects: HexMapObjectItem[]) => void;
@@ -437,6 +441,10 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
     (language: ISupportedLanguages) => patchData({ language }),
     [patchData]
   );
+  const setMixedMode = useCallback(
+    (mixedMode: boolean) => patchData({ mixedMode }),
+    [patchData]
+  );
   const setDuplicants = useCallback(
     (duplicants: IDuplicate[]) => patchData({ duplicants }),
     [patchData]
@@ -455,13 +463,20 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
     [data.planetoids, data.activePlanetoidId]
   );
 
+  const restrictionsActive = useMemo(
+    () => planetoidRestrictionsActive(data.mixedMode, data.planetoids),
+    [data.mixedMode, data.planetoids]
+  );
+
   const value = useMemo(
     () => ({
       ready,
       data,
       activePlanetoid,
+      planetoidRestrictionsActive: restrictionsActive,
       setTheme,
       setLanguage,
+      setMixedMode,
       setDuplicants,
       setRockets,
       setStarMap,
@@ -476,8 +491,10 @@ export default function AppSettingsProvider({ children }: { children: React.Reac
       ready,
       data,
       activePlanetoid,
+      restrictionsActive,
       setTheme,
       setLanguage,
+      setMixedMode,
       setDuplicants,
       setRockets,
       setStarMap,

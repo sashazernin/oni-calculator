@@ -12,6 +12,7 @@ import { IoFastFoodSharp } from "react-icons/io5";
 import Chip from "../../../components/chip/chip";
 import { duplicantInfo } from "../../../game-data/dublicantInfo";
 import { useTranslation } from "../../../hooks/useTranslation";
+import PageToolbar from "../../../components/page-toolbar/PageToolbar";
 
 type DupeDialog =
   | { kind: "closed" }
@@ -83,23 +84,20 @@ export default function ColonySettings() {
           gap: 16,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 10,
-            alignItems: "center",
-          }}
+        <PageToolbar
+          title={t("nav_colony")}
+          actions={
+            <IconButton onClick={openAdd} aria-label={t("aria_add_duplicant")}>
+              <LuCirclePlus aria-hidden />
+            </IconButton>
+          }
         >
           <Chip>
             <DupeIcon size={25} style={{ color: colors.primary.main }} />
             <span>{duplicants.length}</span>
           </Chip>
           <Chip>
-            <IoFastFoodSharp
-              size={20}
-              style={{ color: colors.primary.main }}
-            />
+            <IoFastFoodSharp size={20} style={{ color: colors.primary.main }} />
             <span>
               {duplicants.reduce(
                 (acc, duplicate) =>
@@ -108,11 +106,7 @@ export default function ColonySettings() {
               )}
             </span>
           </Chip>
-          <div style={{ flex: 1 }}></div>
-          <IconButton onClick={openAdd} aria-label={t("aria_add_duplicant")}>
-            <LuCirclePlus aria-hidden />
-          </IconButton>
-        </div>
+        </PageToolbar>
 
         <Divider />
 

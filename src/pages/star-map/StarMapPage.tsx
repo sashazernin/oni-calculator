@@ -4,12 +4,17 @@ import StarMap from "../settings/star-map/StarMap";
 import { ThemeContext } from "../../providers/app-theme-provider";
 import { useTranslation } from "../../hooks/useTranslation";
 import { useAppSettings } from "../../providers/app-settings-provider";
+import {
+  PAGE_TITLE_FONT_SIZE,
+  PAGE_TOOLBAR_MIN_HEIGHT_PX,
+} from "../../components/page-toolbar/PageToolbar";
 
 export default function StarMapPage() {
   const { t } = useTranslation();
   const { colors } = useContext(ThemeContext);
-  const { activePlanetoid } = useAppSettings();
-  const isClassic = activePlanetoid?.gameType === "classic";
+  const { activePlanetoid, planetoidRestrictionsActive } = useAppSettings();
+  const isClassic =
+    planetoidRestrictionsActive && activePlanetoid?.gameType === "classic";
   const muted = `color-mix(in srgb, ${colors.text.primary} 62%, transparent)`;
 
   return (
@@ -31,9 +36,13 @@ export default function StarMapPage() {
             style={{
               margin: "0 0 16px",
               fontFamily: "var(--font-heading)",
-              fontSize: "clamp(1.15rem, 2vw, 1.35rem)",
+              fontSize: PAGE_TITLE_FONT_SIZE,
               fontWeight: 700,
               color: colors.text.primary,
+              minHeight: PAGE_TOOLBAR_MIN_HEIGHT_PX,
+              display: "flex",
+              alignItems: "center",
+              boxSizing: "border-box",
             }}
           >
             {t("nav_star_map")}

@@ -5,9 +5,9 @@ import type { Planetoid } from "../types/planetoid-types";
 export function isFoodShownForPlanetoid(
   item: IFood,
   activePlanetoid: Planetoid | null,
-  hasVisiblePlanetoids: boolean,
+  planetoidRestrictionsActive: boolean,
 ): boolean {
   if (!item.spaceOutOnly) return true;
-  if (!hasVisiblePlanetoids) return true;
+  if (!planetoidRestrictionsActive) return true;
   return activePlanetoid?.gameType !== "classic";
 }

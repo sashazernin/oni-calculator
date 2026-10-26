@@ -12,14 +12,15 @@ type PlanetoidGateProps = {
 
 /** Пока нет планетойда — выбор Classic / Spaced Out только на этой странице; иначе содержимое. */
 export default function PlanetoidGate({ children, pickerTitle }: PlanetoidGateProps) {
-  const { activePlanetoid } = useAppSettings();
+  const { activePlanetoid, planetoidRestrictionsActive } = useAppSettings();
   const [previewGameType, setPreviewGameType] = useState<PlanetoidGameType | null>(null);
+  const gatePlanetoid = planetoidRestrictionsActive ? activePlanetoid : null;
 
   useEffect(() => {
-    if (activePlanetoid) setPreviewGameType(null);
-  }, [activePlanetoid]);
+    if (gatePlanetoid) setPreviewGameType(null);
+  }, [gatePlanetoid]);
 
-  if (!activePlanetoid && !previewGameType) {
+  if (!gatePlanetoid && !previewGameType) {
     return (
       <Box
         style={{
@@ -39,7 +40,7 @@ export default function PlanetoidGate({ children, pickerTitle }: PlanetoidGatePr
     );
   }
 
-  const preview = activePlanetoid ? null : previewGameType;
+  const preview = gatePlanetoid ? null : previewGameType;
 
   return (
     <PlanetoidPreviewProvider preview={preview}>{children}</PlanetoidPreviewProvider>

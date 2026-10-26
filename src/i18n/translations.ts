@@ -538,6 +538,11 @@ export const translations = {
 
   settings_theme: { ru: "Тема", en: "Theme" },
   settings_language: { ru: "Язык", en: "Language" },
+  settings_mixed_mode: { ru: "Смешанный режим", en: "Mixed mode" },
+  settings_mixed_mode_hint: {
+    ru: "Тип активного планетойда не ограничивает контент: на ракетах можно выбрать Classic или Spaced Out, доступна вся еда и звёздная карта — как если планетоидов ещё нет.",
+    en: "The active planetoid type does not limit content: choose Classic or Spaced Out rockets, all food is available, and the star map is shown — as if no planetoids were set up.",
+  },
   theme_system: { ru: "Системная", en: "System" },
   theme_light: { ru: "Светлая", en: "Light" },
   theme_dark: { ru: "Тёмная", en: "Dark" },

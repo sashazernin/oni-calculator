@@ -13,6 +13,8 @@ export type AppSettingsSnapshot = {
   exportedAt: string;
   theme: string | null;
   language: string | null;
+  /** Игнорировать тип планетойда для ограничений контента (как без планетоидов). */
+  mixedMode?: boolean;
   activePlanetoidId?: string | null;
   planetoids?: unknown;
   duplicants: unknown;

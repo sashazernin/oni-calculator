@@ -6,9 +6,10 @@ const PlanetoidPreviewContext = createContext<PlanetoidGameType | null>(null);
 
 /** Тип игры: сохранённый планетойд или локальный предпросмотр на странице (без глобального стейта). */
 export function useEffectivePlanetoidGameType(): PlanetoidGameType | null {
-  const { activePlanetoid } = useAppSettings();
+  const { activePlanetoid, planetoidRestrictionsActive } = useAppSettings();
   const preview = useContext(PlanetoidPreviewContext);
-  return activePlanetoid?.gameType ?? preview;
+  const bound = planetoidRestrictionsActive ? activePlanetoid : null;
+  return bound?.gameType ?? preview;
 }
 
 export function PlanetoidPreviewProvider({

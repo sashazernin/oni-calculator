@@ -50,13 +50,16 @@ export default function Navbar({
   const { t } = useTranslation();
   const { colors } = useContext(ThemeContext);
   const { pathname } = useLocation();
-  const { activePlanetoid } = useAppSettings();
+  const { activePlanetoid, planetoidRestrictionsActive } = useAppSettings();
   const visibleMenuItems = useMemo(
     () =>
       menuItems.filter(
-        (item) => !item.spacedOutOnly || activePlanetoid?.gameType !== "classic"
+        (item) =>
+          !item.spacedOutOnly ||
+          !planetoidRestrictionsActive ||
+          activePlanetoid?.gameType !== "classic"
       ),
-    [activePlanetoid?.gameType]
+    [activePlanetoid?.gameType, planetoidRestrictionsActive]
   );
   const activeNav = useMemo(
     () => navItemActive(colors.primary.main, colors.mode, colors.text.primary),

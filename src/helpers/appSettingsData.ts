@@ -41,17 +41,27 @@ import { defaultRocketsPayload } from "./readStoredRockets";
 import { defaultStarMapObjects } from "./readStoredStarMapObjects";
 
 const DUPES_STORAGE_KEY = "oni-calculator:game-duplicants";
+export const MIXED_MODE_STORAGE_KEY = "oni-calculator:mixed-mode";
 const dupeListSchema = z.array(dupeSchema);
 
 export type AppSettingsData = {
   theme: ISupportedThemes;
   language: ISupportedLanguages;
+  mixedMode: boolean;
   activePlanetoidId: string;
   planetoids: Planetoid[];
   duplicants: IDuplicate[];
   rockets: RocketsStoragePayload;
   starMap: HexMapObjectItem[];
 };
+
+function readMixedModeFromStorage(): boolean {
+  try {
+    return localStorage.getItem(MIXED_MODE_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 export function readDuplicantsFromStorage(): IDuplicate[] {
   try {
@@ -139,6 +149,7 @@ export function createEmptyAppSettingsData(): AppSettingsData {
   return {
     theme: readThemeFromStorage(),
     language: readLanguageFromStorage(),
+    mixedMode: readMixedModeFromStorage(),
     activePlanetoidId: "",
     planetoids: [],
     duplicants: [],
@@ -170,6 +181,7 @@ export function loadAppSettingsDataFromLocal(): AppSettingsData {
   return {
     theme,
     language,
+    mixedMode: readMixedModeFromStorage(),
     activePlanetoidId: planetoidsState.activePlanetoidId,
     planetoids: planetoidsState.planetoids,
     ...colony,
@@ -240,7 +252,13 @@ function parsePlanetoidsFromSnapshot(snapshot: AppSettingsSnapshot): Planetoid[]
   return planetoids.length > 0 ? planetoids : null;
 }
 
+function parseMixedMode(snapshot: AppSettingsSnapshot): boolean {
+  if (typeof snapshot.mixedMode === "boolean") return snapshot.mixedMode;
+  return readMixedModeFromStorage();
+}
+
 export function parseAppSettingsData(snapshot: AppSettingsSnapshot): AppSettingsData {
+  const mixedMode = parseMixedMode(snapshot);
   const theme =
     snapshot.theme &&
     (supportedThemes as readonly string[]).includes(snapshot.theme)
@@ -263,6 +281,7 @@ export function parseAppSettingsData(snapshot: AppSettingsSnapshot): AppSettings
     return {
       theme,
       language,
+      mixedMode,
       activePlanetoidId: activeId,
       planetoids: fromPlanetoids,
       duplicants: active.duplicants,
@@ -282,6 +301,7 @@ export function parseAppSettingsData(snapshot: AppSettingsSnapshot): AppSettings
     return {
       theme,
       language,
+      mixedMode,
       activePlanetoidId: ensured.activePlanetoidId,
       planetoids: ensured.planetoids,
       duplicants: fromHidden.duplicants,
@@ -293,6 +313,7 @@ export function parseAppSettingsData(snapshot: AppSettingsSnapshot): AppSettings
   return {
     theme,
     language,
+    mixedMode,
     activePlanetoidId: "",
     planetoids: [],
     duplicants,
@@ -316,6 +337,7 @@ export function appSettingsDataToSnapshot(data: AppSettingsData): AppSettingsSna
     exportedAt: new Date().toISOString(),
     theme: data.theme,
     language: data.language,
+    mixedMode: data.mixedMode,
     activePlanetoidId: synced.activePlanetoidId,
     planetoids: synced.planetoids,
     duplicants: data.duplicants,
@@ -328,6 +350,7 @@ export function persistAppSettingsDataToLocal(data: AppSettingsData): void {
   try {
     localStorage.setItem(THEME_STORAGE_KEY, data.theme);
     localStorage.setItem(LANGUAGE_STORAGE_KEY, data.language);
+    localStorage.setItem(MIXED_MODE_STORAGE_KEY, data.mixedMode ? "1" : "0");
 
     const colony = {
       duplicants: data.duplicants,
