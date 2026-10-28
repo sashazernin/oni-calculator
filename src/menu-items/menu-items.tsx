@@ -5,9 +5,11 @@ import { IoGlobeOutline, IoGlobe, IoHomeOutline, IoRocketOutline, IoRocketSharp 
 import { IoHomeSharp } from "react-icons/io5";
 import { GoGear } from "react-icons/go";
 import { FaGear } from "react-icons/fa6";
-import Food from "../pages/food/Food";
+import FoodPage from "../pages/food/FoodPage";
 import { IoFastFoodSharp } from "react-icons/io5";
 import { IoFastFoodOutline } from "react-icons/io5";
+import { IoBookOutline, IoBookSharp } from "react-icons/io5";
+import KnowledgeBasePage from "../pages/knowledge-base/KnowledgeBasePage";
 import type { TranslationKey } from "../i18n/translations";
 import RocketPage from "../pages/rocket/RocketPage";
 import PlanetoidsPage from "../pages/planetoids/PlanetoidsPage";
@@ -37,7 +39,7 @@ export const menuItems: MenuItem[] = [
   {
     labelKey: "nav_food",
     href: "food",
-    component: <Food />,
+    component: <FoodPage />,
     icon: IoFastFoodOutline,
     activeIcon: IoFastFoodSharp
   },
@@ -76,5 +78,12 @@ export const menuItems: MenuItem[] = [
     component: <Settings />,
     icon: GoGear,
     activeIcon: FaGear
-  }
+  },
+  {
+    labelKey: "nav_knowledge_base",
+    href: "knowledge-base",
+    component: <KnowledgeBasePage />,
+    icon: IoBookOutline,
+    activeIcon: IoBookSharp,
+  },
 ]

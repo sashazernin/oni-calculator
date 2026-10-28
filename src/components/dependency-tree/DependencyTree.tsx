@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { ThemeContext } from "../../providers/app-theme-provider";
+import { useScrollListGutter } from "../../hooks/useScrollListGutter";
 import type { GameNode } from "../../types/game-data-types";
 
 export type DependencyTreeNode = {
@@ -18,6 +19,12 @@ export type DependencyTreeNode = {
   calory?: number;
   children?: DependencyTreeNode[];
   item: GameNode;
+  /** Дочерние ветки — альтернативные рецепты (в сводку ресурсов берётся только первая). */
+  orRecipeAlternatives?: boolean;
+  /** Подпись на горизонтальной перекладине между альтернативами. */
+  forkJoinLabel?: string;
+  /** Группа ингредиентов одного варианта (не дублировать в сводке). */
+  recipeVariantGroup?: boolean;
 };
 
 export type DependencyTreeProps = {
@@ -39,6 +46,7 @@ type BranchProps = {
   nodeBorder: string;
   nodeBg: string;
   nodeRingShadow: string;
+  forkLabelColor: string;
 };
 
 const DEPTREE_COL_ATTR = "data-dep-tree-col";
@@ -59,6 +67,8 @@ type MultiChildRowProps = {
   nodeBg: string;
   nodeRingShadow: string;
   vLine: CSSProperties;
+  forkJoinLabel?: string;
+  forkLabelColor: string;
 };
 
 function MultiChildRow({
@@ -71,6 +81,8 @@ function MultiChildRow({
   nodeBg,
   nodeRingShadow,
   vLine,
+  forkJoinLabel,
+  forkLabelColor,
 }: MultiChildRowProps) {
   const rowRef = useRef<HTMLDivElement | null>(null);
   const [hBar, setHBar] = useState({ leftPx: 0, widthPx: 0 });
@@ -139,6 +151,28 @@ function MultiChildRow({
         />
       ) : null}
 
+      {forkJoinLabel ? (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: -1,
+            left: hBar.widthPx > 0 ? hBar.leftPx + hBar.widthPx / 2 : "50%",
+            transform: "translate(-50%, -50%)",
+            padding: "0 4px",
+            fontSize: "0.7rem",
+            fontWeight: 600,
+            lineHeight: 1,
+            color: forkLabelColor,
+            background: nodeBg,
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {forkJoinLabel}
+        </div>
+      ) : null}
+
       {childNodes.map((child, index) => (
         <div
           key={`${index}-${child.name}`}
@@ -160,6 +194,7 @@ function MultiChildRow({
             nodeBorder={nodeBorder}
             nodeBg={nodeBg}
             nodeRingShadow={nodeRingShadow}
+            forkLabelColor={forkLabelColor}
           />
         </div>
       ))}
@@ -167,7 +202,16 @@ function MultiChildRow({
   );
 }
 
-function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg, nodeRingShadow }: BranchProps) {
+function Branch({
+  node,
+  item,
+  nodeSize,
+  edgeColor,
+  nodeBorder,
+  nodeBg,
+  nodeRingShadow,
+  forkLabelColor,
+}: BranchProps) {
   const children = node.children;
   const n = children?.length ?? 0;
 
@@ -211,6 +255,7 @@ function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg, nodeRingS
           nodeBorder={nodeBorder}
           nodeBg={nodeBg}
           nodeRingShadow={nodeRingShadow}
+          forkLabelColor={forkLabelColor}
         />
       </div>
     );
@@ -240,6 +285,10 @@ function Branch({ node, item, nodeSize, edgeColor, nodeBorder, nodeBg, nodeRingS
             nodeBg={nodeBg}
             nodeRingShadow={nodeRingShadow}
             vLine={vLine}
+            forkJoinLabel={
+              node.orRecipeAlternatives ? node.forkJoinLabel : undefined
+            }
+            forkLabelColor={forkLabelColor}
           />
         </>
       ) : null}
@@ -255,11 +304,13 @@ export interface IDependencyTreeProps {
 }
 
 export function DependencyTree({ root, item, nodeSize = 92, style }: IDependencyTreeProps) {
+  const scrollRef = useScrollListGutter<HTMLDivElement>([root]);
   const { colors } = useContext(ThemeContext);
   const edgeColor = colors.border.main;
   const nodeBorder = colors.border.main;
   const nodeBg = colors.background.paper;
   const nodeRingShadow = "0 2px 6px color-mix(in srgb, #000 20%, transparent)";
+  const forkLabelColor = `color-mix(in srgb, ${colors.text.primary} 70%, ${colors.background.paper})`;
 
   if (!root) {
     return null;
@@ -267,11 +318,10 @@ export function DependencyTree({ root, item, nodeSize = 92, style }: IDependency
 
   return (
     <div
+      ref={scrollRef}
+      className="dependency-tree-scroll"
       style={{
-        width: "100%",
         overflow: "auto",
-        padding: "12px 8px",
-        boxSizing: "border-box",
         ...style,
       }}
     >
@@ -284,6 +334,7 @@ export function DependencyTree({ root, item, nodeSize = 92, style }: IDependency
           nodeBorder={nodeBorder}
           nodeBg={nodeBg}
           nodeRingShadow={nodeRingShadow}
+          forkLabelColor={forkLabelColor}
         />
       </div>
     </div>

@@ -12,8 +12,11 @@ export default function PlanetoidsPage() {
         width: "100%",
         minHeight: 0,
         boxSizing: "border-box",
-        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
         padding: "16px 20px",
+        ["--page-inline-padding" as string]: "20px",
       }}
     >
       <PlanetoidsSettings pageTitle={t("nav_planetoids")} />

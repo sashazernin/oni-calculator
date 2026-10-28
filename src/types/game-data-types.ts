@@ -1,8 +1,13 @@
+/** Единица количества в рецептах и схемах: масса (кг) или штуки. */
+export type AmountUnit = "mass" | "piece";
+
 export interface IResourse {
   /** Ключ перевода из `gameDataTranslations` (`gd_*`). */
   name: string;
   type: "resourse";
   image: string;
+  /** По умолчанию `mass` (килограммы). */
+  unit?: AmountUnit;
 }
 
 export interface ILiquid {
@@ -19,27 +24,37 @@ export interface IPlant {
   image: string;
   cycles: number;
   harvest: number;
+  /** Только Spaced Out (урожай — еда/ингредиент с `spaceOutOnly`). */
+  spaceOutOnly?: boolean;
   requirements?: {
     count: number;
     item: IResourse | ILiquid;
   }[];
 }
 
+export type FoodRequirement = {
+  count: number;
+  item: IFood | ILiquid | IPlant | IResourse;
+};
+
 export interface IFood {
   /** Ключ перевода из `gameDataTranslations` (`gd_*`). */
   name: string;
+  /** Классическая игра / базовые поля по умолчанию. */
   quality?: number;
   type: 'food' | 'ingredient';
   calory: number;
   image: string;
   union?: boolean;
-  /** Только DLC Spaced Out; скрывается в списке при классическом планетоиде. */
+  /** Ингредиент в рецептах по массе (г), не по ккал. */
+  unit?: AmountUnit;
+  /** Только Spaced Out; скрывается в списке при режиме классики. */
   spaceOutOnly?: boolean;
-  requirements?: {
-    count: number;
-    item: IFood | ILiquid | IPlant | IResourse;
-  }[],
+  /** Варианты рецепта: каждый элемент — набор входов (И), несколько элементов — альтернативы (ИЛИ). */
+  requirements?: FoodRequirement[][];
   tool?: IKitchenTool;
+  /** Базовое время приготовления на станции, секунды (без бонуса навыка). */
+  cookTimeSec?: number;
 }
 
 export interface IKitchenTool {
@@ -50,6 +65,9 @@ export interface IKitchenTool {
 }
 
 export type GameNode = IFood | ILiquid | IPlant | IResourse | IKitchenTool;
+
+/** Справочник: все перечисляемые сущности из game-data (кроме ракет). */
+export type KnowledgeBaseItem = GameNode | IGas | IOther;
 
 export interface IDuplicate {
   name: string;

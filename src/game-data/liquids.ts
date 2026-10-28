@@ -3,7 +3,7 @@ import type { ILiquid } from "../types/game-data-types"
 const water: ILiquid = {
   name: "gd_water",
   type: "liquid",
-  image: "liquids/Liquid_Water.webp",
+  image: "liquids/Water.webp",
 };
 
 const pollutedWater: ILiquid = {

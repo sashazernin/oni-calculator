@@ -8,15 +8,23 @@ import {
   type ReactElement,
 } from "react";
 import "./game-item-info-popup.css";
-import type { GameNode } from "../../types/game-data-types";
+import type { GameNode, IFood, IPlant, KnowledgeBaseItem } from "../../types/game-data-types";
 import { Popup } from "../popup/Popup";
 import { AssetImage } from "../asset-image/AssetImage";
 import { ThemeContext } from "../../providers/app-theme-provider";
+import { getCatalogTypeChipColor } from "../../helpers/catalogTypeChipColor";
+import {
+  isDependencyModalItem,
+  plantPieceHarvestPerPick,
+} from "../../helpers/gameItemDependencyInfo";
 import { getQualityColor, getQualityTranslationKey } from "../../helpers/qualityData";
+import { isSpaceOutOnlyCatalogItem } from "../../helpers/foodPlanetoidFilter";
 import { useTranslation } from "../../hooks/useTranslation";
+import spacedOutLogo from "../../assets/Spaced_Out_Logo.webp";
+import GameItemInfoDependencies from "./GameItemInfoDependencies";
 import type { TranslationKey } from "../../i18n/translations";
 
-function gameNodeTypeKey(type: GameNode["type"]): TranslationKey {
+function gameNodeTypeKey(type: KnowledgeBaseItem["type"]): TranslationKey {
   switch (type) {
     case "food":
       return "game_node_food";
@@ -30,6 +38,10 @@ function gameNodeTypeKey(type: GameNode["type"]): TranslationKey {
       return "game_node_resource";
     case "kitchen-tool":
       return "game_node_kitchen_tool";
+    case "gas":
+      return "game_node_gas";
+    case "other":
+      return "game_node_other";
     default: {
       const _exhaustive: never = type;
       void _exhaustive;
@@ -39,7 +51,7 @@ function gameNodeTypeKey(type: GameNode["type"]): TranslationKey {
 }
 
 export interface GameItemInfoPopupProps {
-  item: GameNode;
+  item: GameNode | KnowledgeBaseItem;
   children: React.ReactNode;
   style?: CSSProperties;
   cursor?: CSSProperties["cursor"];
@@ -48,7 +60,7 @@ export interface GameItemInfoPopupProps {
 
 export default function GameItemInfoPopup({ item, children, style, cursor = "pointer", pointerBackground }: GameItemInfoPopupProps) {
   const { colors } = useContext(ThemeContext);
-  const { t, entityName } = useTranslation();
+  const { t, entityName, language } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const onClose = useCallback(() => {
@@ -72,65 +84,105 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
         : colors.primary.main;
 
     const typeKey = gameNodeTypeKey(item.type);
+    const typeColor = getCatalogTypeChipColor(item.type);
+
+    const isFoodLike = item.type === "food" || item.type === "ingredient";
+    const resolvedFood = isFoodLike ? (item as IFood) : null;
+    const showSpacedOutExpansion =
+      (item.type === "food" || item.type === "ingredient" || item.type === "plant") &&
+      isSpaceOutOnlyCatalogItem(item);
+    const isPiecePortion = Boolean(resolvedFood?.union);
+    const isMassPortion = resolvedFood?.unit === "mass";
+
+    const portionHeader =
+      isPiecePortion || isMassPortion
+        ? t("game_item_section_amount")
+        : t("game_item_section_calories");
+
+    const portionValue = (() => {
+      if (!resolvedFood) return null;
+      const plantReq = resolvedFood.requirements
+        ?.flatMap((variant) => variant)
+        .find((req) => req.item.type === "plant");
+      const plant =
+        plantReq?.item.type === "plant" ? (plantReq.item as IPlant) : null;
+
+      const formatAmount = (amount: number, unit: "piece" | "grams") => {
+        const n =
+          Math.abs(amount - Math.round(amount)) < 1e-6
+            ? Math.round(amount)
+            : Math.round(amount * 100) / 100;
+        const formatted = n.toLocaleString(language === "ru" ? "ru" : "en", {
+          maximumFractionDigits: 2,
+        });
+        return unit === "piece"
+          ? `${formatted} ${t("unit_piece")}`
+          : `${formatted} ${t("unit_grams")}`;
+      };
+
+      if (isPiecePortion) {
+        const perPick = plant ? plantPieceHarvestPerPick(plant) : 1;
+        return formatAmount(perPick, "piece");
+      }
+      if (isMassPortion) {
+        return formatAmount(resolvedFood.calory, "grams");
+      }
+      return `${resolvedFood.calory} ${t("unit_kcal")}`;
+    })();
 
     return (
-      <Popup variant="fit-content" closeButton open={open} onClose={onClose} title={entityName(item.name)}>
-        <div style={{ padding: 16, minWidth: "min(312px, 85vw)" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: 16 }}>
-            <div
-              style={{
-                flexShrink: 0,
-                width: 80,
-                height: 80,
-                borderRadius: "50%",
-                padding: 4,
-                background: colors.background.average,
-                border: `1px solid ${colors.border.main}`,
-                boxShadow:
-                  `${colors.shadow.default}, inset 0 1px 0 color-mix(in srgb, ${colors.text.primary} 8%, transparent)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxSizing: "border-box",
-              }}
-            >
-              <AssetImage
-                pathRelativeToAssets={item.image}
-                alt={entityName(item.name)}
-                width={55}
-                height={55}
-              />
-            </div>
-            <div>
+      <Popup
+        variant="fit-content"
+        width={560}
+        bodyScroll={false}
+        closeButton
+        open={open}
+        onClose={onClose}
+        title={entityName(item.name)}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            minHeight: 0,
+            minWidth: "min(480px, 92vw)",
+            boxSizing: "border-box",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              flexShrink: 0,
+              padding: 16,
+              boxSizing: "border-box",
+            }}
+          >
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: 16 }}>
               <div
                 style={{
-                  fontSize: "0.65rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  color: mutedLabel,
-                  marginBottom: 6,
-                }}
-              >
-                {t("label_type")}
-              </div>
-              <span
-                style={{
-                  display: "inline-block",
-                  fontSize: "0.8125rem",
-                  fontWeight: 600,
-                  lineHeight: 1.35,
-                  color: colors.text.primary,
-                  padding: "4px 10px",
-                  borderRadius: 8,
-                  background: `color-mix(in srgb, ${colors.primary.main} 10%, ${colors.background.paper})`,
+                  flexShrink: 0,
+                  width: 80,
+                  height: 80,
+                  borderRadius: "50%",
+                  padding: 4,
+                  background: colors.background.average,
                   border: `1px solid ${colors.border.main}`,
+                  boxShadow:
+                    `${colors.shadow.default}, inset 0 1px 0 color-mix(in srgb, ${colors.text.primary} 8%, transparent)`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxSizing: "border-box",
                 }}
               >
-                {t(typeKey)}
-              </span>
-            </div>
-            {hasQuality && qualityKey ? (
+                <AssetImage
+                  pathRelativeToAssets={item.image}
+                  alt={entityName(item.name)}
+                  width={55}
+                  height={55}
+                />
+              </div>
               <div>
                 <div
                   style={{
@@ -142,50 +194,163 @@ export default function GameItemInfoPopup({ item, children, style, cursor = "poi
                     marginBottom: 6,
                   }}
                 >
-                  {t("label_quality")}
+                  {t("label_type")}
                 </div>
-                <div
+                <span
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    flexWrap: "wrap",
-                    maxWidth: "100%",
+                    display: "inline-block",
+                    fontSize: "0.8125rem",
+                    fontWeight: 600,
+                    lineHeight: 1.35,
+                    color: typeColor,
+                    padding: "4px 10px",
+                    borderRadius: 8,
+                    background: `color-mix(in srgb, ${typeColor} 16%, ${colors.background.paper})`,
+                    border: `1px solid color-mix(in srgb, ${typeColor} 42%, ${colors.border.main})`,
                   }}
                 >
+                  {t(typeKey)}
+                </span>
+              </div>
+              {hasQuality && qualityKey ? (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: mutedLabel,
+                      marginBottom: 6,
+                    }}
+                  >
+                    {t("label_quality")}
+                  </div>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      flexWrap: "wrap",
+                      maxWidth: "100%",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "0.875rem",
+                        fontWeight: 600,
+                        lineHeight: 1.35,
+                        color:
+                          qualityTint && qualityTint !== "inherit" ? qualityTint : colors.text.primary,
+                        padding: "4px 10px",
+                        borderRadius: 8,
+                        background: `color-mix(in srgb, ${qTint} 14%, ${colors.background.paper})`,
+                        border: `1px solid color-mix(in srgb, ${qTint} 35%, ${colors.border.main})`,
+                      }}
+                    >
+                      {qualityKey ? t(qualityKey) : null}
+                      <span
+                        style={{
+                          fontSize: "0.8rem",
+                          fontWeight: 500,
+                          fontVariantNumeric: "tabular-nums",
+                          marginLeft: 4,
+                        }}
+                      >
+                        ({item.quality})
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+              {portionValue ? (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: mutedLabel,
+                      marginBottom: 6,
+                    }}
+                  >
+                    {portionHeader}
+                  </div>
                   <span
                     style={{
+                      display: "inline-block",
                       fontSize: "0.875rem",
                       fontWeight: 600,
                       lineHeight: 1.35,
-                      color:
-                        qualityTint && qualityTint !== "inherit" ? qualityTint : colors.text.primary,
+                      fontVariantNumeric: "tabular-nums",
+                      color: colors.text.primary,
                       padding: "4px 10px",
                       borderRadius: 8,
-                      background: `color-mix(in srgb, ${qTint} 14%, ${colors.background.paper})`,
-                      border: `1px solid color-mix(in srgb, ${qTint} 35%, ${colors.border.main})`,
+                      background: `color-mix(in srgb, ${colors.primary.main} 10%, ${colors.background.paper})`,
+                      border: `1px solid ${colors.border.main}`,
                     }}
                   >
-                    {qualityKey ? t(qualityKey) : null}
-                    <span
-                      style={{
-                        fontSize: "0.8rem",
-                        fontWeight: 500,
-                        fontVariantNumeric: "tabular-nums",
-                        marginLeft: 4,
-                      }}
-                    >
-                      ({item.quality})
-                    </span>
+                    {portionValue}
                   </span>
                 </div>
-              </div>
-            ) : null}
+              ) : null}
+              {showSpacedOutExpansion ? (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: mutedLabel,
+                      marginBottom: 6,
+                    }}
+                  >
+                    {t("game_item_section_expansion")}
+                  </div>
+                  <img
+                    src={spacedOutLogo}
+                    alt={t("planetoid_type_spaced_out")}
+                    draggable={false}
+                    style={{
+                      height: 32,
+                      width: "auto",
+                      maxWidth: 136,
+                      objectFit: "contain",
+                      display: "block",
+                    }}
+                  />
+                </div>
+              ) : null}
+            </div>
           </div>
+          {isDependencyModalItem(item) ? (
+            <div
+              style={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: "auto",
+                overflowX: "hidden",
+                borderTop: `1px solid ${colors.border.main}`,
+                boxSizing: "border-box",
+                WebkitOverflowScrolling: "touch",
+              }}
+            >
+              <div
+                style={{
+                  padding: "16px 16px 0px",
+                  boxSizing: "border-box",
+                }}
+              >
+                <GameItemInfoDependencies item={item} />
+              </div>
+            </div>
+          ) : null}
         </div>
       </Popup>
     );
-  }, [open, onClose, item, colors, t, entityName]);
+  }, [open, onClose, item, colors, t, entityName, language]);
 
   return (
     <>

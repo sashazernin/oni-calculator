@@ -110,7 +110,10 @@ export default function ColonySettings() {
 
         <Divider />
 
-        <div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
+        <div
+          className="catalog-list-scroll"
+          style={{ flex: 1, overflowY: "auto", minHeight: 0 }}
+        >
           {duplicants.length === 0 ? (
             <div
               style={{

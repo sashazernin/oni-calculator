@@ -16,6 +16,7 @@ const tonicRoot: IResourse = {
   name: "gd_tonic_root",
   type: "resourse",
   image: "resourses/Tonic_Root.webp",
+  unit: "piece",
 };
 
 const slime: IResourse = {

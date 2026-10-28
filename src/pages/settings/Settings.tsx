@@ -10,7 +10,20 @@ export default function Settings() {
   }
 
   return (
-    <Box style={{ height: "100%", width: "100%", padding: "16px 20px", boxSizing: "border-box" }}>
+    <Box
+      style={{
+        flex: 1,
+        height: "100%",
+        width: "100%",
+        minHeight: 0,
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        padding: "16px 20px",
+        ["--page-inline-padding" as string]: "20px",
+      }}
+    >
       <AppSettings />
     </Box>
   );

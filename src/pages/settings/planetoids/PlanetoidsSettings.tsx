@@ -59,7 +59,17 @@ export default function PlanetoidsSettings({ pageTitle }: PlanetoidsSettingsProp
         onClose={() => setEditTarget(null)}
         onSave={(id, name, gameType, expansions) => updatePlanetoid(id, { name, gameType, expansions })}
       />
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%" }}>
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          minHeight: 0,
+        }}
+      >
         <PageToolbar
           title={pageTitle}
           actions={
@@ -82,28 +92,33 @@ export default function PlanetoidsSettings({ pageTitle }: PlanetoidsSettingsProp
 
         <Divider />
 
-        {visible.length === 0 ? (
-          <PlanetoidTypePicker
-            title={t("planetoids_pick_type_intro")}
-            onPick={(gameType) => {
-              openAdd(gameType);
-            }}
-          />
-        ) : (
-          <div style={catalogGridStyle}>
-            {visible.map((p) => (
-              <PlanetoidCard
-                key={p.id}
-                planetoid={p}
-                isActive={p.id === data.activePlanetoidId}
-                canDelete={canDeletePlanetoid}
-                onActivate={() => setActivePlanetoidId(p.id)}
-                onEdit={() => setEditTarget(p)}
-                onDelete={() => removePlanetoid(p.id)}
-              />
-            ))}
-          </div>
-        )}
+        <div
+          className="catalog-list-scroll"
+          style={{ flex: 1, overflowY: "auto", minHeight: 0 }}
+        >
+          {visible.length === 0 ? (
+            <PlanetoidTypePicker
+              title={t("planetoids_pick_type_intro")}
+              onPick={(gameType) => {
+                openAdd(gameType);
+              }}
+            />
+          ) : (
+            <div style={catalogGridStyle}>
+              {visible.map((p) => (
+                <PlanetoidCard
+                  key={p.id}
+                  planetoid={p}
+                  isActive={p.id === data.activePlanetoidId}
+                  canDelete={canDeletePlanetoid}
+                  onActivate={() => setActivePlanetoidId(p.id)}
+                  onEdit={() => setEditTarget(p)}
+                  onDelete={() => removePlanetoid(p.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

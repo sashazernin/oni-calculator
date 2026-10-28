@@ -30,25 +30,35 @@ export default function AppSettings() {
   return (
     <div
       style={{
+        position: "relative",
+        height: "100%",
+        width: "100%",
         display: "flex",
         flexDirection: "column",
         gap: 16,
-        width: "100%",
-        alignSelf: "stretch",
+        minHeight: 0,
         minWidth: 0,
       }}
     >
       <PageToolbar title={t("nav_settings")} />
       <Divider />
       <div
+        className="catalog-list-scroll"
         style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 16,
-          width: "100%",
-          maxWidth: 420,
+          flex: 1,
+          overflowY: "auto",
+          minHeight: 0,
         }}
       >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+            width: "100%",
+            maxWidth: 420,
+          }}
+        >
         <Select
           label={t("settings_theme")}
           fullWidth
@@ -89,6 +99,7 @@ export default function AppSettings() {
           <Info message={t("settings_mixed_mode_hint")} placement="top" />
         </div>
         <GoogleDriveSettings />
+        </div>
       </div>
     </div>
   );

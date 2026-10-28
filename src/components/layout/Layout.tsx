@@ -109,6 +109,7 @@ function LayoutShell() {
             position: "relative",
             overflow: "hidden",
             boxSizing: "border-box",
+            ["--page-inline-padding" as string]: "16px",
           }}
         >
           <Outlet />

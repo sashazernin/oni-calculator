@@ -102,7 +102,18 @@ export default function StarMap({ pageTitle }: StarMapProps) {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
+    <div
+      style={{
+        position: "relative",
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        minHeight: 0,
+        flex: 1,
+      }}
+    >
       <PageToolbar
         title={pageTitle ?? t("settings_tab_space_map")}
         actions={<Button onClick={() => setOpen(true)}>{t("star_map_open_editor")}</Button>}
@@ -128,27 +139,34 @@ export default function StarMap({ pageTitle }: StarMapProps) {
       </PageToolbar>
       <Divider />
 
-      {catalogSorted.length === 0 ? (
-        <p style={{ margin: 0, fontSize: 13, opacity: 0.68, lineHeight: 1.5 }}>{t("star_map_empty_catalog")}</p>
-      ) : (
-        <div style={catalogGridStyle}>
-          {catalogSorted.map((o) => {
-            const ax = HEX_MAP_CELLS[o.cellNumber];
-            const cellLine = ax
-              ? t("star_map_hex_coords", { q: ax.q, r: ax.r })
-              : `Cell ${o.cellNumber}`;
-            return (
-              <StarMapObjectCard
-                key={o.cellNumber}
-                item={o}
-                cellLine={cellLine}
-                onEdit={() => setEditCellNumber(o.cellNumber)}
-                onDelete={() => onDeleteObject(o.cellNumber)}
-              />
-            );
-          })}
-        </div>
-      )}
+      <div
+        className="catalog-list-scroll"
+        style={{ flex: 1, overflowY: "auto", minHeight: 0 }}
+      >
+        {catalogSorted.length === 0 ? (
+          <p style={{ margin: 0, fontSize: 13, opacity: 0.68, lineHeight: 1.5 }}>
+            {t("star_map_empty_catalog")}
+          </p>
+        ) : (
+          <div style={catalogGridStyle}>
+            {catalogSorted.map((o) => {
+              const ax = HEX_MAP_CELLS[o.cellNumber];
+              const cellLine = ax
+                ? t("star_map_hex_coords", { q: ax.q, r: ax.r })
+                : `Cell ${o.cellNumber}`;
+              return (
+                <StarMapObjectCard
+                  key={o.cellNumber}
+                  item={o}
+                  cellLine={cellLine}
+                  onEdit={() => setEditCellNumber(o.cellNumber)}
+                  onDelete={() => onDeleteObject(o.cellNumber)}
+                />
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <StarMapObjectEdit
         open={editCellNumber != null && editingItem != null}

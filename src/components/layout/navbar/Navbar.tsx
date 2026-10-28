@@ -97,7 +97,7 @@ export default function Navbar({
               marginLeft: 8,
               marginRight: 8,
               padding: "10px 12px",
-              minHeight: 0,
+              flexShrink: 0,
               boxShadow: "none",
               justifyContent: "flex-start",
               gap: 10,
@@ -153,7 +153,7 @@ export default function Navbar({
       }}
     >
       {list}
-      <div style={{ flexShrink: 0, paddingBottom: 4 }}>
+      <div style={{ flexShrink: 0, paddingBottom: 16 }}>
         <GoogleDriveSettings compact onNavigate={onNavigate} />
       </div>
     </div>

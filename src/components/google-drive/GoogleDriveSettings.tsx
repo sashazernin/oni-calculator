@@ -43,7 +43,7 @@ export default function GoogleDriveSettings({
           : muted;
 
   const panel: CSSProperties = {
-    margin: compact ? 8 : 0,
+    margin: compact ? "8px 8px 0" : 0,
     padding: 12,
     borderRadius: 8,
     background: colors.background.paper,

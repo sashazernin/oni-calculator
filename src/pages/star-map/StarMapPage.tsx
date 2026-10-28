@@ -28,6 +28,7 @@ export default function StarMapPage() {
         flexDirection: "column",
         overflow: "hidden",
         padding: "16px 20px",
+        ["--page-inline-padding" as string]: "20px",
       }}
     >
       {isClassic ? (

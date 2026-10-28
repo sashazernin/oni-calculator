@@ -15,6 +15,7 @@ import { IoChevronBackOutline, IoFastFoodSharp, IoNewspaper } from "react-icons/
 import Info from "../../components/info/info";
 import { getQualityColor, getQualityTranslationKey } from "../../helpers/qualityData";
 import GameItemInfoPopup from "../../components/game-item-info-popup/gameItemInfoPopup";
+import SpaceOutOnlyBadge from "../../components/space-out-only-badge/SpaceOutOnlyBadge";
 import { DupeIcon } from "../../icons";
 import { IconButton } from "../../components/icon-button/IconButton";
 import { FiPlusCircle } from "react-icons/fi";
@@ -22,8 +23,14 @@ import { AiOutlineMinusCircle } from "react-icons/ai";
 import { GiStomach } from "react-icons/gi";
 import { useTranslation } from "../../hooks/useTranslation";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { useEffectivePlanetoidGameType } from "../../components/planetoid/planetoid-gate-context";
 import { useAppSettings } from "../../providers/app-settings-provider";
-import { isFoodShownForPlanetoid } from "../../helpers/foodPlanetoidFilter";
+import { isFoodShownForGameType } from "../../helpers/foodPlanetoidFilter";
+import {
+  foodRequirementVariants,
+  primaryFoodRequirementVariant,
+} from "../../helpers/foodRequirements";
+import type { FoodRequirement } from "../../types/game-data-types";
 import { TextField } from "../../components/text-field/TextField";
 import { Popup } from "../../components/popup/Popup";
 import styles from "./food.module.css";
@@ -176,8 +183,9 @@ function DuplicantCountCounter({
 export default function Food() {
   const { colors } = useContext(ThemeContext);
   const { t, entityName, language } = useTranslation();
-  const { activePlanetoid, planetoidRestrictionsActive } = useAppSettings();
-
+  const { data: appSettings } = useAppSettings();
+  const foodCatalogUnrestricted = appSettings.mixedMode;
+  const foodGameType = useEffectivePlanetoidGameType();
   const [selectedItem, setSelectedItem] = useState<IFood | null>(null);
 
   const { duplicants } = useContext(DuplicantContext);
@@ -228,27 +236,31 @@ export default function Food() {
     [language, entityName]
   );
 
-  const foodItemsForPlanetoid = useMemo(
-    () =>
-      foodItemsSorted.filter((item) =>
-        isFoodShownForPlanetoid(item, activePlanetoid, planetoidRestrictionsActive)
-      ),
-    [foodItemsSorted, activePlanetoid, planetoidRestrictionsActive]
-  );
+  const foodItemsForMode = useMemo(() => {
+    if (foodCatalogUnrestricted) return foodItemsSorted;
+    if (!foodGameType) return [];
+    return foodItemsSorted.filter((item) =>
+      isFoodShownForGameType(item, foodGameType),
+    );
+  }, [foodItemsSorted, foodGameType, foodCatalogUnrestricted]);
 
   useEffect(() => {
-    if (!selectedItem) return;
-    if (isFoodShownForPlanetoid(selectedItem, activePlanetoid, planetoidRestrictionsActive)) return;
+    if (foodCatalogUnrestricted) return;
+    if (!selectedItem || !foodGameType) return;
+    if (isFoodShownForGameType(selectedItem, foodGameType)) return;
     setSelectedItem(null);
-  }, [selectedItem, activePlanetoid, planetoidRestrictionsActive]);
+  }, [selectedItem, foodGameType, foodCatalogUnrestricted]);
+
+  const resolvedSelectedItem = selectedItem;
 
   const { tree, uniqueResourses, uniqueTools } = useMemo((): { tree: DependencyTreeNode | null, uniqueResourses: Record<string, GameNode & { total: number }>, uniqueTools: Record<string, GameNode & { total: number }> } => {
-    if (!selectedItem) return { tree: null, uniqueResourses: {}, uniqueTools: {} };
+    if (!resolvedSelectedItem) return { tree: null, uniqueResourses: {}, uniqueTools: {} };
 
     const uniqueResourses: Record<string, GameNode & { total: number }> = {};
     const uniqueTools: Record<string, GameNode & { total: number }> = {};
 
     /** Сколько «единиц спроса» даёт одно растение (обратно к формуле ceil в этапе 1). */
+    /** Штучный урожай: `harvest` — шт за цикл (как `harvest` у ккал-растений). */
     const plantDemandFactor = (plant: IPlant, union: boolean) =>
       union ? 1 / plant.harvest : plant.cycles === 0 ? 1 : plant.cycles;
 
@@ -258,6 +270,40 @@ export default function Food() {
         return node.children[0].children ?? [];
       }
       return node.children;
+    };
+
+    const mapVariantBranch = (
+      variant: FoodRequirement[],
+      parent: GameNode,
+      total: number,
+    ): DependencyTreeNode => {
+      if (variant.length === 1) {
+        const requirement = variant[0];
+        return mapToTree(
+          {
+            ...requirement.item,
+            total: total * requirement.count,
+          },
+          parent,
+        );
+      }
+      return {
+        item: parent,
+        name: parent.name,
+        image: parent.image,
+        total,
+        type: parent.type,
+        recipeVariantGroup: true,
+        children: variant.map((requirement) =>
+          mapToTree(
+            {
+              ...requirement.item,
+              total: total * requirement.count,
+            },
+            parent,
+          ),
+        ),
+      };
     };
 
     /** Этап 1: сверху вниз — спрос по калориям/рецепту, растения вверх до целого. */
@@ -292,20 +338,31 @@ export default function Food() {
       };
 
       const children = (() => {
-        if (
-          "requirements" in item &&
-          item.requirements &&
-          item.requirements.length > 0
-        ) {
-          return item.requirements.map((requirement) =>
-            mapToTree({
-              ...requirement.item,
-              total: total * requirement.count,
-            }, item)
+        if (!("requirements" in item) || item.type === "plant") return undefined;
+        const variants = foodRequirementVariants(item as IFood);
+        if (variants.length === 0) return undefined;
+        if (variants.length > 1) {
+          return variants.map((variant) =>
+            mapVariantBranch(variant, item, total),
           );
         }
-        return undefined;
+        const variant = variants[0];
+        return variant.map((requirement) =>
+          mapToTree(
+            {
+              ...requirement.item,
+              total: total * requirement.count,
+            },
+            item,
+          ),
+        );
       })();
+
+      const orAlternatives =
+        "requirements" in item &&
+        item.type !== "plant" &&
+        foodRequirementVariants(item as IFood).length > 1;
+      const forkJoinLabel = orAlternatives ? t("food_recipe_or") : undefined;
 
       if ("tool" in item && item.tool) {
         const tool = item.tool;
@@ -315,6 +372,8 @@ export default function Food() {
             item: tool,
             ...tool,
             total: 1,
+            orRecipeAlternatives: orAlternatives,
+            forkJoinLabel,
             children,
           }],
         };
@@ -330,14 +389,16 @@ export default function Food() {
       node.children?.forEach(applyPlantProduction);
 
       if (node.type !== "food" && node.type !== "ingredient") return;
-      if (!("requirements" in node.item) || !node.item.requirements?.length) return;
+      if (!("requirements" in node.item) || node.item.type === "plant") return;
+      const activeVariant = primaryFoodRequirementVariant(node.item as IFood);
+      if (activeVariant.length === 0) return;
 
       const reqNodes = requirementNodes(node);
       const byName = new Map(reqNodes.map((child) => [child.name, child]));
 
       let producedUnits: number | null = null;
 
-      for (const requirement of node.item.requirements) {
+      for (const requirement of activeVariant) {
         const child = byName.get(requirement.item.name);
         if (!child) continue;
 
@@ -359,7 +420,7 @@ export default function Food() {
         node.calory = producedUnits * node.item.calory;
       }
 
-      for (const requirement of node.item.requirements) {
+      for (const requirement of activeVariant) {
         if (requirement.item.type !== "liquid" && requirement.item.type !== "resourse") continue;
         const child = byName.get(requirement.item.name);
         if (child) child.total = producedUnits * requirement.count;
@@ -367,6 +428,10 @@ export default function Food() {
     };
 
     const collectTotals = (node: DependencyTreeNode): void => {
+      if (node.recipeVariantGroup) {
+        node.children?.forEach(collectTotals);
+        return;
+      }
       if (node.type !== "kitchen-tool") {
         if (!uniqueResourses[node.name]) {
           uniqueResourses[node.name] = { ...node.item, total: node.total };
@@ -374,15 +439,19 @@ export default function Food() {
           uniqueResourses[node.name].total += node.total;
         }
       }
+      if (node.orRecipeAlternatives && node.children?.length) {
+        collectTotals(node.children[0]);
+        return;
+      }
       node.children?.forEach(collectTotals);
     };
 
-    const tree = mapToTree({ ...selectedItem, total: totalPerCycle });
+    const tree = mapToTree({ ...resolvedSelectedItem, total: totalPerCycle });
     applyPlantProduction(tree);
     collectTotals(tree);
 
     return { tree, uniqueResourses, uniqueTools };
-  }, [selectedItem, totalPerCycle]);
+  }, [resolvedSelectedItem, totalPerCycle, t]);
 
   const accent = colors.primary.main;
 
@@ -488,13 +557,13 @@ export default function Food() {
 
   const foodItemsFiltered = useMemo(() => {
     const q = foodSearch.trim().toLowerCase();
-    if (!q) return foodItemsForPlanetoid;
-    return foodItemsForPlanetoid.filter((item) => {
+    if (!q) return foodItemsForMode;
+    return foodItemsForMode.filter((item) => {
       const label = entityName(item.name).toLowerCase();
       const keyId = item.name.toLowerCase();
       return label.includes(q) || keyId.includes(q);
     });
-  }, [foodSearch, foodItemsForPlanetoid, entityName]);
+  }, [foodSearch, foodItemsForMode, entityName]);
 
   const narrowFoodLayout = useMediaQuery("(max-width: 1200px)");
   const [foodPickerOpen, setFoodPickerOpen] = useState(false);
@@ -578,11 +647,11 @@ export default function Food() {
         />
         <div style={{ position: 'relative', height: narrowFoodLayout ? '100%' : 'calc(100% - 40px)', width: '100%', minHeight: 0, flex: 1 }}>
           <div
+            className={styles["food-list-scroll"]}
             style={{
               position: "absolute",
               top: narrowFoodLayout ? 8 : 16,
               left: 0,
-              width: "100%",
               height: narrowFoodLayout ? "calc(100% - 8px)" : "calc(100% - 32px)",
               overflow: "auto",
             }}
@@ -687,6 +756,12 @@ export default function Food() {
                           />
                         </div>
                       </div>
+                      {item.spaceOutOnly ? (
+                        <SpaceOutOnlyBadge
+                          size={28}
+                          style={{ position: "absolute", right: 6, bottom: 0 }}
+                        />
+                      ) : null}
                     </Button>
                   </div>
                 );
@@ -697,6 +772,8 @@ export default function Food() {
       </Box>
     </div>
   );
+
+  if (!foodCatalogUnrestricted && !foodGameType) return null;
 
   return (
     <div
@@ -724,7 +801,15 @@ export default function Food() {
           header={
             <>
               <div style={{ flex: 1 }} />
-              <div style={{ display: "flex", justifyContent: "center", alignItems: 'center', marginLeft: 8 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginLeft: 8,
+                  paddingRight: 8,
+                }}
+              >
                 <Info message={t("food_resource_info_tooltip")} />
               </div>
             </>}
@@ -748,7 +833,12 @@ export default function Food() {
           >
             {tree ? (
               <DependencyTree
-                style={{ position: 'absolute', top: 16, left: 0, width: '100%', height: 'calc(100% - 16px)' }}
+                style={{
+                  position: "absolute",
+                  top: 16,
+                  left: 0,
+                  height: "calc(100% - 16px)",
+                }}
                 root={tree}
                 nodeSize={96}
                 item={(node) => (
@@ -825,27 +915,30 @@ export default function Food() {
               flexDirection: "column",
               gap: 10,
               paddingTop: 16,
+              flex: 1,
+              minHeight: 0,
               height: "100%",
               width: "100%",
+              boxSizing: "border-box",
             }}
           >
             {selectedItem ? <div
+              className="catalog-list-scroll"
               style={{
                 flex: 1,
+                minHeight: 0,
+                overflow: "auto",
                 display: "flex",
                 flexDirection: "column",
-                flexWrap: "wrap",
                 gap: 8,
-                width: "100%",
                 minWidth: 0,
                 boxSizing: "border-box",
-                minHeight: 40,
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ fontSize: "0.875rem", fontWeight: 600, color: colors.text.primary }}>{t("food_quality_label")}</div>
-                {typeof selectedItem.quality === "number"
-                  ? qualityChip(selectedItem.quality)
+                {typeof resolvedSelectedItem?.quality === "number"
+                  ? qualityChip(resolvedSelectedItem.quality)
                   : null}
               </div>
               {infoItems(plants, t("food_section_plants"))}
@@ -896,7 +989,17 @@ export default function Food() {
             zIndex={1592}
             width={450}
           >
-            <div style={{ padding: 16, height: '100%', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div
+              style={{
+                padding: 16,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+                ["--page-inline-padding" as string]: "16px",
+                boxSizing: "border-box",
+              }}
+            >
               {foodSidebarBlocks}
             </div>
 

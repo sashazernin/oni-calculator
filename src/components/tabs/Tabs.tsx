@@ -268,7 +268,6 @@ export default function Tabs({
           style={{
             position: "absolute",
             inset: 0,
-            overflow: "auto",
           }}
         >
           {pages.map((page, index) => {

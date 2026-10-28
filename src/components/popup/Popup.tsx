@@ -30,6 +30,8 @@ export interface IPopupProps {
    */
   variant?: "standard" | "fit-content" | "fullscreen" | "drawer-right";
   width?: number;
+  /** `false` — без скролла обёртки; прокрутка внутри `children` (например карточка ресурса). */
+  bodyScroll?: boolean;
 }
 
 /** Выше боковых панелей приложения (drawer ~1592): карта, выбор двигателя и т.п. */
@@ -64,7 +66,8 @@ export function Popup(props: Readonly<IPopupProps>) {
     disableCloseOnClickOutside,
     closeButton,
     variant = "standard",
-    width = 420
+    width = 420,
+    bodyScroll = true,
   } = props;
 
   const isDrawerRight = variant === "drawer-right";
@@ -151,8 +154,8 @@ export function Popup(props: Readonly<IPopupProps>) {
           }
           : {
             width: `min(${width}px, calc(100vw - 2rem))`,
-            height: "max-content",
             maxWidth: "min(100vw - 2rem, 900px)",
+            maxHeight: "calc(100vh - 4rem)",
             boxSizing: "border-box",
           };
 
@@ -278,6 +281,7 @@ export function Popup(props: Readonly<IPopupProps>) {
             display: "flex",
             flexDirection: "column",
             minHeight: 0,
+            overflow: "hidden",
 
             color: colors.text.primary,
             opacity: visible ? 1 : 0,
@@ -305,6 +309,7 @@ export function Popup(props: Readonly<IPopupProps>) {
                 gap: 16,
                 alignItems: "center",
                 boxSizing: "border-box",
+                flexShrink: 0,
               }}
             >
               {title ? (
@@ -342,7 +347,7 @@ export function Popup(props: Readonly<IPopupProps>) {
           ) : null}
           <div
             style={{
-              overflow: "auto",
+              overflow: bodyScroll ? "auto" : "hidden",
               overflowX:
                 isDrawerRight || variant === "fit-content" ? "hidden" : undefined,
               minHeight: 0,
@@ -350,9 +355,11 @@ export function Popup(props: Readonly<IPopupProps>) {
               flexDirection: "column",
               width: variant === "fit-content" ? "100%" : undefined,
               boxSizing: "border-box",
+              ...(!bodyScroll ? { paddingBottom: 16 } : {}),
               flex:
                 variant === "standard" ||
                   variant === "fullscreen" ||
+                  variant === "fit-content" ||
                   isDrawerRight
                   ? 1
                   : "0 1 auto",

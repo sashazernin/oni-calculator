@@ -11,11 +11,14 @@ export const mealLice: IFood = {
   calory: 600,
   image: 'food/Meal_Lice.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.mealwood
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.mealwood
+      }
+
+    ],
+  ],
 }
 
 export const liceloaf: IFood = {
@@ -25,15 +28,18 @@ export const liceloaf: IFood = {
   calory: 1700,
   image: 'food/Liceloaf.webp',
   requirements: [
-    {
-      count: 50,
-      item: liquids.water
-    },
-    {
-      count: 1200,
-      item: mealLice
-    }
-  ],
+    [
+      {
+        count: 50,
+        item: liquids.water
+      },
+      {
+        count: 1200,
+        item: mealLice
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.microbeMusher
 }
 
@@ -44,15 +50,18 @@ export const mushBar: IFood = {
   calory: 800,
   image: 'food/Mush_Bar.webp',
   requirements: [
-    {
-      count: 75,
-      item: liquids.water
-    },
-    {
-      count: 75,
-      item: resourses.dirt
-    }
-  ],
+    [
+      {
+        count: 75,
+        item: liquids.water
+      },
+      {
+        count: 75,
+        item: resourses.dirt
+      }
+
+    ]],
+  cookTimeSec: 40,
   tool: kitchenTools.microbeMusher
 }
 
@@ -63,11 +72,14 @@ export const mushFry: IFood = {
   calory: 1050,
   image: 'food/Mush_Fry.webp',
   requirements: [
-    {
-      count: 800,
-      item: mushBar
-    }
-  ],
+    [
+      {
+        count: 800,
+        item: mushBar
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -79,12 +91,14 @@ export const bogJelly: IFood = {
   spaceOutOnly: true,
   image: 'food/Bog_Jelly.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.bogBucket
-    }
-  ],
-  tool: kitchenTools.electricGrill
+    [
+      {
+        count: 1,
+        item: plants.bogBucket
+      }
+
+    ]
+  ]
 }
 
 export const swampyDelights: IFood = {
@@ -95,11 +109,14 @@ export const swampyDelights: IFood = {
   spaceOutOnly: true,
   image: 'food/Swampy_Delights.webp',
   requirements: [
-    {
-      count: 1840,
-      item: bogJelly
-    }
-  ],
+    [
+      {
+        count: 1840,
+        item: bogJelly
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -118,11 +135,14 @@ export const Barbeque: IFood = {
   calory: 4000,
   image: 'food/BBQ.webp',
   requirements: [
-    {
-      count: 3200,
-      item: meat
-    }
-  ],
+    [
+      {
+        count: 3200,
+        item: meat
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -149,30 +169,42 @@ export const cookedSeafood: IFood = {
   calory: 1600,
   image: 'food/Cooked_Seafood.webp',
   requirements: [
-    {
-      count: 1000,
-      item: pacuFillet
-    }
+    [
+      {
+        count: 1000,
+        item: pacuFillet,
+      },
+    ],
+    [
+      {
+        count: 1000,
+        item: rawShellfish,
+      },
+    ],
   ],
-  tool: kitchenTools.electricGrill
+  cookTimeSec: 50,
+  tool: kitchenTools.electricGrill,
 }
 
 export const SurfnTurf: IFood = {
   name: 'gd_surfn_turf',
   quality: 4,
   type: 'food',
-  calory: 1000,
+  calory: 6000,
   image: 'food/Surfn_Turf.webp',
   requirements: [
-    {
-      count: 4000,
-      item: Barbeque
-    },
-    {
-      count: 1600,
-      item: cookedSeafood
-    }
-  ],
+    [
+      {
+        count: 4000,
+        item: Barbeque
+      },
+      {
+        count: 1600,
+        item: cookedSeafood
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -183,11 +215,13 @@ export const bristleBerry: IFood = {
   calory: 1600,
   image: 'food/Bristle_Berry.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.bristleBlossom
-    }
-  ],
+    [
+      {
+        count: 1,
+        item: plants.bristleBlossom
+      }
+
+    ]],
 }
 
 export const gristleBerry: IFood = {
@@ -197,11 +231,14 @@ export const gristleBerry: IFood = {
   calory: 2000,
   image: 'food/Gristle_Berry.webp',
   requirements: [
-    {
-      count: 1600,
-      item: bristleBerry
-    }
-  ],
+    [
+      {
+        count: 1600,
+        item: bristleBerry
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -209,31 +246,38 @@ export const pinchaPeppernut: IFood = {
   name: 'gd_pincha_peppernut',
   type: 'ingredient',
   calory: 4000,
+  unit: 'mass',
   image: 'food/Pincha_Peppernut.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.pinchaPepperplant
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.pinchaPepperplant
+      }
+
+    ],
+  ],
 }
 
 export const stuffedBerry: IFood = {
   name: 'gd_stuffed_berry',
   quality: 4,
   type: 'food',
-  calory: 1000,
+  calory: 4400,
   image: 'food/Stuffed_Berry.webp',
   requirements: [
-    {
-      count: 4000,
-      item: gristleBerry
-    },
-    {
-      count: 2000,
-      item: pinchaPeppernut
-    }
-  ],
+    [
+      {
+        count: 4000,
+        item: gristleBerry
+      },
+      {
+        count: 2000,
+        item: pinchaPeppernut
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -244,11 +288,14 @@ export const sleetWheatGrain: IFood = {
   union: true,
   image: 'food/Sleet_Wheat_Grain.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.sleetWheat
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.sleetWheat
+      }
+
+    ],
+  ],
 }
 
 export const berrySludge: IFood = {
@@ -258,15 +305,18 @@ export const berrySludge: IFood = {
   calory: 4000,
   image: 'food/Berry_Sludge.webp',
   requirements: [
-    {
-      count: 5,
-      item: sleetWheatGrain
-    },
-    {
-      count: 1600,
-      item: bristleBerry
-    }
-  ],
+    [
+      {
+        count: 5,
+        item: sleetWheatGrain
+      },
+      {
+        count: 1600,
+        item: bristleBerry
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.microbeMusher
 }
 
@@ -275,14 +325,16 @@ export const noshBean: IFood = {
   type: 'ingredient',
   calory: 1,
   union: true,
-  spaceOutOnly: true,
   image: 'food/Nosh_Bean.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.noshSprout
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.noshSprout
+      }
+
+    ],
+  ],
 }
 
 export const curriedBeans: IFood = {
@@ -292,15 +344,18 @@ export const curriedBeans: IFood = {
   calory: 5000,
   image: 'food/Curried_Beans.webp',
   requirements: [
-    {
-      count: 4,
-      item: noshBean
-    },
-    {
-      count: 4,
-      item: resourses.tonicRoot
-    }
-  ],
+    [
+      {
+        count: 4,
+        item: noshBean
+      },
+      {
+        count: 4,
+        item: resourses.tonicRoot
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -311,11 +366,14 @@ export const mushroom: IFood = {
   calory: 2400,
   image: 'food/Mushroom.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.duskCap
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.duskCap
+      }
+
+    ],
+  ],
 }
 
 export const friedMushroom: IFood = {
@@ -325,11 +383,14 @@ export const friedMushroom: IFood = {
   calory: 2800,
   image: 'food/Fried_Mushroom.webp',
   requirements: [
-    {
-      count: 2400,
-      item: mushroom
-    }
-  ],
+    [
+      {
+        count: 2400,
+        item: mushroom
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -340,11 +401,14 @@ export const frostBun: IFood = {
   calory: 1200,
   image: 'food/Frost_Bun.webp',
   requirements: [
-    {
-      count: 3,
-      item: sleetWheatGrain
-    }
-  ],
+    [
+      {
+        count: 3,
+        item: sleetWheatGrain
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -355,11 +419,14 @@ export const lettuce: IFood = {
   calory: 4800,
   image: 'food/Lettuce.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.waterweed
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.waterweed
+      }
+
+    ],
+  ],
 }
 
 export const frostBurger: IFood = {
@@ -369,19 +436,22 @@ export const frostBurger: IFood = {
   calory: 6000,
   image: 'food/Frost_Burger.webp',
   requirements: [
-    {
-      count: 1200,
-      item: frostBun
-    },
-    {
-      count: 4000,
-      item: Barbeque
-    },
-    {
-      count: 400,
-      item: lettuce
-    }
-  ],
+    [
+      {
+        count: 1200,
+        item: frostBun
+      },
+      {
+        count: 4000,
+        item: Barbeque
+      },
+      {
+        count: 400,
+        item: lettuce
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -393,11 +463,14 @@ export const grubfruit: IFood = {
   spaceOutOnly: true,
   image: 'food/Grubfruit.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.grubfruitPlant
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.grubfruitPlant
+      }
+
+    ],
+  ],
 }
 
 export const grubfruitPreserve: IFood = {
@@ -408,15 +481,18 @@ export const grubfruitPreserve: IFood = {
   spaceOutOnly: true,
   image: 'food/Grubfruit_Preserve.webp',
   requirements: [
-    {
-      count: 2000,
-      item: grubfruit
-    },
-    {
-      count: 4,
-      item: resourses.sucrose
-    }
-  ],
+    [
+      {
+        count: 2000,
+        item: grubfruit
+      },
+      {
+        count: 4,
+        item: resourses.sucrose
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -425,36 +501,43 @@ export const hexalentFruit: IFood = {
   quality: -1,
   type: 'food',
   calory: 6400,
+  spaceOutOnly: true,
   image: 'food/Hexalent_Fruit.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.hexalent
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.hexalent
+      }
+
+    ],
+  ],
 }
 
 export const mixedBerryPie: IFood = {
   name: 'gd_mixed_berry_pie',
   quality: 5,
   type: 'food',
-  calory: 1000,
+  calory: 4200,
   spaceOutOnly: true,
   image: 'food/Mixed_Berry_Pie.webp',
   requirements: [
-    {
-      count: 3,
-      item: sleetWheatGrain
-    },
-    {
-      count: 1000,
-      item: grubfruit
-    },
-    {
-      count: 2000,
-      item: bristleBerry
-    }
-  ],
+    [
+      {
+        count: 3,
+        item: sleetWheatGrain
+      },
+      {
+        count: 1000,
+        item: grubfruit
+      },
+      {
+        count: 2000,
+        item: gristleBerry
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -482,11 +565,14 @@ export const omelette: IFood = {
   calory: 2800,
   image: 'food/Omelette.webp',
   requirements: [
-    {
-      count: 1600,
-      item: rawEgg
-    }
-  ]
+    [
+      {
+        count: 1600,
+        item: rawEgg
+      }
+
+    ],
+  ],
 }
 
 export const mushroomQuiche: IFood = {
@@ -496,19 +582,22 @@ export const mushroomQuiche: IFood = {
   calory: 6400,
   image: 'food/Mushroom_Quiche.webp',
   requirements: [
-    {
-      count: 2800,
-      item: omelette
-    },
-    {
-      count: 400,
-      item: lettuce
-    },
-    {
-      count: 2800,
-      item: friedMushroom
-    }
-  ],
+    [
+      {
+        count: 2800,
+        item: omelette
+      },
+      {
+        count: 400,
+        item: lettuce
+      },
+      {
+        count: 2800,
+        item: friedMushroom
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -519,15 +608,18 @@ export const mushroomWrap: IFood = {
   calory: 4800,
   image: 'food/Mushroom_Wrap.webp',
   requirements: [
-    {
-      count: 2800,
-      item: friedMushroom
-    },
-    {
-      count: 1600,
-      item: lettuce
-    }
-  ],
+    [
+      {
+        count: 2800,
+        item: friedMushroom
+      },
+      {
+        count: 1600,
+        item: lettuce
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -546,15 +638,18 @@ export const pepperBread: IFood = {
   calory: 4000,
   image: 'food/Pepper_Bread.webp',
   requirements: [
-    {
-      count: 10,
-      item: sleetWheatGrain
-    },
-    {
-      count: 1000,
-      item: pinchaPeppernut
-    }
-  ],
+    [
+      {
+        count: 10,
+        item: sleetWheatGrain
+      },
+      {
+        count: 1000,
+        item: pinchaPeppernut
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -565,11 +660,14 @@ export const pickledMeal: IFood = {
   calory: 1800,
   image: 'food/Pickled_Meal.webp',
   requirements: [
-    {
-      count: 1800,
-      item: mealLice
-    }
-  ],
+    [
+      {
+        count: 1800,
+        item: mealLice
+      }
+
+    ]],
+  cookTimeSec: 30,
   tool: kitchenTools.electricGrill
 }
 
@@ -578,7 +676,6 @@ export const plantMeat: IFood = {
   quality: 1,
   type: 'food',
   calory: 1200,
-  spaceOutOnly: true,
   image: 'food/Plant_Meat.webp'
 }
 
@@ -590,11 +687,14 @@ export const spindlyGrubfruit: IFood = {
   spaceOutOnly: true,
   image: 'food/Spindly_Grubfruit.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.spindlyGrubfruitPlant
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.spindlyGrubfruitPlant
+      }
+
+    ],
+  ],
 }
 
 export const roastGrubfruitNut: IFood = {
@@ -605,11 +705,14 @@ export const roastGrubfruitNut: IFood = {
   spaceOutOnly: true,
   image: 'food/Roast_Grubfruit_Nut.webp',
   requirements: [
-    {
-      count: 800,
-      item: spindlyGrubfruit
-    }
-  ],
+    [
+      {
+        count: 800,
+        item: spindlyGrubfruit
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -618,17 +721,21 @@ export const soufflePancakes: IFood = {
   quality: 3,
   type: 'food',
   calory: 3600,
+  spaceOutOnly: true,
   image: 'food/Souffle_Pancakes.webp',
   requirements: [
-    {
-      count: 1600,
-      item: rawEgg
-    },
-    {
-      count: 2,
-      item: sleetWheatGrain
-    }
-  ],
+    [
+      {
+        count: 1600,
+        item: rawEgg
+      },
+      {
+        count: 2,
+        item: sleetWheatGrain
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.electricGrill
 }
 
@@ -639,15 +746,18 @@ export const tofu: IFood = {
   calory: 3600,
   image: 'food/Tofu.webp',
   requirements: [
-    {
-      count: 6,
-      item: noshBean
-    },
-    {
-      count: 50,
-      item: liquids.water
-    }
-  ],
+    [
+      {
+        count: 6,
+        item: noshBean
+      },
+      {
+        count: 50,
+        item: liquids.water
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.microbeMusher
 }
 
@@ -658,15 +768,18 @@ export const spicyTofu: IFood = {
   calory: 4000,
   image: 'food/Spicy_Tofu.webp',
   requirements: [
-    {
-      count: 3600,
-      item: tofu
-    },
-    {
-      count: 1000,
-      item: pinchaPeppernut
-    }
-  ],
+    [
+      {
+        count: 3600,
+        item: tofu
+      },
+      {
+        count: 1000,
+        item: pinchaPeppernut
+      }
+
+    ]],
+  cookTimeSec: 50,
   tool: kitchenTools.gasRange
 }
 
@@ -678,11 +791,14 @@ export const swampChardHeart: IFood = {
   spaceOutOnly: true,
   image: 'food/Swamp_Chard_Heart.webp',
   requirements: [
-    {
-      count: 1,
-      item: plants.swampChard
-    }
-  ]
+    [
+      {
+        count: 1,
+        item: plants.swampChard
+      }
+
+    ],
+  ],
 }
 
 export const ingredients = {

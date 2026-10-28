@@ -20,6 +20,7 @@ const bogBucket: IPlant = {
   name: "gd_bog_bucket",
   type: "plant",
   image: "plants/Bog_Bucket.webp",
+  spaceOutOnly: true,
   cycles: 6.6,
   harvest: 279,
   requirements: [
@@ -85,7 +86,7 @@ const noshSprout: IPlant = {
   type: "plant",
   image: "plants/Nosh_Sprout.webp",
   cycles: 21,
-  harvest: 0.57,
+  harvest: 0.5714,
   requirements: [
     {
       count: 20,
@@ -120,13 +121,9 @@ const waterweed: IPlant = {
   harvest: 400,
   requirements: [
     {
-      count: 5,
+      count: 20,
       item: liquids.saltWater,
-    },
-    {
-      count: 0.5,
-      item: resourses.bleachStone,
-    },
+    }
   ],
 };
 
@@ -134,6 +131,7 @@ const grubfruitPlant: IPlant = {
   name: "gd_grubfruit_plant",
   type: "plant",
   image: "plants/Grubfruit_Plant.webp",
+  spaceOutOnly: true,
   cycles: 4,
   harvest: 250,
   requirements: [
@@ -148,6 +146,7 @@ const spindlyGrubfruitPlant: IPlant = {
   name: "gd_spindly_grubfruit_plant",
   type: "plant",
   image: "plants/Grubfruit_Plant.webp",
+  spaceOutOnly: true,
   cycles: 4,
   harvest: 200,
   requirements: [
@@ -162,6 +161,7 @@ const hexalent: IPlant = {
   name: "gd_hexalent",
   type: "plant",
   image: "plants/Hexalent.webp",
+  spaceOutOnly: true,
   cycles: 0,
   harvest: 6400,
 };
@@ -170,6 +170,7 @@ const swampChard: IPlant = {
   name: "gd_swamp_chard",
   type: "plant",
   image: "plants/Swamp_Chard.webp",
+  spaceOutOnly: true,
   cycles: 0,
   harvest: 2400,
 };

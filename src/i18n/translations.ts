@@ -18,6 +18,7 @@ export const translations = {
   nav_colony: { ru: "Колония", en: "Colony" },
   nav_star_map: { ru: "Звёздная карта", en: "Star map" },
   nav_rocket_engines: { ru: "Ракеты", en: "Rockets" },
+  nav_knowledge_base: { ru: "Ресурсы", en: "Resources" },
   star_map_classic_unavailable: {
     ru: "Звёздная карта доступна только для планетойда типа Spaced Out.",
     en: "The star map is only available for Spaced Out planetoids.",
@@ -216,6 +217,7 @@ export const translations = {
     en: "Loading from Google Drive…",
   },
 
+  food_recipe_or: { ru: "или", en: "or" },
   food_tab_food: { ru: "Еда", en: "Food" },
   food_tab_info: { ru: "Инфо", en: "Info" },
   food_resource_info_tooltip: {
@@ -251,6 +253,32 @@ export const translations = {
   aria_edit_count: { ru: "Ввести количество", en: "Enter count" },
   unit_grams: { ru: "г", en: "g" },
   unit_kcal: { ru: "ккал", en: "kcal" },
+  unit_kg: { ru: "кг", en: "kg" },
+  unit_piece: { ru: "шт", en: "pcs" },
+
+  game_item_section_growth: { ru: "Рост", en: "Growth" },
+  game_item_section_required: { ru: "Требуется", en: "Required" },
+  game_item_section_used_in: { ru: "Применения", en: "Applications" },
+  game_item_section_calories: { ru: "Калории", en: "Calories" },
+  game_item_section_amount: { ru: "Количество", en: "Amount" },
+  game_item_section_expansion: { ru: "Дополнение", en: "Expansion" },
+  game_item_plant_grow_cycles: {
+    ru: "Циклов роста: {{cycles}}",
+    en: "Grow cycles: {{cycles}}",
+  },
+  game_item_plant_harvest: {
+    ru: "Урожай за сбор: {{harvest}}",
+    en: "Harvest per pick: {{harvest}}",
+  },
+  game_item_flow_production: { ru: "Производство", en: "Production" },
+  game_item_flow_grow_cycles: {
+    ru: "{{cycles}} цикл.",
+    en: "{{cycles}} cycles",
+  },
+  game_item_flow_cook_time: {
+    ru: "{{seconds}} с",
+    en: "{{seconds}} s",
+  },
 
   settings_tab_app: { ru: "Приложение", en: "App" },
   settings_tab_game: { ru: "Колония", en: "Colony" },
@@ -647,6 +675,18 @@ export const translations = {
   game_node_kitchen_tool: {
     ru: "Кухонный инструмент",
     en: "Kitchen tool",
+  },
+  game_node_kitchen_tool_chip: { ru: "Кухня", en: "Kitchen" },
+  game_node_ingredient_chip: { ru: "Ингр.", en: "Ing." },
+  game_node_plant_chip: { ru: "Раст.", en: "Plant" },
+  game_node_liquid_chip: { ru: "Жидк.", en: "Liq." },
+  game_node_gas: { ru: "Газ", en: "Gas" },
+  game_node_other: { ru: "Прочее", en: "Other" },
+
+  knowledge_base_filter_all: { ru: "Все", en: "All" },
+  knowledge_base_no_results: {
+    ru: "Ничего не найдено",
+    en: "No results",
   },
 
   quality_grisly: { ru: "Ужасное", en: "Grisly" },

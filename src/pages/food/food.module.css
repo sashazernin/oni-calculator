@@ -3,3 +3,12 @@
   direction: ltr;
   unicode-bidi: isolate;
 }
+
+.food-list-scroll {
+  direction: ltr;
+  unicode-bidi: isolate;
+  box-sizing: border-box;
+  margin-right: calc(-1 * var(--page-inline-padding, 16px));
+  padding-right: var(--page-inline-padding, 16px);
+  width: calc(100% + var(--page-inline-padding, 16px));
+}

@@ -69,7 +69,7 @@ export const gameDataTranslations = {
   gd_carbon_dioxide: { ru: "Углекислый газ", en: "Carbon Dioxide" },
   gd_biodiesel: { ru: "Биодизель", en: "Biodiesel" },
 
-  gd_dirt: { ru: "Земля", en: "Dirt" },
+  gd_dirt: { ru: "Грязь", en: "Dirt" },
   gd_phosphorite: { ru: "Аппатит", en: "Phosphorite" },
   gd_tonic_root: { ru: "Успокорень", en: "Tonic Root" },
   gd_slime: { ru: "Слизь", en: "Slime" },
