@@ -48,6 +48,7 @@ export default function AppSettings() {
           flex: 1,
           overflowY: "auto",
           minHeight: 0,
+          paddingTop: 5,
         }}
       >
         <div
