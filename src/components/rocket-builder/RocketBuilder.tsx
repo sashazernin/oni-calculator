@@ -576,6 +576,10 @@ interface RocketBuilderProps {
     slotIndex: number,
     kind: ClassicResearchSightseeingKind,
   ) => void;
+  /** Уменьшенное превью без рельс и взаимодействий (миникарта). */
+  minimap?: boolean;
+  /** Стартовая платформа под двигателем (классика — без неё). */
+  showLaunchPlatform?: boolean;
 }
 
 export default function RocketBuilder(props: RocketBuilderProps) {
@@ -589,6 +593,8 @@ export default function RocketBuilder(props: RocketBuilderProps) {
     onClassicCargoBayKindChange,
     classicResearchSightseeingKinds,
     onClassicResearchSightseeingKindChange,
+    minimap: isMinimap = false,
+    showLaunchPlatform,
   } = props;
   const { colors } = useContext(ThemeContext);
   const { t, entityName } = useTranslation();
@@ -614,8 +620,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
   const rocketTotalRows = engine?.maxHeight ?? 0;
   const platform = rocketPlatform;
   const platformRows = platform.height;
-  /** Классический калькулятор: без стартовой платформы Spaced Out. */
-  const showPlatform = !readOnly;
+  const showPlatform = showLaunchPlatform ?? !readOnly;
   const platformRowCount = showPlatform ? platformRows : 0;
   const engineColOffset = engine
     ? Math.floor((ROCKET_GRID_COLUMNS - engine.width) / 2)
@@ -1032,15 +1037,22 @@ export default function RocketBuilder(props: RocketBuilderProps) {
   };
 
   return (
-    <div>
+    <div
+      style={
+        isMinimap
+          ? { pointerEvents: "none", userSelect: "none" }
+          : undefined
+      }
+    >
       <div
         style={{
           display: "flex",
           flexDirection: "row",
           alignItems: "flex-start",
-          gap: 6,
+          gap: isMinimap ? 0 : 6,
         }}
       >
+        {!isMinimap ? (
         <div
           aria-hidden
           style={{
@@ -1055,6 +1067,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             </div>
           ))}
         </div>
+        ) : null}
         <div
           ref={classicSidePickerZoneRef}
           style={{
@@ -1064,9 +1077,11 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             height: gridContentHeightPx,
           }}
           onMouseMove={(e) => {
+            if (isMinimap) return;
             syncClassicPickableHoverFromPointer(e.clientX, e.clientY);
           }}
           onMouseLeave={(e) => {
+            if (isMinimap) return;
             if (!readOnly || !classicSidePickerEnabled) return;
             const next = e.relatedTarget;
             if (next instanceof Node && e.currentTarget.contains(next)) return;
@@ -1077,9 +1092,13 @@ export default function RocketBuilder(props: RocketBuilderProps) {
           ref={gridWrapRef}
           style={{ position: "relative", width: gridPixelWidth, flexShrink: 0 }}
           onMouseMove={(e) => {
+            if (isMinimap) return;
             syncHighlightFromPointer(e.clientX, e.clientY);
           }}
-          onMouseLeave={() => setHighlightFreeStack(false)}
+          onMouseLeave={() => {
+            if (isMinimap) return;
+            setHighlightFreeStack(false);
+          }}
         >
           <div
             style={{
@@ -1099,8 +1118,8 @@ export default function RocketBuilder(props: RocketBuilderProps) {
               const inModuleZone = row < gridModuleBudget;
               const occupied = occ.has(cellKey(row, col));
 
-              const cellInteract = !readOnly && inModuleZone && !occupied;
-
+              const cellInteract =
+                !isMinimap && !readOnly && inModuleZone && !occupied;
               const inEngineFootprint =
                 row >= gridModuleBudget &&
                 row < gridRocketTotalRows &&
@@ -1244,6 +1263,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             const drawW = wPx + modInset.left + modInset.right;
             const drawH = hPx + modInset.top + modInset.bottom;
             const isHovered =
+              !isMinimap &&
               !inferredTank &&
               hoveredStackModuleUid === p.uid &&
               (!readOnly || isClassicPickableModule);
@@ -1255,14 +1275,16 @@ export default function RocketBuilder(props: RocketBuilderProps) {
               <div
                 key={p.uid}
                 title={
-                  inferredTank
+                  isMinimap || inferredTank
                     ? undefined
                     : t("rocket_builder_module_remove_hint")
                 }
                 onMouseEnter={() => {
-                  if (!inferredTank) setHoveredStackModuleUid(p.uid);
+                  if (isMinimap || inferredTank) return;
+                  setHoveredStackModuleUid(p.uid);
                 }}
                 onMouseLeave={(e) => {
+                  if (isMinimap) return;
                   if (isClassicPickableModule) {
                     const related = e.relatedTarget;
                     if (
@@ -1293,7 +1315,9 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                   height: hPx,
                   zIndex: 2,
                   pointerEvents:
-                    inferredTank || (readOnly && !isClassicPickableModule)
+                    isMinimap ||
+                    inferredTank ||
+                    (readOnly && !isClassicPickableModule)
                       ? "none"
                       : "auto",
                   overflow: "visible",
@@ -1375,7 +1399,9 @@ export default function RocketBuilder(props: RocketBuilderProps) {
                     ) : null}
                   </>
                 ) : null}
-                {isClassicPickableModule && hoveredStackModuleUid === p.uid ? (
+                {!isMinimap &&
+                isClassicPickableModule &&
+                hoveredStackModuleUid === p.uid ? (
                   <div
                     aria-hidden
                     data-classic-module-picker-bridge
@@ -1393,7 +1419,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             );
           })}
         </div>
-        {classicSidePickerEnabled ? (
+        {classicSidePickerEnabled && !isMinimap ? (
           <div
             data-classic-module-picker
             style={{
@@ -1523,6 +1549,7 @@ export default function RocketBuilder(props: RocketBuilderProps) {
           </div>
         ) : null}
         </div>
+        {!isMinimap ? (
         <div
           aria-hidden
           style={{
@@ -1544,9 +1571,10 @@ export default function RocketBuilder(props: RocketBuilderProps) {
             </div>
           ))}
         </div>
+        ) : null}
       </div>
 
-      {!readOnly ? (
+      {!readOnly && !isMinimap ? (
       <Popup
         open={addModuleOpen}
         title={t("rocket_builder_add_module_popup_title")}

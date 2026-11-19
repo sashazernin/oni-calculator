@@ -1,0 +1,102 @@
+.root {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.mainScroll {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  display: block;
+  box-sizing: border-box;
+}
+
+.mainScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mainScrollInner {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-height: min-content;
+  box-sizing: border-box;
+}
+
+.minimapRail {
+  flex: 0 0 auto;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0 0 0 8px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.minimapTrack {
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  cursor: pointer;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--text-primary, #e8e8e8) 6%, transparent);
+  touch-action: none;
+}
+
+.minimapBand {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.minimapRocket {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.minimapRocket * {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+.viewport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--text-primary, #e8e8e8) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text-primary, #e8e8e8) 22%, transparent);
+  box-sizing: border-box;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.viewport:active {
+  cursor: grabbing;
+}

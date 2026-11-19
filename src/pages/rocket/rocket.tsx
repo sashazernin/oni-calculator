@@ -33,7 +33,7 @@ import {
   type StoredRocketSnapshot,
 } from "../../helpers/readStoredRockets";
 import { ThemeContext } from "../../providers/app-theme-provider";
-import RocketBuilder, {
+import {
   buildInferredTankPlacements,
   computeRocketFuelPlan,
   isRocketEngineFeasibleForSteps,
@@ -45,6 +45,7 @@ import RocketBuilder, {
   type RocketFuelPlan,
   type RocketOxidizerVariant,
 } from "../../components/rocket-builder/RocketBuilder";
+import RocketBuilderScrollPane from "../../components/rocket-builder/RocketBuilderScrollPane";
 import { rocketEngines, type RocketEngineId } from "../../game-data/rocket";
 import { IconButton } from "../../components/icon-button/IconButton";
 import Confirmation from "../../components/confirmation/confirmation";
@@ -516,18 +517,13 @@ function RocketTabPanel(props: RocketTabPanelProps) {
             position: "relative",
           }}
         >
-          <div
-            className={styles['rocket-builder-container']}
-          >
-            <div style={{ position: "absolute" }}>
-              <RocketBuilder
-                engineId={engineId}
-                placements={stackModules}
-                onPlacementsChange={setStackModules}
-                inferredTankPlacements={inferredTankPlacements}
-              />
-            </div>
-          </div>
+          <RocketBuilderScrollPane
+            className={styles["rocket-builder-container"]}
+            engineId={engineId}
+            placements={stackModules}
+            onPlacementsChange={setStackModules}
+            inferredTankPlacements={inferredTankPlacements}
+          />
           <div style={{ position: "absolute", top: -4, left: -2 }}>
             <Info message={t("rocket_modules_speed_hint")} />
           </div>

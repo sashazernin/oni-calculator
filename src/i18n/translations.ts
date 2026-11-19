@@ -523,6 +523,10 @@ export const translations = {
     ru: "Открыть панель ракеты",
     en: "Open rocket panel",
   },
+  aria_rocket_minimap: {
+    ru: "Миникарта ракеты — прокрутка сборки",
+    en: "Rocket minimap — scroll the builder",
+  },
   rocket_sidebar_title: {
     ru: "Настройка ракеты",
     en: "Rocket settings",

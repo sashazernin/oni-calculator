@@ -61,7 +61,7 @@ import {
 } from "../../game-data/rocket";
 import { liquids } from "../../game-data/liquids";
 import { resourses } from "../../game-data/resourses";
-import RocketBuilder from "../../components/rocket-builder/RocketBuilder";
+import RocketBuilderScrollPane from "../../components/rocket-builder/RocketBuilderScrollPane";
 import { buildClassicRocketPlacements } from "../../helpers/classicRocketPlacements";
 import { IconButton } from "../../components/icon-button/IconButton";
 import Confirmation from "../../components/confirmation/confirmation";
@@ -765,22 +765,20 @@ function ClassicRocketTabPanel({
 
   const mainContent =
     mainView === "rocket" ? (
-      <div
-        className={`${rocketLayout["rocket-builder-container"]} ${styles.classicRocketBuilder}`}
-      >
-        <RocketBuilder
-          engineId={rocketVisual.engineId}
-          placements={rocketVisual.placements}
-          onPlacementsChange={() => { }}
-          readOnly
-          classicCargoBayKinds={modules.cargoBayKinds}
-          onClassicCargoBayKindChange={onClassicCargoBayKindChange}
-          classicResearchSightseeingKinds={modules.researchSightseeingKinds}
-          onClassicResearchSightseeingKindChange={
-            onClassicResearchSightseeingKindChange
-          }
-        />
-      </div>
+      <RocketBuilderScrollPane
+        style={{ width: "100%", height: "100%", minHeight: 0 }}
+        contentClassName={`${rocketLayout["rocket-builder-container"]} ${styles.classicRocketBuilder}`}
+        engineId={rocketVisual.engineId}
+        placements={rocketVisual.placements}
+        onPlacementsChange={() => { }}
+        readOnly
+        classicCargoBayKinds={modules.cargoBayKinds}
+        onClassicCargoBayKindChange={onClassicCargoBayKindChange}
+        classicResearchSightseeingKinds={modules.researchSightseeingKinds}
+        onClassicResearchSightseeingKindChange={
+          onClassicResearchSightseeingKindChange
+        }
+      />
     ) : (
       <div className={styles.chartPanel}>
         <div className={styles.statsBlock}>
