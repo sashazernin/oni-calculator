@@ -104,6 +104,8 @@ export type ClassicFlightSnapshot = {
   modules: ClassicRocketModules;
   /** Целевое состояние / дистанция полёта (км). */
   targetDistanceKm: ClassicTargetDistanceKm;
+  /** Не подстраивать число топливных баков под цель автоматически. */
+  lockFuelTanks: boolean;
 };
 
 export function defaultClassicFlightSnapshot(): ClassicFlightSnapshot {
@@ -112,8 +114,13 @@ export function defaultClassicFlightSnapshot(): ClassicFlightSnapshot {
     oxidizer: "oxylite",
     modules: { ...DEFAULT_CLASSIC_MODULES },
     targetDistanceKm: CLASSIC_TARGET_DISTANCE_MIN_KM,
+    lockFuelTanks: false,
   };
 }
+
+export type ClassicTankSyncOptions = {
+  lockFuelTanks?: boolean;
+};
 
 /** Целые секунды для таймера заправки (одна линия: топливо и окислитель заправляются параллельно, массы равны). */
 export function classicRefuelTimerSeconds(massKg: number): number {
@@ -548,7 +555,9 @@ export function classicModulesWithSyncedTanksForTarget(
   oxidizer: ClassicOxidizerId,
   modules: ClassicRocketModules,
   targetDistanceKm: number,
+  options?: ClassicTankSyncOptions,
 ): ClassicRocketModules {
+  const lockFuelTanks = Boolean(options?.lockFuelTanks);
   if (
     classicTargetUnreachableInPrinciple(
       engineId,
@@ -583,7 +592,9 @@ export function classicModulesWithSyncedTanksForTarget(
     let nextFuel = fuelTanks;
     let nextOx = oxidizerTanks;
 
-    if (!usesExternalFuel) {
+    if (lockFuelTanks) {
+      nextFuel = usesExternalFuel ? modules.fuelTanks : 0;
+    } else if (!usesExternalFuel) {
       nextFuel = 0;
     } else if (required === null) {
       if (usesExternalFuel && fuelTanks < CLASSIC_MAX_LIQUID_FUEL_TANKS) {

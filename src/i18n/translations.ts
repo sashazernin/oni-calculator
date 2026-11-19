@@ -409,6 +409,14 @@ export const translations = {
     en: "Solid fuel thrusters",
   },
   classic_rocket_mod_fuel_tank: { ru: "Топливный бак", en: "Fuel tank" },
+  classic_rocket_lock_fuel_tanks: {
+    ru: "Зафиксировать топливные баки",
+    en: "Lock fuel tanks",
+  },
+  classic_rocket_lock_fuel_tanks_tooltip: {
+    ru: "При включении, количество топливных баков не будет подстраиваться автоматически",
+    en: "When enabled, the fuel tank count will not be adjusted automatically.",
+  },
   classic_rocket_mod_oxidizer_tank: { ru: "Бак окислителя", en: "Oxidizer tank" },
   classic_rocket_mod_command: { ru: "Командный отсек", en: "Command capsule" },
   classic_rocket_oxylite: { ru: "Оксилит", en: "Oxylite" },

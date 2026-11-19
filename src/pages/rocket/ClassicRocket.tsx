@@ -49,6 +49,7 @@ import {
 } from "../../helpers/classicResearchSightseeingKinds";
 import { Select } from "../../components/select/Select";
 import { Tooltip } from "../../components/tooltip/Tooltip";
+import { Checkbox } from "../../components/checkbox/Checkbox";
 import {
   createStoredRocket,
   ensureClassicFlight,
@@ -571,7 +572,8 @@ function ClassicRocketTabPanel({
   }, [narrow]);
 
   const flight = ensureClassicFlight(rocket);
-  const { engineId, oxidizer, modules, targetDistanceKm } = flight;
+  const { engineId, oxidizer, modules, targetDistanceKm, lockFuelTanks } = flight;
+  const usesExternalFuelTanks = classicEngineUsesExternalFuelTanks(engineId);
   const engine = classicRocketEngines[engineId];
 
   const patchModules = useCallback(
@@ -591,12 +593,13 @@ function ClassicRocketTabPanel({
             oxidizer,
             next,
             targetDistanceKm,
+            { lockFuelTanks },
           );
       patchClassic(rocketIndex, {
         modules: classicModulesWithNormalizedCargoKinds(modulesOut),
       });
     },
-    [engineId, modules, oxidizer, patchClassic, rocketIndex, targetDistanceKm],
+    [engineId, lockFuelTanks, modules, oxidizer, patchClassic, rocketIndex, targetDistanceKm],
   );
 
   const onClassicCargoBayKindChange = useCallback(
@@ -1007,7 +1010,25 @@ function ClassicRocketTabPanel({
         />
       </div>
 
-      <div className={styles.sidebarSectionTitle}>{t("classic_rocket_section_base_modules")}</div>
+      <div className={styles.sidebarBaseModulesHeader}>
+        <div className={styles.sidebarSectionTitle}>
+          {t("classic_rocket_section_base_modules")}
+        </div>
+        {usesExternalFuelTanks ? (
+          <Tooltip placement="left" title={t("classic_rocket_lock_fuel_tanks_tooltip")}>
+            <div className={styles.lockFuelTanksRow}>
+              <Checkbox
+                dense
+                label={t("classic_rocket_lock_fuel_tanks")}
+                checked={lockFuelTanks}
+                onChange={(e) =>
+                  patchClassic(rocketIndex, { lockFuelTanks: e.target.checked })
+                }
+              />
+            </div>
+          </Tooltip>
+        ) : null}
+      </div>
       <div className={styles.moduleCardGrid}>
         <SidebarModuleCounter
           label={t("classic_rocket_mod_fuel_tank")}
@@ -1134,6 +1155,7 @@ export default function ClassicRocket() {
           patch.engineId !== undefined ||
           patch.oxidizer !== undefined ||
           patch.targetDistanceKm !== undefined ||
+          (patch.lockFuelTanks === false && prevFlight.lockFuelTanks) ||
           (patch.modules !== undefined &&
             classicModulePatchAffectsTankSync(prevFlight.modules, patch.modules));
         const syncedModules = shouldSyncTanks
@@ -1142,6 +1164,7 @@ export default function ClassicRocket() {
               merged.oxidizer,
               merged.modules,
               merged.targetDistanceKm,
+              { lockFuelTanks: merged.lockFuelTanks },
             )
           : merged.modules;
         const classicFlight = {

@@ -94,7 +94,9 @@ function parseClassicFlight(raw: unknown): ClassicFlightSnapshot {
   const oxidizer = parseClassicOxidizer(rec.oxidizer);
   const modules = parseClassicModules(rec.modules) ?? base.modules;
   const targetDistanceKm = parseClassicTargetDistanceKm(rec.targetDistanceKm);
-  return { engineId, oxidizer, modules, targetDistanceKm };
+  const lockFuelTanks =
+    typeof rec.lockFuelTanks === "boolean" ? rec.lockFuelTanks : base.lockFuelTanks;
+  return { engineId, oxidizer, modules, targetDistanceKm, lockFuelTanks };
 }
 
 export function ensureClassicFlight(snapshot: StoredRocketSnapshot): ClassicFlightSnapshot {
@@ -107,6 +109,7 @@ export function ensureClassicFlight(snapshot: StoredRocketSnapshot): ClassicFlig
       commandCapsules: 1,
     }),
     targetDistanceKm: parseClassicTargetDistanceKm(flight.targetDistanceKm),
+    lockFuelTanks: Boolean(flight.lockFuelTanks),
   };
 }
 

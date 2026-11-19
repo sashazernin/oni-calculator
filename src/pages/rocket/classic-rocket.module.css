@@ -314,6 +314,29 @@
   line-height: 1.2;
 }
 
+.sidebarBaseModulesHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin: 4px 0 0;
+  min-width: 0;
+}
+
+.sidebarBaseModulesHeader .sidebarSectionTitle {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.lockFuelTanksRow {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 .moduleCardGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
