@@ -26,6 +26,7 @@ import {
   classicModulePatchAffectsTankSync,
   classicModulesWithNormalizedCargoKinds,
   classicModulesWithSyncedTanksForTarget,
+  classicRefuelTimerSeconds,
   classicRequiredMassForTargetKm,
   classicRocketEngines,
   computeClassicFlightStats,
@@ -45,6 +46,7 @@ import {
   type ClassicResearchSightseeingKind,
 } from "../../helpers/classicResearchSightseeingKinds";
 import { Select } from "../../components/select/Select";
+import { Tooltip } from "../../components/tooltip/Tooltip";
 import {
   createStoredRocket,
   ensureClassicFlight,
@@ -66,7 +68,7 @@ import { buildClassicRocketPlacements } from "../../helpers/classicRocketPlaceme
 import { IconButton } from "../../components/icon-button/IconButton";
 import Confirmation from "../../components/confirmation/confirmation";
 import { Popup } from "../../components/popup/Popup";
-import { FiPlusCircle } from "react-icons/fi";
+import { FiClock, FiPlusCircle } from "react-icons/fi";
 import { AiOutlineMinusCircle } from "react-icons/ai";
 import { FaTrashAlt } from "react-icons/fa";
 import { IoChevronBackOutline } from "react-icons/io5";
@@ -654,6 +656,11 @@ function ClassicRocketTabPanel({
     [engineId, modules, requiredMassForTarget]
   );
 
+  const refuelTimerSeconds = useMemo(() => {
+    if (requiredMassForTarget === null || requiredExceedsTankCapacity) return null;
+    return classicRefuelTimerSeconds(requiredMassForTarget.fuelKg);
+  }, [requiredExceedsTankCapacity, requiredMassForTarget]);
+
   const rocketEngineData = useMemo(() => classicRocketEngineData(engineId), [engineId]);
   const oxidizerResourceImage =
     oxidizer === "liquidOxygen" ? liquids.liquidOxygen.image : resourses.oxylite.image;
@@ -744,21 +751,49 @@ function ClassicRocketTabPanel({
                   </span>
                 </div>
               ) : null}
+              {refuelTimerSeconds !== null ? (
+                <Tooltip
+                  placement="bottom"
+                  title={t("classic_rocket_refuel_timer_tooltip", {
+                    seconds: refuelTimerSeconds,
+                  })}
+                >
+                  <div
+                    className={styles.refuelTimerControl}
+                    style={{
+                      borderColor: colors.border.main,
+                      background: colors.background.average,
+                      color: colors.text.primary,
+                    }}
+                  >
+                    <FiClock
+                      className={styles.refuelTimerIcon}
+                      aria-hidden
+                      style={{ color: colors.text.primary }}
+                    />
+                    <span className={styles.refuelTimerValue}>
+                      {refuelTimerSeconds}
+                    </span>
+                  </div>
+                </Tooltip>
+              ) : null}
             </>
           )}
         </div>
-        <Select<ClassicTargetDistanceKm>
-          label={t("classic_rocket_target_distance")}
-          fullWidth
-          hideLabelMargin
-          disableSearch
-          items={CLASSIC_TARGET_DISTANCES_KM}
-          value={targetDistanceKm}
-          getId={(km) => km}
-          getLabel={formatTargetKm}
-          fieldBackground={colors.background.paper}
-          onChange={(km) => patchClassic(rocketIndex, { targetDistanceKm: km })}
-        />
+        <div className={styles.targetDistanceSelect}>
+          <Select<ClassicTargetDistanceKm>
+            label={t("classic_rocket_target_distance")}
+            fullWidth
+            hideLabelMargin
+            disableSearch
+            items={CLASSIC_TARGET_DISTANCES_KM}
+            value={targetDistanceKm}
+            getId={(km) => km}
+            getLabel={formatTargetKm}
+            fieldBackground={colors.background.paper}
+            onChange={(km) => patchClassic(rocketIndex, { targetDistanceKm: km })}
+          />
+        </div>
       </div>
     </div>
   );

@@ -93,6 +93,11 @@ export function parseClassicTargetDistanceKm(raw: unknown): ClassicTargetDistanc
   return clamped as ClassicTargetDistanceKm;
 }
 
+/** Скорость заправки ракеты в классике (кг/с) для оценки таймера. */
+export const CLASSIC_REFUEL_KG_PER_SECOND = 10;
+/** Запас времени заправки для таймера (+10 %). */
+export const CLASSIC_REFUEL_TIMER_MARGIN = 1.1;
+
 export type ClassicFlightSnapshot = {
   engineId: ClassicEngineId;
   oxidizer: ClassicOxidizerId;
@@ -108,6 +113,15 @@ export function defaultClassicFlightSnapshot(): ClassicFlightSnapshot {
     modules: { ...DEFAULT_CLASSIC_MODULES },
     targetDistanceKm: CLASSIC_TARGET_DISTANCE_MIN_KM,
   };
+}
+
+/** Целые секунды для таймера заправки (одна линия: топливо и окислитель заправляются параллельно, массы равны). */
+export function classicRefuelTimerSeconds(massKg: number): number {
+  const kg = Math.max(0, massKg);
+  if (kg <= 0) return 0;
+  return Math.ceil(
+    (kg / CLASSIC_REFUEL_KG_PER_SECOND) * CLASSIC_REFUEL_TIMER_MARGIN,
+  );
 }
 
 /** @deprecated Используйте `ROCKET_EXTERNAL_TANK_KG` из `game-data/rocket`. */

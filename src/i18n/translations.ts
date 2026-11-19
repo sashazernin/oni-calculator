@@ -443,6 +443,10 @@ export const translations = {
     ru: "Невозможно",
     en: "Impossible",
   },
+  classic_rocket_refuel_timer_tooltip: {
+    ru: "Примерное время для таймера: {{seconds}} с (10 кг/с, запас +10%)",
+    en: "Approximate timer: {{seconds}} s (10 kg/s, +10% margin)",
+  },
   rocket_need_planetoid_before: {
     ru: "Чтобы пользоваться калькулятором ракеты, сначала создайте планетойд в разделе ",
     en: "To use the rocket calculator, create a planetoid first in ",

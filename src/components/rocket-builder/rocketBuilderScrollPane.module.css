@@ -25,6 +25,18 @@
   display: none;
 }
 
+.mainScrollNative {
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+  scrollbar-gutter: stable;
+}
+
+.mainScrollNative::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+  height: 8px;
+}
+
 .mainScrollInner {
   display: flex;
   justify-content: center;

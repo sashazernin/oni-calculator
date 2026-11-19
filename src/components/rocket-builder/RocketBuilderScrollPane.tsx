@@ -12,8 +12,10 @@ import RocketBuilder, {
 } from "./RocketBuilder";
 import styles from "./rocketBuilderScrollPane.module.css";
 import { useTranslation } from "../../hooks/useTranslation";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 
 export const ROCKET_MINIMAP_MAX_WIDTH_PX = 120;
+export const ROCKET_MINIMAP_DISABLE_MQ = "(max-width: 499px)";
 
 export type RocketBuilderScrollPaneProps = ComponentProps<typeof RocketBuilder> & {
   className?: string;
@@ -36,6 +38,7 @@ export default function RocketBuilderScrollPane({
   ...builderProps
 }: RocketBuilderScrollPaneProps) {
   const { t } = useTranslation();
+  const useNativeScroll = useMediaQuery(ROCKET_MINIMAP_DISABLE_MQ);
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -107,7 +110,7 @@ export default function RocketBuilderScrollPane({
   useEffect(() => {
     const rail = railRef.current;
     const sc = scrollRef.current;
-    if (!rail || !sc || engineId == null) return;
+    if (!rail || !sc || engineId == null || useNativeScroll) return;
 
     const onWheel = (e: WheelEvent) => {
       const range = sc.scrollHeight - sc.clientHeight;
@@ -118,7 +121,7 @@ export default function RocketBuilderScrollPane({
 
     rail.addEventListener("wheel", onWheel, { passive: false });
     return () => rail.removeEventListener("wheel", onWheel);
-  }, [engineId, placements, inferredTankPlacements]);
+  }, [engineId, placements, inferredTankPlacements, useNativeScroll]);
 
   const trackH = Math.max(metrics.clientHeight, 1);
   const contentH = Math.max(metrics.contentHeight, 1);
@@ -210,14 +213,19 @@ export default function RocketBuilderScrollPane({
     }
   };
 
-  const showMinimap = engineId != null;
+  const showMinimap = engineId != null && !useNativeScroll;
 
   return (
     <div
       className={[styles.root, className].filter(Boolean).join(" ")}
       style={style}
     >
-      <div ref={scrollRef} className={styles.mainScroll}>
+      <div
+        ref={scrollRef}
+        className={[styles.mainScroll, useNativeScroll ? styles.mainScrollNative : ""]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <div className={styles.mainScrollInner}>
           <div ref={contentRef} className={contentClassName}>
             <RocketBuilder {...builderProps} />

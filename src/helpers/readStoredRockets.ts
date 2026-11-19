@@ -100,6 +100,7 @@ function parseClassicFlight(raw: unknown): ClassicFlightSnapshot {
 export function ensureClassicFlight(snapshot: StoredRocketSnapshot): ClassicFlightSnapshot {
   const flight = snapshot.classicFlight ?? defaultClassicFlightSnapshot();
   return {
+    ...defaultClassicFlightSnapshot(),
     ...flight,
     modules: classicModulesWithNormalizedCargoKinds({
       ...flight.modules,
