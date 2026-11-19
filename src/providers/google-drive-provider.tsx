@@ -92,7 +92,7 @@ export type GoogleDriveContextValue = {
   setDriveStatus: (status: GoogleDriveSyncStatus, message: DriveStatusMessage) => void;
   /**
    * Возвращает сохранённый access token без GIS.
-   * С `force: true` — тихий запрос нового токена (после 401/403 от Drive API).
+   * С `force: true` — сначала тихое продление; при ошибке — окно входа Google (consent).
    */
   ensureAccessToken: (options?: { force?: boolean }) => Promise<string | null>;
   connect: () => void;
@@ -327,7 +327,10 @@ export default function GoogleDriveProvider({ children }: { children: React.Reac
       if (!options?.force) return token;
       if (!gisReady) return token;
 
-      return requestAccessToken("silent");
+      const silentToken = await requestAccessToken("silent");
+      if (silentToken) return silentToken;
+
+      return requestAccessToken("interactive");
     },
     [gisReady, accessToken, requestAccessToken]
   );
