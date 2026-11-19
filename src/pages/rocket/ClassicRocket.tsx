@@ -26,6 +26,8 @@ import {
   classicModulePatchAffectsTankSync,
   classicModulesWithNormalizedCargoKinds,
   classicModulesWithSyncedTanksForTarget,
+  classicEngineUsesExternalFuelTanks,
+  classicFuelFillKgPerTank,
   classicRefuelTimerSeconds,
   classicRequiredMassForTargetKm,
   classicRocketEngines,
@@ -669,6 +671,15 @@ function ClassicRocketTabPanel({
     return classicRefuelTimerSeconds(requiredMassForTarget.fuelKg);
   }, [requiredExceedsTankCapacity, requiredMassForTarget]);
 
+  const fuelTankFillKg = useMemo(() => {
+    if (requiredMassForTarget === null || requiredExceedsTankCapacity) return null;
+    return classicFuelFillKgPerTank(
+      engineId,
+      modules.fuelTanks,
+      requiredMassForTarget.fuelKg,
+    );
+  }, [engineId, modules.fuelTanks, requiredExceedsTankCapacity, requiredMassForTarget]);
+
   const rocketEngineData = useMemo(() => classicRocketEngineData(engineId), [engineId]);
   const oxidizerResourceImage =
     oxidizer === "liquidOxygen" ? liquids.liquidOxygen.image : resourses.oxylite.image;
@@ -717,24 +728,48 @@ function ClassicRocketTabPanel({
             </span>
           ) : (
             <>
-              <div
-                className={styles.targetRequiredMassChip}
-                style={{
-                  borderColor: colors.border.main,
-                  background: colors.background.average,
-                  color: colors.text.primary,
-                }}
-                title={entityName(rocketEngineData.fuel.name)}
+              <Tooltip
+                placement="bottom"
+                title={
+                  <div className={styles.fuelFillTooltip}>
+                    <div className={styles.fuelFillTooltipTitle}>
+                      {entityName(rocketEngineData.fuel.name)}
+                    </div>
+                    <div className={styles.fuelFillTooltipTanks}>
+                      {fuelTankFillKg?.map((kg, index) => (
+                        <div key={index}>
+                          {classicEngineUsesExternalFuelTanks(engineId)
+                            ? t("classic_rocket_fuel_tank_fill_line", {
+                                n: index + 1,
+                                kg: fmt(kg),
+                              })
+                            : t("classic_rocket_fuel_builtin_fill_line", {
+                                kg: fmt(kg),
+                              })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                }
               >
-                <img
-                  src={getAssetImageUrl(rocketEngineData.fuel.image)}
-                  alt=""
-                  className={styles.targetRequiredMassImg}
-                />
-                <span className={styles.targetRequiredMassValue}>
-                  {fmt(requiredMassForTarget.fuelKg)}
-                </span>
-              </div>
+                <div
+                  className={styles.targetRequiredMassChip}
+                  style={{
+                    borderColor: colors.border.main,
+                    background: colors.background.average,
+                    color: colors.text.primary,
+                  }}
+                >
+                  <img
+                    src={getAssetImageUrl(rocketEngineData.fuel.image)}
+                    alt=""
+                    className={styles.targetRequiredMassImg}
+                  />
+                  <span className={styles.targetRequiredMassValue}>
+                    {fmt(requiredMassForTarget.fuelKg)}
+                  </span>
+                </div>
+              </Tooltip>
               {engine.needsOxidizer ? (
                 <div
                   className={styles.targetRequiredMassChip}

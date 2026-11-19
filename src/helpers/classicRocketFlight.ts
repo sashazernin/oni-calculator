@@ -404,6 +404,37 @@ export function classicMaxStorableFuelKg(
   return classicFuelMassKg(engineId, modules.fuelTanks);
 }
 
+/** Распределение целевой массы топлива по бакам (снизу вверх), кг в каждом. */
+export function classicFuelFillKgPerTank(
+  engineId: ClassicEngineId,
+  fuelTankCount: number,
+  totalFuelKg: number,
+): number[] {
+  const total = Math.max(0, totalFuelKg);
+  if (total <= 0) return [];
+
+  if (!classicEngineUsesExternalFuelTanks(engineId)) {
+    return [Math.min(total, classicSteamMaxFuelKg())];
+  }
+
+  const tanks = Math.max(0, fuelTankCount);
+  if (tanks === 0) return [];
+
+  const perTank = classicFuelCapacityPerTankKg();
+  const fills: number[] = [];
+  let remaining = total;
+  for (let i = 0; i < tanks; i++) {
+    const amount = Math.min(remaining, perTank);
+    fills.push(amount);
+    remaining -= amount;
+    if (remaining <= 0) {
+      for (let j = i + 1; j < tanks; j++) fills.push(0);
+      break;
+    }
+  }
+  return fills;
+}
+
 export function classicRequiredExceedsFuelTankCapacity(
   engineId: ClassicEngineId,
   modules: ClassicRocketModules,

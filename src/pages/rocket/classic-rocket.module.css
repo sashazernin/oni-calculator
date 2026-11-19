@@ -162,6 +162,25 @@
   min-width: 2ch;
 }
 
+.fuelFillTooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.fuelFillTooltipTitle {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.fuelFillTooltipTanks {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+}
+
 .targetRequiredMassImg {
   width: 28px;
   height: 28px;

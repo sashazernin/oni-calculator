@@ -447,6 +447,14 @@ export const translations = {
     ru: "Примерное время для таймера: {{seconds}} с (10 кг/с, запас +10%)",
     en: "Approximate timer: {{seconds}} s (10 kg/s, +10% margin)",
   },
+  classic_rocket_fuel_tank_fill_line: {
+    ru: "Бак {{n}}: {{kg}} кг",
+    en: "Tank {{n}}: {{kg}} kg",
+  },
+  classic_rocket_fuel_builtin_fill_line: {
+    ru: "Встроенный бак: {{kg}} кг",
+    en: "Built-in tank: {{kg}} kg",
+  },
   rocket_need_planetoid_before: {
     ru: "Чтобы пользоваться калькулятором ракеты, сначала создайте планетойд в разделе ",
     en: "To use the rocket calculator, create a planetoid first in ",
