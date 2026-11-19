@@ -65,6 +65,11 @@ import { liquids } from "../../game-data/liquids";
 import { resourses } from "../../game-data/resourses";
 import RocketBuilderScrollPane from "../../components/rocket-builder/RocketBuilderScrollPane";
 import { buildClassicRocketPlacements } from "../../helpers/classicRocketPlacements";
+import {
+  persistClassicRocketMainView,
+  readClassicRocketMainView,
+  type ClassicRocketMainView,
+} from "../../helpers/classicRocketMainViewStorage";
 import { IconButton } from "../../components/icon-button/IconButton";
 import Confirmation from "../../components/confirmation/confirmation";
 import { Popup } from "../../components/popup/Popup";
@@ -540,6 +545,8 @@ function ClassicDistanceChart(props: {
 type ClassicRocketTabPanelProps = {
   rocket: StoredRocketSnapshot;
   rocketIndex: number;
+  mainView: ClassicRocketMainView;
+  setMainView: (view: ClassicRocketMainView) => void;
   patchClassic: (index: number, patch: Partial<ClassicFlightSnapshot>) => void;
   patchTitle: (index: number, title: string) => void;
 };
@@ -547,6 +554,8 @@ type ClassicRocketTabPanelProps = {
 function ClassicRocketTabPanel({
   rocket,
   rocketIndex,
+  mainView,
+  setMainView,
   patchClassic,
   patchTitle,
 }: ClassicRocketTabPanelProps) {
@@ -554,7 +563,6 @@ function ClassicRocketTabPanel({
   const { t, entityName } = useTranslation();
   const narrow = useMediaQuery("(max-width: 1200px)");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [mainView, setMainView] = useState<"rocket" | "chart">("rocket");
 
   useEffect(() => {
     if (!narrow) setSidebarOpen(false);
@@ -1072,6 +1080,14 @@ export default function ClassicRocket() {
 
   const { rockets, activeIndex } = page;
 
+  const [mainView, setMainViewState] = useState<ClassicRocketMainView>(
+    readClassicRocketMainView,
+  );
+  const setMainView = useCallback((view: ClassicRocketMainView) => {
+    setMainViewState(view);
+    persistClassicRocketMainView(view);
+  }, []);
+
   const patchClassic = useCallback((index: number, patch: Partial<ClassicFlightSnapshot>) => {
     setPage((s) => ({
       ...s,
@@ -1175,6 +1191,8 @@ export default function ClassicRocket() {
             key={rocket.id}
             rocket={rocket}
             rocketIndex={rocketIndex}
+            mainView={mainView}
+            setMainView={setMainView}
             patchClassic={patchClassic}
             patchTitle={patchTitle}
           />

@@ -98,6 +98,22 @@
   }
 }
 
+@media (max-width: 399px) {
+  .mainPaneHeaderTarget {
+    width: 100%;
+    max-width: 100%;
+    justify-content: flex-end;
+  }
+
+  .mainPaneHeaderTarget > .targetRequiredMassRow {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
+
 .targetRequiredMassRow {
   display: flex;
   flex-wrap: wrap;
